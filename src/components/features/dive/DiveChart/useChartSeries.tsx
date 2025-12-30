@@ -13,6 +13,9 @@ interface UseChartSeriesProps {
 /**
  * 生成图表数据系列的 Hook
  * 返回可直接在 ComposedChart 中渲染的元素数组
+ * 
+ * 优化：所有系列始终渲染，通过 opacity 控制可见性
+ * 这样切换可见性时不需要重新创建 DOM 元素
  */
 export function useChartSeries({
   seriesConfigs,
@@ -27,34 +30,37 @@ export function useChartSeries({
       return hoveredSeries === seriesKey ? baseWidth + 1.5 : baseWidth;
     };
 
+    // 获取不透明度（不可见时为0，而不是不渲染）
+    const getOpacity = (series: EffectiveSeriesConfig) => {
+      if (!series.visible) return 0;
+      return 1;
+    };
+
     // 先渲染非depth的系列，再渲染depth（确保depth在最上层）
-    const nonDepthSeries = seriesConfigs.filter(
-      (s) => s.visible && s.key !== 'depth'
-    );
-    const depthSeries = seriesConfigs.find(
-      (s) => s.visible && s.key === 'depth'
-    );
+    const nonDepthSeries = seriesConfigs.filter((s) => s.key !== 'depth');
+    const depthSeries = seriesConfigs.find((s) => s.key === 'depth');
 
     const renderOneSeries = (series: EffectiveSeriesConfig): JSX.Element[] => {
       const isDepth = series.key === 'depth';
       const isAscentRate = series.key === 'ascentRate';
       const dataKey = isDepth ? 'depth' : `${series.key}_normalized`;
       const yAxisId = isDepth ? 'depth' : 'normalized';
+      const opacity = getOpacity(series);
 
       // Ascent Rate 特殊处理：双色填充
       if (series.type === 'bar' && isAscentRate) {
-        return renderAscentRateSeries(series, yAxisId, getStrokeWidth, onMouseEnter, onMouseLeave);
+        return renderAscentRateSeries(series, yAxisId, getStrokeWidth, onMouseEnter, onMouseLeave, opacity);
       }
 
       if (series.type === 'bar') {
-        return [renderBarSeries(series, dataKey, yAxisId)];
+        return [renderBarSeries(series, dataKey, yAxisId, opacity)];
       }
 
       if (isDepth) {
-        return renderDepthSeries(series, dataKey, yAxisId, getStrokeWidth, onMouseEnter, onMouseLeave);
+        return renderDepthSeries(series, dataKey, yAxisId, getStrokeWidth, onMouseEnter, onMouseLeave, opacity);
       }
 
-      return renderLineSeries(series, dataKey, yAxisId, getStrokeWidth, onMouseEnter, onMouseLeave);
+      return renderLineSeries(series, dataKey, yAxisId, getStrokeWidth, onMouseEnter, onMouseLeave, opacity);
     };
 
     // 先渲染其他系列，最后渲染depth（确保在最上层）
@@ -74,7 +80,8 @@ function renderAscentRateSeries(
   yAxisId: string,
   getStrokeWidth: (key: string, baseWidth: number) => number,
   onMouseEnter: (key: string) => void,
-  onMouseLeave: () => void
+  onMouseLeave: () => void,
+  opacity: number
 ): JSX.Element[] {
   const strokeWidth = getStrokeWidth(series.key, CHART_CONFIG.lineWidth);
   
@@ -91,7 +98,8 @@ function renderAscentRateSeries(
       activeDot={false}
       onMouseEnter={() => onMouseEnter(series.key)}
       onMouseLeave={onMouseLeave}
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: 'pointer', opacity: opacity > 0 ? 1 : 0 }}
+      isAnimationActive={false}
     />,
     // 绿色填充 - 0线以上（上升/负值）
     <Area
@@ -103,11 +111,13 @@ function renderAscentRateSeries(
       stroke={CHART_COLORS.ascent.up}
       strokeWidth={strokeWidth}
       fill={CHART_COLORS.ascent.up}
-      fillOpacity={0.5}
+      fillOpacity={0.5 * opacity}
+      strokeOpacity={opacity}
       baseValue={50}
       dot={false}
       activeDot={false}
       style={{ pointerEvents: 'none' }}
+      isAnimationActive={false}
     />,
     // 红色填充 - 0线以下（下降/正值）
     <Area
@@ -119,11 +129,13 @@ function renderAscentRateSeries(
       stroke={CHART_COLORS.ascent.down}
       strokeWidth={strokeWidth}
       fill={CHART_COLORS.ascent.down}
-      fillOpacity={0.5}
+      fillOpacity={0.5 * opacity}
+      strokeOpacity={opacity}
       baseValue={50}
       dot={false}
       activeDot={false}
       style={{ pointerEvents: 'none' }}
+      isAnimationActive={false}
     />,
   ];
 }
@@ -134,7 +146,8 @@ function renderAscentRateSeries(
 function renderBarSeries(
   series: EffectiveSeriesConfig,
   dataKey: string,
-  yAxisId: string
+  yAxisId: string,
+  opacity: number
 ): JSX.Element {
   return (
     <Area
@@ -145,11 +158,13 @@ function renderBarSeries(
       type="stepAfter"
       stroke={series.color}
       fill={series.color}
-      fillOpacity={0.7}
+      fillOpacity={0.7 * opacity}
+      strokeOpacity={opacity}
       strokeWidth={0}
       baseValue={0}
       dot={false}
       activeDot={false}
+      isAnimationActive={false}
     />
   );
 }
@@ -163,7 +178,8 @@ function renderDepthSeries(
   yAxisId: string,
   getStrokeWidth: (key: string, baseWidth: number) => number,
   onMouseEnter: (key: string) => void,
-  onMouseLeave: () => void
+  onMouseLeave: () => void,
+  opacity: number
 ): JSX.Element[] {
   return [
     // 透明的宽线作为悬停区域
@@ -178,7 +194,8 @@ function renderDepthSeries(
       activeDot={false}
       onMouseEnter={() => onMouseEnter(series.key)}
       onMouseLeave={onMouseLeave}
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: 'pointer', opacity: opacity > 0 ? 1 : 0 }}
+      isAnimationActive={false}
     />,
     // 实际可见的线
     <Line
@@ -189,11 +206,13 @@ function renderDepthSeries(
       type="monotone"
       strokeWidth={getStrokeWidth(series.key, CHART_CONFIG.depthLineWidth)}
       stroke="#ffffff"
+      strokeOpacity={opacity}
       strokeLinecap="round"
       strokeLinejoin="round"
       dot={false}
       activeDot={false}
       style={{ pointerEvents: 'none' }}
+      isAnimationActive={false}
     />,
   ];
 }
@@ -207,7 +226,8 @@ function renderLineSeries(
   yAxisId: string,
   getStrokeWidth: (key: string, baseWidth: number) => number,
   onMouseEnter: (key: string) => void,
-  onMouseLeave: () => void
+  onMouseLeave: () => void,
+  opacity: number
 ): JSX.Element[] {
   return [
     // 透明的宽线作为悬停区域
@@ -222,7 +242,8 @@ function renderLineSeries(
       activeDot={false}
       onMouseEnter={() => onMouseEnter(series.key)}
       onMouseLeave={onMouseLeave}
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: 'pointer', opacity: opacity > 0 ? 1 : 0 }}
+      isAnimationActive={false}
     />,
     // 实际可见的线
     <Line
@@ -233,9 +254,11 @@ function renderLineSeries(
       type="monotone"
       stroke={series.color}
       strokeWidth={getStrokeWidth(series.key, CHART_CONFIG.lineWidth)}
+      strokeOpacity={opacity}
       dot={false}
       activeDot={false}
       style={{ pointerEvents: 'none' }}
+      isAnimationActive={false}
     />,
   ];
 }

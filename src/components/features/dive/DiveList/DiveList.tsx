@@ -116,17 +116,19 @@ export function DiveList() {
               <th 
                 className="px-3 py-2 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
-                onClick={() => handleSort('diveType')}
-              >
-                {fieldLabels.diveType}<SortIcon field="diveType" />
-              </th>
-              <th 
-                className="px-3 py-2 font-medium cursor-pointer hover:text-cyan-400 select-none" 
-                scope="col"
                 onClick={() => handleSort('location')}
               >
                 {fieldLabels.location}<SortIcon field="location" />
               </th>
+              <th 
+                className="px-3 py-2 font-medium cursor-pointer hover:text-cyan-400 select-none" 
+                scope="col"
+                onClick={() => handleSort('diveType')}
+              >
+                {fieldLabels.diveType}<SortIcon field="diveType" />
+              </th>
+              <th className="px-3 py-2 font-medium" scope="col">{fieldLabels.buddy}</th>
+              <th className="px-3 py-2 font-medium" scope="col">{fieldLabels.tags}</th>
               <th 
                 className="px-3 py-2 font-medium text-right cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
@@ -162,8 +164,14 @@ export function DiveList() {
                 <td className="px-3 py-2">
                   {dive.date} {dive.startTime}
                 </td>
+                <td className="px-3 py-2 text-gray-400">
+                  {dive.diveComputer.model}
+                </td>
                 <td className="px-3 py-2">
-                  {dive.diveComputer.model} ({dive.diveComputer.serial})
+                  <span className="text-cyan-400">{dive.site}</span>
+                  {dive.site !== dive.location && (
+                    <span className="text-gray-500 ml-1">({dive.location})</span>
+                  )}
                 </td>
                 <td className="px-3 py-2">
                   <span className={`inline-block px-2 py-0.5 rounded text-xs ${
@@ -175,10 +183,23 @@ export function DiveList() {
                     {dive.diveType}
                   </span>
                 </td>
+                <td className="px-3 py-2 text-gray-400">
+                  {dive.buddy || '-'}
+                </td>
                 <td className="px-3 py-2">
-                  <span className="text-cyan-400">{dive.site}</span>
-                  {dive.site !== dive.location && (
-                    <span className="text-gray-500 ml-1">({dive.location})</span>
+                  {dive.tags && dive.tags.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {dive.tags.map((tag, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-block px-2 py-0.5 rounded text-xs bg-purple-900/50 text-purple-300"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-gray-600">-</span>
                   )}
                 </td>
                 <td className="px-3 py-2 text-right font-mono">

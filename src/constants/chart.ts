@@ -19,21 +19,26 @@ export interface ChartSeriesConfig {
  * 包含潜水数据中所有可视化的数据系列
  */
 export const DEFAULT_CHART_SERIES: ChartSeriesConfig[] = [
+  // 基础数据
   { key: 'depth', name: fieldLabels.depth, color: '#ffffff', type: 'line', visible: true, unit: 'm' },
+  { key: 'temperature', name: fieldLabels.temperature, color: '#06b6d4', type: 'line', visible: true, unit: '°C' },
+  { key: 'ascentRate', name: fieldLabels.ascentRate, color: '#22c55e', type: 'bar', visible: true, unit: 'm/s' },
+  // 减压相关
+  { key: 'ndl', name: fieldLabels.ndl, color: '#ec4899', type: 'line', visible: true, unit: 'min' },
   { key: 'deco', name: fieldLabels.deco, color: '#ef4444', type: 'line', visible: true, unit: 'min' },
   { key: 'tts', name: fieldLabels.tts, color: '#f97316', type: 'line', visible: true, unit: 'min' },
-  { key: 'ndl', name: fieldLabels.ndl, color: '#ec4899', type: 'line', visible: true, unit: 'min' },
-  { key: 'ascentRate', name: fieldLabels.ascentRate, color: '#22c55e', type: 'bar', visible: true, unit: 'm/s' },
-  { key: 'cns', name: fieldLabels.cns, color: '#f59e0b', type: 'line', visible: true, unit: '%' },
-  { key: 'gasDensity', name: fieldLabels.gasDensity, color: '#14b8a6', type: 'line', visible: true, unit: 'g/L' },
   { key: 'gf99', name: fieldLabels.gf99, color: '#f43f5e', type: 'line', visible: true, unit: '%' },
+  // 气体相关
   { key: 'ppO2', name: fieldLabels.ppO2, color: '#10b981', type: 'line', visible: true, unit: 'bar' },
-  { key: 'ppHe', name: fieldLabels.ppHe, color: '#9ca3af', type: 'line', visible: false, unit: 'bar' },
   { key: 'ppN2', name: fieldLabels.ppN2, color: '#eab308', type: 'line', visible: true, unit: 'bar' },
+  { key: 'ppHe', name: fieldLabels.ppHe, color: '#9ca3af', type: 'line', visible: false, unit: 'bar' },
+  { key: 'gasDensity', name: fieldLabels.gasDensity, color: '#14b8a6', type: 'line', visible: true, unit: 'g/L' },
+  // 气瓶与消耗
   { key: 'tank1Pressure', name: fieldLabels.tank1Pressure, color: '#a855f7', type: 'line', visible: true, unit: 'bar' },
   { key: 'tank2Pressure', name: fieldLabels.tank2Pressure, color: '#8b5cf6', type: 'line', visible: false, unit: 'bar' },
   { key: 'sac', name: fieldLabels.sac, color: '#d946ef', type: 'line', visible: true, unit: 'L/min' },
-  { key: 'temperature', name: fieldLabels.temperature, color: '#06b6d4', type: 'line', visible: true, unit: '°C' },
+  // 安全指标
+  { key: 'cns', name: fieldLabels.cns, color: '#f59e0b', type: 'line', visible: true, unit: '%' },
 ];
 
 /**

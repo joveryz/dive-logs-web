@@ -60,7 +60,38 @@ export function useDiveChartData(profile: DiveProfilePoint[]) {
     });
   }, []);
 
+  // 隐藏所有系列（除了 depth）
+  const hideAllSeries = useCallback(() => {
+    setVisibilityOverrides((prev) => {
+      const newOverrides: Record<string, boolean> = { ...prev };
+      DEFAULT_CHART_SERIES.forEach((s) => {
+        newOverrides[s.key] = s.key === 'depth'; // 只保留 depth 可见
+      });
+      return newOverrides;
+    });
+  }, []);
+
+  // 显示所有系列
+  const showAllSeries = useCallback(() => {
+    setVisibilityOverrides((prev) => {
+      const newOverrides: Record<string, boolean> = { ...prev };
+      DEFAULT_CHART_SERIES.forEach((s) => {
+        newOverrides[s.key] = true; // 所有系列都可见
+      });
+      return newOverrides;
+    });
+  }, []);
+
+  // 检查是否所有非 depth 系列都被隐藏
+  const allHidden = useMemo(() => {
+    return effectiveSeriesConfigs
+      .filter((s) => s.key !== 'depth')
+      .every((s) => !s.visible);
+  }, [effectiveSeriesConfigs]);
+
   // 准备图表数据 - 归一化所有非depth数据到0-100范围
+  // 注意：只依赖 seriesConfigs (基于 profile 计算的范围)，不依赖 visibilityOverrides
+  // 这样切换可见性时不会重新计算数据
   const chartData = useMemo(() => {
     return profile.map((point) => {
       const normalized: Record<string, number> = {
@@ -68,8 +99,8 @@ export function useDiveChartData(profile: DiveProfilePoint[]) {
         depth: point.depth,
       };
 
-      // 归一化其他数据
-      effectiveSeriesConfigs.forEach((config) => {
+      // 归一化其他数据（使用基础 seriesConfigs，不考虑可见性）
+      seriesConfigs.forEach((config) => {
         if (config.key === 'depth') return;
         const value = point[config.key as keyof DiveProfilePoint] as
           | number
@@ -104,12 +135,15 @@ export function useDiveChartData(profile: DiveProfilePoint[]) {
 
       return normalized;
     });
-  }, [profile, effectiveSeriesConfigs]);
+  }, [profile, seriesConfigs]); // 只依赖 profile 和 seriesConfigs，不依赖可见性
 
   return {
     chartData,
     seriesConfigs: effectiveSeriesConfigs,
     toggleSeriesVisibility,
+    hideAllSeries,
+    showAllSeries,
+    allHidden,
   };
 }
 

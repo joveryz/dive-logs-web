@@ -123,20 +123,26 @@ function parseDateTime(dateTimeStr: string): { date: string; time: string } {
 
 /**
  * 计算上升速率 (m/s)
+ * 正值 = 下降, 负值 = 上升
  */
 function calculateAscentRate(
   samples: SampleRow[],
-  index: number,
-  sampleRateMs: number = 10000
+  index: number
 ): number {
   if (index === 0) return 0;
   
   const currentDepth = parseFloat(samples[index].Depth) || 0;
   const prevDepth = parseFloat(samples[index - 1].Depth) || 0;
-  const timeDiff = sampleRateMs / 1000; // 转换为秒
+  const currentTime = parseInt(samples[index].ElapsedTimeInSeconds, 10) || 0;
+  const prevTime = parseInt(samples[index - 1].ElapsedTimeInSeconds, 10) || 0;
+  const timeDiffSec = currentTime - prevTime;
   
-  // 正值 = 下降, 负值 = 上升
-  return (currentDepth - prevDepth) / timeDiff;
+  if (timeDiffSec <= 0) return 0;
+  
+  // 深度变化（米），正值=下降，负值=上升
+  const depthChange = currentDepth - prevDepth;
+  // m/s
+  return depthChange / timeDiffSec;
 }
 
 /**
@@ -250,6 +256,7 @@ export function parseDivesFromCSV(): Dive[] {
       site: summary.Site || 'Unknown',
       buddy: summary.Buddy || undefined,
       notes: summary.Note || undefined,
+      tags: summary.Note ? summary.Note.split(';').map(t => t.trim()).filter(t => t.length > 0) : [],
       rating: 3,
       profile,
       
