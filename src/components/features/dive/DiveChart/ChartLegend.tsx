@@ -5,7 +5,7 @@ interface ChartLegendProps {
   seriesConfigs: ChartSeriesConfig[];
   hoveredSeries: string | null;
   onToggleVisibility: (key: string) => void;
-  onHideAll: () => void;
+  onResetToDefault: () => void;
   onShowAll: () => void;
   onMouseEnter: (key: string) => void;
   onMouseLeave: () => void;
@@ -19,14 +19,14 @@ function ChartLegendComponent({
   seriesConfigs,
   hoveredSeries,
   onToggleVisibility,
-  onHideAll,
+  onResetToDefault,
   onShowAll,
   onMouseEnter,
   onMouseLeave,
 }: ChartLegendProps) {
   return (
     <div className="flex flex-wrap justify-center items-center gap-2 px-2 py-2 border-t border-gray-700">
-      {/* 全选/全不选按钮 */}
+      {/* 全选/默认按钮 */}
       <div className="flex items-center gap-1 mr-2">
         <button
           onClick={onShowAll}
@@ -36,11 +36,11 @@ function ChartLegendComponent({
           All
         </button>
         <button
-          onClick={onHideAll}
+          onClick={onResetToDefault}
           className="px-2 py-1 rounded text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors"
-          title="Hide all series"
+          title="Reset to default (Depth, Ascent, Temp)"
         >
-          None
+          Default
         </button>
       </div>
       

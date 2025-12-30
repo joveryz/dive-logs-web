@@ -29,6 +29,22 @@ export function calculateDynamicRange(
 
   // 其他数据：添加 padding 使数据不紧贴边界
   const range = dataMax - dataMin;
+  
+  // 如果数据没有变化（range === 0），设置一个合理的范围使其居中显示
+  if (range === 0) {
+    // 根据数据类型设置合理的扩展范围
+    let extend = Math.abs(dataMax) * 0.1 || 1; // 10% 扩展或至少 1
+    if (key === 'temperature') {
+      extend = 5; // 温度扩展 ±5°C
+    } else if (key === 'tank1Pressure' || key === 'tank2Pressure') {
+      extend = 50; // 气罐压力扩展 ±50 bar
+    } else if (ZERO_BASED_SERIES_KEYS.includes(key)) {
+      // 零基准系列：最小值为0，最大值为数据的两倍或至少为1
+      return { min: 0, max: Math.max(dataMax * 2, 1) };
+    }
+    return { min: dataMin - extend, max: dataMax + extend };
+  }
+  
   const padding = range * 0.1; // 10% padding
 
   // 最小值处理：某些数据最小值应该是0（如压力、百分比等）
@@ -36,9 +52,6 @@ export function calculateDynamicRange(
     ? 0
     : Math.floor((dataMin - padding) * 10) / 10;
   let max = Math.ceil((dataMax + padding) * 10) / 10;
-
-  // 确保有效范围
-  if (max <= min) max = min + 1;
 
   // 对于某些数据类型，取整到更漂亮的数字
   if (key === 'tank1Pressure' || key === 'tank2Pressure') {

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { Dive } from '@/types';
-import { mockDives } from '@/data';
+import { dives as initialDives } from '@/data';
 
 // ============================================================================
 // 类型定义
@@ -56,8 +56,8 @@ export type DiveStore = DiveState & DiveActions;
  * 初始状态
  */
 const initialState: DiveState = {
-  dives: mockDives,
-  selectedDiveId: mockDives[0]?.id || null,
+  dives: initialDives,
+  selectedDiveId: initialDives[0]?.id || null,
   filterText: '',
   showValidOnly: true,
 };

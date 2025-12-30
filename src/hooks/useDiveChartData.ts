@@ -60,12 +60,15 @@ export function useDiveChartData(profile: DiveProfilePoint[]) {
     });
   }, []);
 
-  // 隐藏所有系列（除了 depth）
-  const hideAllSeries = useCallback(() => {
+  // 默认系列 keys
+  const DEFAULT_VISIBLE_KEYS = ['depth', 'ascentRate', 'temperature'];
+
+  // 重置为默认显示（depth, ascentRate, temperature）
+  const resetToDefault = useCallback(() => {
     setVisibilityOverrides((prev) => {
       const newOverrides: Record<string, boolean> = { ...prev };
       DEFAULT_CHART_SERIES.forEach((s) => {
-        newOverrides[s.key] = s.key === 'depth'; // 只保留 depth 可见
+        newOverrides[s.key] = DEFAULT_VISIBLE_KEYS.includes(s.key);
       });
       return newOverrides;
     });
@@ -126,8 +129,10 @@ export function useDiveChartData(profile: DiveProfilePoint[]) {
           } else {
             // 其他数据归一化到 0-100 范围
             const range = config.maxValue - config.minValue;
-            normalized[`${config.key}_normalized`] =
-              ((value - config.minValue) / range) * 100;
+            // 如果 range 为 0（数据没有变化），居中显示
+            normalized[`${config.key}_normalized`] = range === 0 
+              ? 50 
+              : ((value - config.minValue) / range) * 100;
           }
           normalized[config.key] = value; // 保留原始值用于tooltip
         }
@@ -141,7 +146,7 @@ export function useDiveChartData(profile: DiveProfilePoint[]) {
     chartData,
     seriesConfigs: effectiveSeriesConfigs,
     toggleSeriesVisibility,
-    hideAllSeries,
+    resetToDefault,
     showAllSeries,
     allHidden,
   };

@@ -1,4 +1,4 @@
-import { ResizablePanels } from '../ResizablePanels';
+import { ResizablePanels } from './ResizablePanels';
 import { ErrorBoundary } from '@/components/common';
 import { DiveList, DiveDetail } from '@/components/features';
 

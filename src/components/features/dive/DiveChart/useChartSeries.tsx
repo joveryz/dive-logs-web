@@ -98,7 +98,7 @@ function renderAscentRateSeries(
       activeDot={false}
       onMouseEnter={() => onMouseEnter(series.key)}
       onMouseLeave={onMouseLeave}
-      style={{ cursor: 'pointer', opacity: opacity > 0 ? 1 : 0 }}
+      style={{ cursor: 'pointer', pointerEvents: opacity > 0 ? 'auto' : 'none' }}
       isAnimationActive={false}
     />,
     // 绿色填充 - 0线以上（上升/负值）
@@ -194,7 +194,7 @@ function renderDepthSeries(
       activeDot={false}
       onMouseEnter={() => onMouseEnter(series.key)}
       onMouseLeave={onMouseLeave}
-      style={{ cursor: 'pointer', opacity: opacity > 0 ? 1 : 0 }}
+      style={{ cursor: 'pointer', pointerEvents: opacity > 0 ? 'auto' : 'none' }}
       isAnimationActive={false}
     />,
     // 实际可见的线
@@ -242,7 +242,7 @@ function renderLineSeries(
       activeDot={false}
       onMouseEnter={() => onMouseEnter(series.key)}
       onMouseLeave={onMouseLeave}
-      style={{ cursor: 'pointer', opacity: opacity > 0 ? 1 : 0 }}
+      style={{ cursor: 'pointer', pointerEvents: opacity > 0 ? 'auto' : 'none' }}
       isAnimationActive={false}
     />,
     // 实际可见的线

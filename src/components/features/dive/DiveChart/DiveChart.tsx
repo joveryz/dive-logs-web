@@ -32,7 +32,7 @@ interface DiveChartProps {
  */
 export function DiveChart({ profile, maxDepth }: DiveChartProps) {
   const { containerRef, containerSize } = useContainerSize();
-  const { chartData, seriesConfigs, toggleSeriesVisibility, hideAllSeries, showAllSeries } =
+  const { chartData, seriesConfigs, toggleSeriesVisibility, resetToDefault, showAllSeries } =
     useDiveChartData(profile);
   const {
     hoveredSeries,
@@ -62,9 +62,15 @@ export function DiveChart({ profile, maxDepth }: DiveChartProps) {
   }, [profile]);
 
   // 获取当前悬停的系列配置（用于 Y 轴显示）
-  const hoveredConfig = hoveredSeries
-    ? seriesConfigs.find((s) => s.key === hoveredSeries)
-    : null;
+  // 默认显示 ascentRate（如果可见的话）
+  const hoveredConfig = useMemo(() => {
+    if (hoveredSeries) {
+      return seriesConfigs.find((s) => s.key === hoveredSeries) || null;
+    }
+    // 默认显示 ascentRate（如果可见）
+    const ascentConfig = seriesConfigs.find((s) => s.key === 'ascentRate');
+    return ascentConfig?.visible ? ascentConfig : null;
+  }, [hoveredSeries, seriesConfigs]);
 
   return (
     <div className="h-full flex flex-col">
@@ -201,7 +207,7 @@ export function DiveChart({ profile, maxDepth }: DiveChartProps) {
         seriesConfigs={seriesConfigs}
         hoveredSeries={hoveredSeries}
         onToggleVisibility={toggleSeriesVisibility}
-        onHideAll={hideAllSeries}
+        onResetToDefault={resetToDefault}
         onShowAll={showAllSeries}
         onMouseEnter={handleSeriesMouseEnter}
         onMouseLeave={handleSeriesMouseLeave}

@@ -15,15 +15,27 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
+        manualChunks(id) {
           // React 核心库
-          'vendor-react': ['react', 'react-dom'],
+          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) {
+            return 'vendor-react';
+          }
           // 图表库 (较大)
-          'vendor-recharts': ['recharts'],
+          if (id.includes('node_modules/recharts')) {
+            return 'vendor-recharts';
+          }
           // 状态管理
-          'vendor-zustand': ['zustand'],
+          if (id.includes('node_modules/zustand')) {
+            return 'vendor-zustand';
+          }
           // 图标库
-          'vendor-icons': ['lucide-react'],
+          if (id.includes('node_modules/lucide-react')) {
+            return 'vendor-icons';
+          }
+          // CSV 数据文件单独打包
+          if (id.includes('.csv')) {
+            return 'dive-data';
+          }
         },
       },
     },
@@ -31,7 +43,7 @@ export default defineConfig({
     minify: 'esbuild',
     // 启用 CSS 代码分割
     cssCodeSplit: true,
-    // 设置较大的 chunk 警告阈值（因为 recharts 本身就较大）
-    chunkSizeWarningLimit: 300,
+    // CSV 数据较大，提高警告阈值
+    chunkSizeWarningLimit: 500,
   },
 })

@@ -52,9 +52,10 @@ export function DiveList() {
   }, [filteredDives, sortField, sortDirection]);
 
   // FreeDive PB (Personal Best) - 深度最深的 FreeDive
+  const allDives = useDiveStore((state) => state.dives);
   const freeDivePBId = useMemo(() => {
-    return getFreeDivePBId(useDiveStore.getState().dives);
-  }, [useDiveStore.getState().dives]);
+    return getFreeDivePBId(allDives);
+  }, [allDives]);
 
   // 处理列头点击排序
   const handleSort = (field: SortField) => {
