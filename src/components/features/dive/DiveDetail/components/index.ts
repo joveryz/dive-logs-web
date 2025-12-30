@@ -10,7 +10,10 @@ export {
   Label,
 } from './FormComponents';
 
-// Tab Components
+// Panel Components
+export { SummaryPanel } from './SummaryPanel';
+
+// Tab Components (kept for potential future use)
 export { SummaryTab } from './SummaryTab';
 export { GearTab } from './GearTab';
 export { EnvironmentTab } from './EnvironmentTab';

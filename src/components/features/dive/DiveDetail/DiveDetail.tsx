@@ -3,33 +3,7 @@ import { Database } from 'lucide-react';
 import { useSelectedDive } from '@/hooks';
 import { DiveChart } from '../DiveChart';
 import { ResizablePanels } from '@/components/layout';
-import {
-  SummaryTab,
-  GearTab,
-  EnvironmentTab,
-  GasesTab,
-  ProblemsTab,
-  ComputerTab,
-} from './components';
-
-/**
- * Tab 配置
- */
-type TabId = 'summary' | 'gear' | 'environment' | 'gases' | 'problems' | 'computer';
-
-interface Tab {
-  id: TabId;
-  label: string;
-}
-
-const TABS: Tab[] = [
-  { id: 'summary', label: 'Summary' },
-  { id: 'gear', label: 'Gear' },
-  { id: 'environment', label: 'Environment' },
-  { id: 'gases', label: 'Gases' },
-  { id: 'problems', label: 'Problems' },
-  { id: 'computer', label: 'Computer' },
-];
+import { SummaryPanel } from './components';
 
 /**
  * 视图模式
@@ -94,44 +68,11 @@ const SecondaryNavButton = memo(function SecondaryNavButton({
 });
 
 /**
- * Tab 按钮组件
- */
-interface TabButtonProps {
-  tab: Tab;
-  isActive: boolean;
-  onClick: (id: TabId) => void;
-}
-
-const TabButton = memo(function TabButton({
-  tab,
-  isActive,
-  onClick,
-}: TabButtonProps) {
-  return (
-    <button
-      onClick={() => onClick(tab.id)}
-      className={`px-6 py-2.5 text-sm font-medium transition-colors ${
-        isActive
-          ? 'text-white bg-cyan-600'
-          : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
-      }`}
-    >
-      {tab.label}
-    </button>
-  );
-});
-
-/**
  * 主组件 - 潜水详情
  */
 export function DiveDetail() {
   const dive = useSelectedDive();
-  const [activeTab, setActiveTab] = useState<TabId>('summary');
   const [viewMode, setViewMode] = useState<ViewMode>('graph');
-
-  const handleTabChange = useCallback((tabId: TabId) => {
-    setActiveTab(tabId);
-  }, []);
 
   const handleViewModeChange = useCallback((mode: ViewMode) => {
     setViewMode(mode);
@@ -182,25 +123,10 @@ export function DiveDetail() {
     </div>
   );
 
-  // 详情区域内容
+  // 详情区域内容 - 单一 Summary Panel
   const detailContent = (
     <div className="flex flex-col h-full bg-gray-900">
-      {/* Detail Tabs */}
-      <div className="flex border-b border-gray-700 bg-gray-800/50 flex-shrink-0">
-        {TABS.map((tab) => (
-          <TabButton
-            key={tab.id}
-            tab={tab}
-            isActive={activeTab === tab.id}
-            onClick={handleTabChange}
-          />
-        ))}
-      </div>
-
-      {/* Tab Content */}
-      <div className="flex-1 overflow-auto p-4">
-        <TabContent activeTab={activeTab} dive={dive} />
-      </div>
+      <SummaryPanel dive={dive} />
     </div>
   );
 
@@ -215,40 +141,10 @@ export function DiveDetail() {
         },
         {
           content: detailContent,
-          minSize: 150,
+          minSize: 100,
           defaultSize: 55,
         },
       ]}
     />
   );
 }
-
-/**
- * Tab 内容组件
- */
-interface TabContentProps {
-  activeTab: TabId;
-  dive: NonNullable<ReturnType<typeof useSelectedDive>>;
-}
-
-const TabContent = memo(function TabContent({
-  activeTab,
-  dive,
-}: TabContentProps) {
-  switch (activeTab) {
-    case 'summary':
-      return <SummaryTab dive={dive} />;
-    case 'gear':
-      return <GearTab dive={dive} />;
-    case 'environment':
-      return <EnvironmentTab dive={dive} />;
-    case 'gases':
-      return <GasesTab dive={dive} />;
-    case 'problems':
-      return <ProblemsTab dive={dive} />;
-    case 'computer':
-      return <ComputerTab dive={dive} />;
-    default:
-      return null;
-  }
-});
