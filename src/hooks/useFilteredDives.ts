@@ -30,26 +30,26 @@ export function getFreeDivePBId(dives: Dive[]): string | null {
 
 /**
  * 获取过滤后的潜水记录列表
- * 根据 filterText 过滤 location, site, computer, type, buddy, number, tags
+ * 根据 searchQuery 过滤 location, site, computer, type, buddy, number, tags
  * 支持搜索 "pb" 来显示 FreeDive PB
  * 可选过滤无效潜水
  */
 export function useFilteredDives() {
   const dives = useDiveStore((state) => state.dives);
-  const filterText = useDiveStore((state) => state.filterText);
-  const showValidOnly = useDiveStore((state) => state.showValidOnly);
+  const searchQuery = useDiveStore((state) => state.searchQuery);
+  const filterValidDivesOnly = useDiveStore((state) => state.filterValidDivesOnly);
   
   return useMemo(() => {
     let result = dives;
     
     // 过滤无效潜水
-    if (showValidOnly) {
+    if (filterValidDivesOnly) {
       result = result.filter(isValidDive);
     }
     
     // 文本搜索过滤
-    if (filterText.trim()) {
-      const searchLower = filterText.toLowerCase();
+    if (searchQuery.trim()) {
+      const searchLower = searchQuery.toLowerCase();
       
       // 特殊搜索: "pb" 搜索 FreeDive PB
       if (searchLower === 'pb') {
@@ -73,5 +73,5 @@ export function useFilteredDives() {
     }
     
     return result;
-  }, [dives, filterText, showValidOnly]);
+  }, [dives, searchQuery, filterValidDivesOnly]);
 }

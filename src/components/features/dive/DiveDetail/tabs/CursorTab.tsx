@@ -4,9 +4,9 @@ import { formatTimeForChart } from '@/utils';
 import type { DiveProfilePoint } from '@/types';
 
 /**
- * 数据系列配置 - 定义各个数据点的显示样式
+ * 游标数据显示配置 - 定义各个数据点的显示样式
  */
-const DATA_SERIES_CONFIG: Record<string, { 
+const CURSOR_DATA_DISPLAY_CONFIG: Record<string, { 
   label: string; 
   color: string; 
   unit: string; 
@@ -41,10 +41,10 @@ interface DataItem {
 /**
  * 从游标数据中提取可显示的数据项
  */
-function extractDataItems(cursorData: DiveProfilePoint): DataItem[] {
+function extractDisplayableDataItems(cursorData: DiveProfilePoint): DataItem[] {
   const items: DataItem[] = [];
   
-  Object.entries(DATA_SERIES_CONFIG).forEach(([key, config]) => {
+  Object.entries(CURSOR_DATA_DISPLAY_CONFIG).forEach(([key, config]) => {
     const value = cursorData[key as keyof DiveProfilePoint];
     if (value !== undefined && value !== null && typeof value === 'number') {
       items.push({
@@ -90,11 +90,11 @@ export const CursorTab = memo(function CursorTab({ cursorData }: CursorTabProps)
     );
   }
 
-  const dataItems = extractDataItems(cursorData);
+  const dataItems = extractDisplayableDataItems(cursorData);
   
-  // 按分组过滤数据
-  const filterByKeys = (keys: string[]) => 
-    dataItems.filter(d => keys.includes(d.key));
+  // 按指定键过滤数据项
+  const filterItemsByKeys = (keys: string[]) => 
+    dataItems.filter(item => keys.includes(item.key));
 
   return (
     <div className="grid grid-cols-12 gap-4">
@@ -114,7 +114,7 @@ export const CursorTab = memo(function CursorTab({ cursorData }: CursorTabProps)
       <div className="col-span-6 space-y-4">
         <Section title="Depth & Environment">
           <div className="grid grid-cols-2 gap-3">
-            {filterByKeys(['depth', 'temperature', 'ascentRate']).map(item => (
+            {filterItemsByKeys(['depth', 'temperature', 'ascentRate']).map(item => (
               <DataValue key={item.key} item={item} />
             ))}
           </div>
@@ -122,7 +122,7 @@ export const CursorTab = memo(function CursorTab({ cursorData }: CursorTabProps)
 
         <Section title="Decompression">
           <div className="grid grid-cols-2 gap-3">
-            {filterByKeys(['ndl', 'gf99', 'cns', 'deco', 'tts']).map(item => (
+            {filterItemsByKeys(['ndl', 'gf99', 'cns', 'deco', 'tts']).map(item => (
               <DataValue key={item.key} item={item} />
             ))}
           </div>
@@ -133,7 +133,7 @@ export const CursorTab = memo(function CursorTab({ cursorData }: CursorTabProps)
       <div className="col-span-6 space-y-4">
         <Section title="Gas & Pressure">
           <div className="grid grid-cols-2 gap-3">
-            {filterByKeys(['ppO2', 'ppN2', 'ppHe', 'gasDensity']).map(item => (
+            {filterItemsByKeys(['ppO2', 'ppN2', 'ppHe', 'gasDensity']).map(item => (
               <DataValue key={item.key} item={item} />
             ))}
           </div>
@@ -141,7 +141,7 @@ export const CursorTab = memo(function CursorTab({ cursorData }: CursorTabProps)
 
         <Section title="Tank & Consumption">
           <div className="grid grid-cols-2 gap-3">
-            {filterByKeys(['tank1Pressure', 'tank2Pressure', 'sac']).map(item => (
+            {filterItemsByKeys(['tank1Pressure', 'tank2Pressure', 'sac']).map(item => (
               <DataValue key={item.key} item={item} />
             ))}
           </div>

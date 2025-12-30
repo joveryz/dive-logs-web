@@ -15,10 +15,10 @@ interface DiveState {
   dives: Dive[];
   /** 当前选中的潜水记录 ID */
   selectedDiveId: string | null;
-  /** 筛选文本 */
-  filterText: string;
+  /** 搜索查询文本 */
+  searchQuery: string;
   /** 是否只显示有效潜水 */
-  showValidOnly: boolean;
+  filterValidDivesOnly: boolean;
 }
 
 /**
@@ -27,10 +27,10 @@ interface DiveState {
 interface DiveActions {
   /** 设置选中的潜水记录 ID */
   setSelectedDiveId: (id: string | null) => void;
-  /** 设置筛选文本 */
-  setFilterText: (text: string) => void;
+  /** 设置搜索查询文本 */
+  setSearchQuery: (query: string) => void;
   /** 设置是否只显示有效潜水 */
-  setShowValidOnly: (show: boolean) => void;
+  setFilterValidDivesOnly: (filter: boolean) => void;
   /** 设置潜水记录列表 */
   setDives: (dives: Dive[]) => void;
   /** 添加潜水记录 */
@@ -39,8 +39,8 @@ interface DiveActions {
   updateDive: (id: string, updates: Partial<Dive>) => void;
   /** 删除潜水记录 */
   deleteDive: (id: string) => void;
-  /** 清空筛选 */
-  clearFilter: () => void;
+  /** 清空搜索查询 */
+  clearSearch: () => void;
 }
 
 /**
@@ -58,8 +58,8 @@ export type DiveStore = DiveState & DiveActions;
 const initialState: DiveState = {
   dives: initialDives,
   selectedDiveId: initialDives[0]?.id || null,
-  filterText: '',
-  showValidOnly: true,
+  searchQuery: '',
+  filterValidDivesOnly: true,
 };
 
 /**
@@ -78,12 +78,12 @@ export const useDiveStore = create<DiveStore>()(
           set({ selectedDiveId: id }, false, 'setSelectedDiveId');
         },
 
-        setFilterText: (text) => {
-          set({ filterText: text }, false, 'setFilterText');
+        setSearchQuery: (query) => {
+          set({ searchQuery: query }, false, 'setSearchQuery');
         },
 
-        setShowValidOnly: (show) => {
-          set({ showValidOnly: show }, false, 'setShowValidOnly');
+        setFilterValidDivesOnly: (filter) => {
+          set({ filterValidDivesOnly: filter }, false, 'setFilterValidDivesOnly');
         },
 
         setDives: (dives) => {
@@ -129,8 +129,8 @@ export const useDiveStore = create<DiveStore>()(
           );
         },
 
-        clearFilter: () => {
-          set({ filterText: '' }, false, 'clearFilter');
+        clearSearch: () => {
+          set({ searchQuery: '' }, false, 'clearSearch');
         },
       }),
       {
@@ -138,7 +138,7 @@ export const useDiveStore = create<DiveStore>()(
         // 只持久化用户选择相关的状态，不持久化数据
         partialize: (state) => ({
           selectedDiveId: state.selectedDiveId,
-          filterText: state.filterText,
+          searchQuery: state.searchQuery,
         }),
       }
     ),

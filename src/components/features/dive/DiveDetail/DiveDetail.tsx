@@ -44,9 +44,9 @@ const DetailContent = memo(function DetailContent({
 }) {
   const [activeTab, setActiveTab] = useState<TabId>('dive');
   
-  // 检查是否是 FreeDive PB
-  const freeDivePBId = getFreeDivePBId(useDiveStore.getState().dives);
-  const isPB = dive.diveType === 'FreeDive' && dive.id === freeDivePBId;
+  // 检查是否是 FreeDive 个人最佳记录
+  const freeDivePersonalBestId = getFreeDivePBId(useDiveStore.getState().dives);
+  const isPersonalBest = dive.diveType === 'FreeDive' && dive.id === freeDivePersonalBestId;
 
   return (
     <div className="h-full flex flex-col bg-zinc-900">
@@ -65,7 +65,7 @@ const DetailContent = memo(function DetailContent({
 
       {/* Tab 内容 */}
       <div className="flex-1 overflow-auto p-4">
-        {activeTab === 'dive' && <DiveTab dive={dive} isPB={isPB} />}
+        {activeTab === 'dive' && <DiveTab dive={dive} isPersonalBest={isPersonalBest} />}
         {activeTab === 'computer' && <ComputerTab dive={dive} />}
         {activeTab === 'cursor' && <CursorTab cursorData={cursorData} />}
       </div>

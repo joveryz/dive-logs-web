@@ -6,18 +6,19 @@ import type { Dive } from '@/types';
 
 interface DiveTabProps {
   dive: Dive;
-  isPB: boolean;
+  /** 是否为个人最佳记录 (FreeDive) */
+  isPersonalBest: boolean;
 }
 
 /**
  * Dive Tab - 潜水核心信息展示
  */
-export const DiveTab = memo(function DiveTab({ dive, isPB }: DiveTabProps) {
-  const env = dive.environment;
-  const deco = dive.computerInfo?.deco;
-  const gear = dive.gear;
-  const gases = dive.gases;
-  const diveSettings = dive.computerInfo?.dive;
+export const DiveTab = memo(function DiveTab({ dive, isPersonalBest }: DiveTabProps) {
+  const environment = dive.environment;
+  const decoSettings = dive.computerInfo?.deco;
+  const gearInfo = dive.gear;
+  const gasConfigs = dive.gases;
+  const computerDiveSettings = dive.computerInfo?.dive;
 
   return (
     <div className="grid grid-cols-12 gap-4">
@@ -29,7 +30,7 @@ export const DiveTab = memo(function DiveTab({ dive, isPB }: DiveTabProps) {
             <div className="bg-zinc-800/60 rounded-lg p-3 text-center">
               <div className="text-xs text-zinc-500 uppercase">{uiLabels.maxDepth}</div>
               <div className="text-xl font-bold text-amber-500 flex items-center justify-center gap-1">
-                {isPB && (
+                {isPersonalBest && (
                   <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-500/20 text-yellow-400">
                     PB
                   </span>
@@ -104,40 +105,40 @@ export const DiveTab = memo(function DiveTab({ dive, isPB }: DiveTabProps) {
         {/* 环境 */}
         <Section title={uiLabels.sectionEnvironment}>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.minTemp} value={formatNumber(env?.minTemp, '°C')} />
-            <InfoCard label={uiLabels.maxTemp} value={formatNumber(env?.maxTemp, '°C')} />
+            <InfoCard label={uiLabels.minTemp} value={formatNumber(environment?.minTemp, '°C')} />
+            <InfoCard label={uiLabels.maxTemp} value={formatNumber(environment?.maxTemp, '°C')} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.avgTemp} value={formatNumber(env?.avgTemp, '°C')} />
-            <InfoCard label={uiLabels.surfacePressure} value={formatNumber(env?.surfacePressure, ' mBar')} />
+            <InfoCard label={uiLabels.avgTemp} value={formatNumber(environment?.avgTemp, '°C')} />
+            <InfoCard label={uiLabels.surfacePressure} value={formatNumber(environment?.surfacePressure, ' mBar')} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.salinity} value={diveSettings?.salinitySetting || '-'} />
-            <InfoCard label={uiLabels.surfaceInterval} value={diveSettings?.surfaceInterval || '-'} />
+            <InfoCard label={uiLabels.salinity} value={computerDiveSettings?.salinitySetting || '-'} />
+            <InfoCard label={uiLabels.surfaceInterval} value={computerDiveSettings?.surfaceInterval || '-'} />
           </div>
         </Section>
 
         {/* 减压信息 */}
         <Section title={uiLabels.sectionDecompression}>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.model} value={deco?.decoModel || '-'} />
-            <InfoCard label={uiLabels.gfSetting} value={deco?.conservatism || '-'} />
+            <InfoCard label={uiLabels.model} value={decoSettings?.decoModel || '-'} />
+            <InfoCard label={uiLabels.gfSetting} value={decoSettings?.conservatism || '-'} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.cnsStart} value={formatNumber(deco?.cnsStart, '%')} />
-            <InfoCard label={uiLabels.cnsEnd} value={formatNumber(deco?.cnsEnd, '%')} />
+            <InfoCard label={uiLabels.cnsStart} value={formatNumber(decoSettings?.cnsStart, '%')} />
+            <InfoCard label={uiLabels.cnsEnd} value={formatNumber(decoSettings?.cnsEnd, '%')} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.gf99Max} value={formatNumber(deco?.endSurfaceGF, '%')} />
-            <InfoCard label={uiLabels.surfaceGFEnd} value={formatNumber(deco?.endSurfaceGF, '%')} />
+            <InfoCard label={uiLabels.gf99Max} value={formatNumber(decoSettings?.endSurfaceGF, '%')} />
+            <InfoCard label={uiLabels.surfaceGFEnd} value={formatNumber(decoSettings?.endSurfaceGF, '%')} />
           </div>
         </Section>
 
         {/* 气体 */}
-        {gases && gases.length > 0 && (
+        {gasConfigs && gasConfigs.length > 0 && (
           <Section title={uiLabels.sectionGases}>
             <div className="space-y-1">
-              {gases.map((gas, idx) => (
+              {gasConfigs.map((gas, idx) => (
                 <div key={idx} className="flex items-center gap-2 text-xs">
                   <span className="px-1.5 py-0.5 bg-zinc-700 rounded text-zinc-300">
                     {gas.name || `Gas ${idx + 1}`}
@@ -157,12 +158,12 @@ export const DiveTab = memo(function DiveTab({ dive, isPB }: DiveTabProps) {
         )}
 
         {/* 装备 */}
-        {gear && (
+        {gearInfo && (
           <Section title={uiLabels.sectionGear}>
             <div className="grid grid-cols-3 gap-3 text-sm">
-              {gear.dress && <InfoCard label={uiLabels.dress} value={gear.dress} />}
-              {gear.weight && <InfoCard label={uiLabels.weight} value={formatNumber(gear.weight, ' kg')} />}
-              {gear.tankSize && <InfoCard label={uiLabels.tank} value={gear.tankSize} />}
+              {gearInfo.dress && <InfoCard label={uiLabels.dress} value={gearInfo.dress} />}
+              {gearInfo.weight && <InfoCard label={uiLabels.weight} value={formatNumber(gearInfo.weight, ' kg')} />}
+              {gearInfo.tankSize && <InfoCard label={uiLabels.tank} value={gearInfo.tankSize} />}
             </div>
           </Section>
         )}

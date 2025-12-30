@@ -7,9 +7,9 @@ import { fieldLabels } from '@/constants';
 import type { SortField, SortDirection } from '@/types';
 
 // 可切换显示的列
-type ToggleableColumn = 'diveComputer' | 'location' | 'buddy' | 'tags';
+type OptionalColumnKey = 'diveComputer' | 'location' | 'buddy' | 'tags';
 
-const toggleableColumns: { key: ToggleableColumn; label: string }[] = [
+const OPTIONAL_COLUMNS: { key: OptionalColumnKey; label: string }[] = [
   { key: 'diveComputer', label: fieldLabels.diveComputer },
   { key: 'location', label: fieldLabels.location },
   { key: 'buddy', label: fieldLabels.buddy },
@@ -17,37 +17,44 @@ const toggleableColumns: { key: ToggleableColumn; label: string }[] = [
 ];
 
 export function DiveList() {
-  const { selectedDiveId, setSelectedDiveId, filterText, setFilterText, showValidOnly, setShowValidOnly } = useDiveStore();
+  const { 
+    selectedDiveId, 
+    setSelectedDiveId, 
+    searchQuery, 
+    setSearchQuery, 
+    filterValidDivesOnly, 
+    setFilterValidDivesOnly 
+  } = useDiveStore();
   const filteredDives = useFilteredDives();
   const [sortField, setSortField] = useState<SortField>('diveNumber');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   
   // 列可见性状态 - 移动端默认关闭可选列
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  const [columnVisibility, setColumnVisibility] = useState<Record<ToggleableColumn, boolean>>({
-    diveComputer: !isMobile,
-    location: !isMobile,
-    buddy: !isMobile,
-    tags: !isMobile,
+  const isMobileDevice = typeof window !== 'undefined' && window.innerWidth < 768;
+  const [columnVisibility, setColumnVisibility] = useState<Record<OptionalColumnKey, boolean>>({
+    diveComputer: !isMobileDevice,
+    location: !isMobileDevice,
+    buddy: !isMobileDevice,
+    tags: !isMobileDevice,
   });
-  const [showColumnMenu, setShowColumnMenu] = useState(false);
+  const [isColumnMenuOpen, setIsColumnMenuOpen] = useState(false);
   const columnMenuRef = useRef<HTMLDivElement>(null);
   
   // 点击外部关闭菜单
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (columnMenuRef.current && !columnMenuRef.current.contains(e.target as Node)) {
-        setShowColumnMenu(false);
+        setIsColumnMenuOpen(false);
       }
     };
-    if (showColumnMenu) {
+    if (isColumnMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showColumnMenu]);
+  }, [isColumnMenuOpen]);
   
-  const toggleColumn = (col: ToggleableColumn) => {
-    setColumnVisibility(prev => ({ ...prev, [col]: !prev[col] }));
+  const toggleColumnVisibility = (columnKey: OptionalColumnKey) => {
+    setColumnVisibility(prev => ({ ...prev, [columnKey]: !prev[columnKey] }));
   };
 
   // 排序后的潜水列表
@@ -139,20 +146,20 @@ export function DiveList() {
       <div className="p-3 border-b border-zinc-700 flex items-center gap-3">
         <div className="flex-1">
           <SearchInput
-            value={filterText}
-            onChange={setFilterText}
+            value={searchQuery}
+            onChange={setSearchQuery}
             placeholder="Filter Dives"
           />
         </div>
         <button
           type="button"
           role="switch"
-          aria-checked={showValidOnly}
+          aria-checked={filterValidDivesOnly}
           aria-label="Filter valid dives only"
-          onClick={() => setShowValidOnly(!showValidOnly)}
-          title={showValidOnly ? "Showing valid dives only" : "Showing all dives"}
+          onClick={() => setFilterValidDivesOnly(!filterValidDivesOnly)}
+          title={filterValidDivesOnly ? "Showing valid dives only" : "Showing all dives"}
           className={`group flex items-center gap-1.5 px-2 py-1 rounded-md text-xs transition-all duration-200 ${
-            showValidOnly 
+            filterValidDivesOnly 
               ? 'bg-amber-900/40 text-amber-500 hover:bg-amber-900/60' 
               : 'bg-zinc-800 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-400'
           }`}
@@ -160,8 +167,8 @@ export function DiveList() {
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
           </svg>
-          <span className={`transition-colors ${showValidOnly ? 'text-amber-500' : 'text-zinc-500 group-hover:text-zinc-400'}`}>
-            {showValidOnly ? 'Valid' : 'All'}
+          <span className={`transition-colors ${filterValidDivesOnly ? 'text-amber-500' : 'text-zinc-500 group-hover:text-zinc-400'}`}>
+            {filterValidDivesOnly ? 'Valid' : 'All'}
           </span>
         </button>
         
@@ -170,11 +177,11 @@ export function DiveList() {
           <button
             type="button"
             aria-label="Select columns"
-            aria-expanded={showColumnMenu}
-            onClick={() => setShowColumnMenu(!showColumnMenu)}
+            aria-expanded={isColumnMenuOpen}
+            onClick={() => setIsColumnMenuOpen(!isColumnMenuOpen)}
             title="Select visible columns"
             className={`group flex items-center gap-1.5 px-2 py-1 rounded-md text-xs transition-all duration-200 ${
-              showColumnMenu
+              isColumnMenuOpen
                 ? 'bg-amber-900/40 text-amber-500'
                 : 'bg-zinc-800 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-400'
             }`}
@@ -185,9 +192,9 @@ export function DiveList() {
             <span className="transition-colors">Columns</span>
           </button>
           
-          {showColumnMenu && (
+          {isColumnMenuOpen && (
             <div className="absolute right-0 top-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg z-50 min-w-[140px] py-1">
-              {toggleableColumns.map(({ key, label }) => (
+              {OPTIONAL_COLUMNS.map(({ key, label }) => (
                 <label
                   key={key}
                   className="flex items-center gap-2 px-3 py-1.5 hover:bg-zinc-700 cursor-pointer text-sm"
@@ -195,7 +202,7 @@ export function DiveList() {
                   <input
                     type="checkbox"
                     checked={columnVisibility[key]}
-                    onChange={() => toggleColumn(key)}
+                    onChange={() => toggleColumnVisibility(key)}
                     className="w-3.5 h-3.5 rounded border-zinc-600 bg-zinc-700 text-amber-500 focus:ring-amber-500 focus:ring-offset-0"
                   />
                   <span className={columnVisibility[key] ? 'text-zinc-200' : 'text-zinc-500'}>
@@ -365,7 +372,7 @@ export function DiveList() {
         
         {sortedDives.length === 0 && (
           <div className="text-center text-zinc-500 py-10" role="status">
-            No dives found matching "{filterText}"
+            No dives found matching "{searchQuery}"
           </div>
         )}
       </div>
