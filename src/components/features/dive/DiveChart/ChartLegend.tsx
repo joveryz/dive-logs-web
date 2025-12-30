@@ -1,8 +1,8 @@
 import { memo } from 'react';
-import { ChartSeriesConfig } from '@/constants';
+import { EffectiveSeriesConfig } from '@/hooks/useDiveChartData';
 
 interface ChartLegendProps {
-  seriesConfigs: ChartSeriesConfig[];
+  seriesConfigs: EffectiveSeriesConfig[];
   hoveredSeries: string | null;
   onToggleVisibility: (key: string) => void;
   onResetToDefault: () => void;
@@ -53,7 +53,9 @@ function ChartLegendComponent({
         </button>
       </div>
       
-      {seriesConfigs.map((series) => {
+      {seriesConfigs
+        .filter((series) => series.hasData !== false)
+        .map((series) => {
         const isVisible = series.visible;
         const isHovered = hoveredSeries === series.key;
 

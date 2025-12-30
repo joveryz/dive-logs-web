@@ -92,11 +92,19 @@ export const DiveTab = memo(function DiveTab({ dive, isPersonalBest }: DiveTabPr
 
         {/* 地点与潜伴 */}
         <Section title={uiLabels.sectionLocationBuddy}>
-          <InfoCard label={uiLabels.site} value={dive.site} highlight />
+          <div className="grid grid-cols-2 gap-3">
+            <InfoCard label={uiLabels.site} value={dive.site} highlight />
+            {dive.site !== dive.location ? (
+              <InfoCard label={uiLabels.location} value={dive.location} />
+            ) : (
+              <InfoCard label={uiLabels.buddy} value={dive.buddy || '-'} />
+            )}
+          </div>
           {dive.site !== dive.location && (
-            <InfoCard label={uiLabels.location} value={dive.location} />
+            <div className="grid grid-cols-2 gap-3">
+              <InfoCard label={uiLabels.buddy} value={dive.buddy || '-'} />
+            </div>
           )}
-          <InfoCard label={uiLabels.buddy} value={dive.buddy || '-'} />
         </Section>
       </div>
 

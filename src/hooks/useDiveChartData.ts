@@ -9,6 +9,8 @@ import { calculateDynamicRange } from '@/utils/chart';
 export interface EffectiveSeriesConfig extends ChartSeriesConfig {
   minValue?: number;
   maxValue?: number;
+  /** 该系列是否有数据 */
+  hasData?: boolean;
 }
 
 // 默认系列 keys - 根据潜水类型
@@ -36,19 +38,21 @@ export function useDiveChartData(profile: DiveProfilePoint[], diveType?: DiveTyp
   // 根据数据动态计算每个系列的范围
   const seriesConfigs = useMemo<EffectiveSeriesConfig[]>(() => {
     return DEFAULT_CHART_SERIES.map((config) => {
-      if (config.key === 'depth') return config;
+      if (config.key === 'depth') return { ...config, hasData: true };
 
       // 提取该系列的所有值
       const values = profile
         .map((p) => p[config.key as keyof DiveProfilePoint] as number | undefined)
         .filter((v): v is number => v !== undefined);
 
+      const hasData = values.length > 0;
       const { min, max } = calculateDynamicRange(values, config.key);
 
       return {
         ...config,
         minValue: min,
         maxValue: max,
+        hasData,
       };
     });
   }, [profile]);
