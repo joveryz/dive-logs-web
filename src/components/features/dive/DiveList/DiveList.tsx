@@ -1,6 +1,7 @@
-import { useDiveStore, useFilteredDives } from '../../store';
-import { SearchInput } from '../ui';
-import { formatDuration, formatDepth } from '../../utils';
+import { useDiveStore } from '@/store';
+import { useFilteredDives } from '@/hooks';
+import { SearchInput } from '@/components/common';
+import { formatDuration, formatDepth } from '@/utils';
 
 export function DiveList() {
   const { selectedDiveId, setSelectedDiveId, filterText, setFilterText } = useDiveStore();

@@ -10,8 +10,8 @@ import {
   ReferenceLine,
   CartesianGrid,
 } from 'recharts';
-import { DiveProfilePoint } from '../../types';
-import { formatTimeForChart } from '../../utils';
+import { DiveProfilePoint } from '@/types';
+import { formatTimeForChart } from '@/utils';
 
 interface DiveChartProps {
   profile: DiveProfilePoint[];

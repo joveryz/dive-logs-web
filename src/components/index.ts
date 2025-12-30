@@ -1,7 +1,8 @@
-export { DiveList } from './DiveList';
-export { DiveDetail } from './DiveDetail';
-export { DiveChart } from './DiveChart';
-export { ResizablePanels } from './ResizablePanels';
-export { ErrorBoundary } from './ErrorBoundary';
-export { Loading, Skeleton, ListSkeleton, ChartSkeleton } from './Loading';
-export * from './ui';
+// Common components (UI, feedback, etc.)
+export * from './common';
+
+// Layout components
+export * from './layout';
+
+// Feature components
+export * from './features';

@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useSelectedDive } from '../../store';
+import { useSelectedDive } from '@/hooks';
 import { DiveChart } from '../DiveChart';
-import { ResizablePanels } from '../ResizablePanels';
-import { formatDepth, formatDurationReadable } from '../../utils';
+import { ResizablePanels } from '@/components/layout';
+import { formatDepth, formatDurationReadable } from '@/utils';
 import { Database, ChevronDown, ChevronUp } from 'lucide-react';
 
 type TabId = 'summary' | 'gear' | 'environment' | 'gases' | 'problems' | 'computer';

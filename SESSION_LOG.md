@@ -206,11 +206,76 @@ export const useFilteredDives = () => {
 
 ---
 
+### 2024年12月30日 - 项目结构重构
+
+**新项目结构**:
+
+```
+src/
+├── components/
+│   ├── common/              # 通用组件
+│   │   ├── ui/              # 基础 UI (SearchInput, Tabs)
+│   │   └── feedback/        # 反馈组件 (ErrorBoundary, Loading)
+│   ├── layout/              # 布局组件
+│   │   ├── AppLayout/       # 应用布局
+│   │   ├── Header/          # 头部
+│   │   ├── Footer/          # 底部
+│   │   └── ResizablePanels/ # 可调整面板
+│   └── features/            # 功能模块
+│       └── dive/            # 潜水功能
+│           ├── DiveList/
+│           ├── DiveDetail/
+│           └── DiveChart/
+├── hooks/                   # 自定义 Hooks
+│   ├── useFilteredDives.ts
+│   ├── useSelectedDive.ts
+│   ├── useDebounce.ts
+│   └── useLocalStorage.ts
+├── constants/               # 常量配置
+│   ├── app.ts               # 应用配置
+│   └── chart.ts             # 图表配置
+├── services/                # 服务层（API）
+│   ├── api.ts               # API 基础封装
+│   └── diveService.ts       # 潜水数据服务
+├── store/                   # 状态管理
+├── types/                   # 类型定义
+├── utils/                   # 工具函数
+└── data/                    # Mock 数据
+```
+
+**重构改进**:
+
+1. **按功能组织组件**
+   - `common/` - 可复用的通用组件
+   - `layout/` - 布局相关组件
+   - `features/` - 按业务功能划分
+
+2. **提取 Hooks**
+   - 从 store 中分离出 `useFilteredDives`、`useSelectedDive`
+   - 添加通用 hooks: `useDebounce`、`useLocalStorage`
+
+3. **添加 Constants**
+   - 图表配置常量提取到 `chart.ts`
+   - 应用配置提取到 `app.ts`
+
+4. **添加 Services 层**
+   - `api.ts` - 基础 HTTP 客户端封装
+   - `diveService.ts` - 潜水数据服务（为未来 API 集成准备）
+
+5. **路径别名优化**
+   - 更新 `tsconfig.json` 和 `vite.config.ts`
+   - 支持 `@/components`、`@/hooks`、`@/store` 等别名
+
+---
+
 ## 待办事项 / 未来改进
 
 - [x] 重命名项目文件夹：`online-dive-logs` → `dive-logs`
 - [x] 添加错误边界和加载状态组件
 - [x] 改进可访问性 (a11y)
+- [x] 重构项目结构（按功能组织）
+- [x] 提取自定义 Hooks
+- [x] 添加 Services 层
 - [ ] 真实潜水数据导入（Subsurface XML、UDDF 格式）
 - [ ] 数据库持久化
 - [ ] 用户认证

@@ -1,1 +1,1 @@
-export * from './diveStore';
+export { useDiveStore } from './diveStore';
