@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import { useDiveStore } from '@/store';
 import { useFilteredDives, getFreeDivePBId } from '@/hooks';
 import { SearchInput } from '@/components/common';
@@ -6,11 +6,49 @@ import { formatDuration, formatDepth } from '@/utils';
 import { fieldLabels } from '@/constants';
 import type { SortField, SortDirection } from '@/types';
 
+// 可切换显示的列
+type ToggleableColumn = 'diveComputer' | 'location' | 'buddy' | 'tags';
+
+const toggleableColumns: { key: ToggleableColumn; label: string }[] = [
+  { key: 'diveComputer', label: fieldLabels.diveComputer },
+  { key: 'location', label: fieldLabels.location },
+  { key: 'buddy', label: fieldLabels.buddy },
+  { key: 'tags', label: fieldLabels.tags },
+];
+
 export function DiveList() {
   const { selectedDiveId, setSelectedDiveId, filterText, setFilterText, showValidOnly, setShowValidOnly } = useDiveStore();
   const filteredDives = useFilteredDives();
   const [sortField, setSortField] = useState<SortField>('diveNumber');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  
+  // 列可见性状态 - 移动端默认关闭可选列
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const [columnVisibility, setColumnVisibility] = useState<Record<ToggleableColumn, boolean>>({
+    diveComputer: !isMobile,
+    location: !isMobile,
+    buddy: !isMobile,
+    tags: !isMobile,
+  });
+  const [showColumnMenu, setShowColumnMenu] = useState(false);
+  const columnMenuRef = useRef<HTMLDivElement>(null);
+  
+  // 点击外部关闭菜单
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (columnMenuRef.current && !columnMenuRef.current.contains(e.target as Node)) {
+        setShowColumnMenu(false);
+      }
+    };
+    if (showColumnMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showColumnMenu]);
+  
+  const toggleColumn = (col: ToggleableColumn) => {
+    setColumnVisibility(prev => ({ ...prev, [col]: !prev[col] }));
+  };
 
   // 排序后的潜水列表
   const sortedDives = useMemo(() => {
@@ -126,11 +164,53 @@ export function DiveList() {
             {showValidOnly ? 'Valid' : 'All'}
           </span>
         </button>
+        
+        {/* Column Selector */}
+        <div className="relative" ref={columnMenuRef}>
+          <button
+            type="button"
+            aria-label="Select columns"
+            aria-expanded={showColumnMenu}
+            onClick={() => setShowColumnMenu(!showColumnMenu)}
+            title="Select visible columns"
+            className={`group flex items-center gap-1.5 px-2 py-1 rounded-md text-xs transition-all duration-200 ${
+              showColumnMenu
+                ? 'bg-amber-900/40 text-amber-500'
+                : 'bg-zinc-800 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-400'
+            }`}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+            </svg>
+            <span className="transition-colors">Columns</span>
+          </button>
+          
+          {showColumnMenu && (
+            <div className="absolute right-0 top-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg z-50 min-w-[140px] py-1">
+              {toggleableColumns.map(({ key, label }) => (
+                <label
+                  key={key}
+                  className="flex items-center gap-2 px-3 py-1.5 hover:bg-zinc-700 cursor-pointer text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    checked={columnVisibility[key]}
+                    onChange={() => toggleColumn(key)}
+                    className="w-3.5 h-3.5 rounded border-zinc-600 bg-zinc-700 text-amber-500 focus:ring-amber-500 focus:ring-offset-0"
+                  />
+                  <span className={columnVisibility[key] ? 'text-zinc-200' : 'text-zinc-500'}>
+                    {label}
+                  </span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
       
       {/* Table */}
       <div className="flex-1 overflow-auto" role="table" aria-label="Dive records">
-        <table className="w-full text-sm min-w-[800px]">
+        <table className="w-full text-sm">
           <thead className="sticky top-0 bg-zinc-900 z-10">
             <tr className="text-left text-zinc-400 border-b border-zinc-700 whitespace-nowrap">
               <th 
@@ -148,20 +228,24 @@ export function DiveList() {
                 {fieldLabels.date}
                 <SortIcon field="date" />
               </th>
-              <th 
-                className="px-2 py-1.5 font-medium cursor-pointer hover:text-amber-500 select-none" 
-                scope="col"
-                onClick={() => handleSort('diveComputer')}
-              >
-                {fieldLabels.diveComputer}<SortIcon field="diveComputer" />
-              </th>
-              <th 
-                className="px-2 py-1.5 font-medium cursor-pointer hover:text-amber-500 select-none" 
-                scope="col"
-                onClick={() => handleSort('location')}
-              >
-                {fieldLabels.location}<SortIcon field="location" />
-              </th>
+              {columnVisibility.diveComputer && (
+                <th 
+                  className="px-2 py-1.5 font-medium cursor-pointer hover:text-amber-500 select-none" 
+                  scope="col"
+                  onClick={() => handleSort('diveComputer')}
+                >
+                  {fieldLabels.diveComputer}<SortIcon field="diveComputer" />
+                </th>
+              )}
+              {columnVisibility.location && (
+                <th 
+                  className="px-2 py-1.5 font-medium cursor-pointer hover:text-amber-500 select-none" 
+                  scope="col"
+                  onClick={() => handleSort('location')}
+                >
+                  {fieldLabels.location}<SortIcon field="location" />
+                </th>
+              )}
               <th 
                 className="px-2 py-1.5 font-medium cursor-pointer hover:text-amber-500 select-none" 
                 scope="col"
@@ -169,20 +253,24 @@ export function DiveList() {
               >
                 {fieldLabels.diveType}<SortIcon field="diveType" />
               </th>
-              <th 
-                className="px-2 py-1.5 font-medium cursor-pointer hover:text-amber-500 select-none" 
-                scope="col"
-                onClick={() => handleSort('buddy')}
-              >
-                {fieldLabels.buddy}<SortIcon field="buddy" />
-              </th>
-              <th 
-                className="px-2 py-1.5 font-medium cursor-pointer hover:text-amber-500 select-none" 
-                scope="col"
-                onClick={() => handleSort('tags')}
-              >
-                {fieldLabels.tags}<SortIcon field="tags" />
-              </th>
+              {columnVisibility.buddy && (
+                <th 
+                  className="px-2 py-1.5 font-medium cursor-pointer hover:text-amber-500 select-none" 
+                  scope="col"
+                  onClick={() => handleSort('buddy')}
+                >
+                  {fieldLabels.buddy}<SortIcon field="buddy" />
+                </th>
+              )}
+              {columnVisibility.tags && (
+                <th 
+                  className="px-2 py-1.5 font-medium cursor-pointer hover:text-amber-500 select-none" 
+                  scope="col"
+                  onClick={() => handleSort('tags')}
+                >
+                  {fieldLabels.tags}<SortIcon field="tags" />
+                </th>
+              )}
               <th 
                 className="px-2 py-1.5 font-medium text-right cursor-pointer hover:text-amber-500 select-none" 
                 scope="col"
@@ -218,15 +306,19 @@ export function DiveList() {
                 <td className="px-2 py-1.5">
                   {dive.date} {dive.startTime}
                 </td>
-                <td className="px-2 py-1.5 text-zinc-400">
-                  {dive.diveComputer.model}
-                </td>
-                <td className="px-2 py-1.5">
-                  <span className="text-amber-500">{dive.site}</span>
-                  {dive.site !== dive.location && (
-                    <span className="text-zinc-500 ml-1">({dive.location})</span>
-                  )}
-                </td>
+                {columnVisibility.diveComputer && (
+                  <td className="px-2 py-1.5 text-zinc-400">
+                    {dive.diveComputer.model}
+                  </td>
+                )}
+                {columnVisibility.location && (
+                  <td className="px-2 py-1.5">
+                    <span className="text-amber-500">{dive.site}</span>
+                    {dive.site !== dive.location && (
+                      <span className="text-zinc-500 ml-1">({dive.location})</span>
+                    )}
+                  </td>
+                )}
                 <td className="px-2 py-1.5">
                   <span className={`inline-block px-1.5 py-0.5 rounded text-xs ${
                     dive.diveType === 'CC/BO' ? 'bg-purple-900/50 text-purple-300' :
@@ -239,25 +331,29 @@ export function DiveList() {
                     {dive.diveType}
                   </span>
                 </td>
-                <td className="px-2 py-1.5 text-zinc-400">
-                  {dive.buddy || '-'}
-                </td>
-                <td className="px-2 py-1.5">
-                  {dive.tags && dive.tags.length > 0 ? (
-                    <div className="flex flex-nowrap gap-1">
-                      {dive.tags.map((tag, idx) => (
-                        <span
-                          key={idx}
-                          className="inline-block px-1.5 py-0.5 rounded text-xs bg-purple-900/50 text-purple-300"
-                        >
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <span className="text-zinc-600">-</span>
-                  )}
-                </td>
+                {columnVisibility.buddy && (
+                  <td className="px-2 py-1.5 text-zinc-400">
+                    {dive.buddy || '-'}
+                  </td>
+                )}
+                {columnVisibility.tags && (
+                  <td className="px-2 py-1.5">
+                    {dive.tags && dive.tags.length > 0 ? (
+                      <div className="flex flex-nowrap gap-1">
+                        {dive.tags.map((tag, idx) => (
+                          <span
+                            key={idx}
+                            className="inline-block px-1.5 py-0.5 rounded text-xs bg-purple-900/50 text-purple-300"
+                          >
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-zinc-600">-</span>
+                    )}
+                  </td>
+                )}
                 <td className="px-2 py-1.5 text-right font-mono">
                   <span className="flex items-center justify-end gap-1">
                     {dive.diveType === 'FreeDive' && dive.id === freeDivePBId && (
