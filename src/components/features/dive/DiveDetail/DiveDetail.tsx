@@ -6,14 +6,14 @@ import { DiveStats } from '../DiveStats';
 import { ResizablePanels } from '@/components/layout';
 import { TabButton, EmptyState } from '@/components/common';
 import { uiLabels } from '@/constants';
-import { DiveTab, ComputerTab, CursorTab } from './tabs';
+import { DiveTab, ComputerTab, CursorTab, GasesTab } from './tabs';
 import type { ViewMode, Dive, DiveProfilePoint } from '@/types';
 
 // ============================================================================
 // Tab 类型定义
 // ============================================================================
 
-type TabId = 'dive' | 'computer' | 'cursor';
+type TabId = 'dive' | 'computer' | 'gases' | 'cursor';
 
 // ============================================================================
 // 内部组件
@@ -45,6 +45,9 @@ const DetailContent = memo(function DetailContent({
         <TabButton active={activeTab === 'computer'} onClick={() => setActiveTab('computer')}>
           {uiLabels.computer}
         </TabButton>
+        <TabButton active={activeTab === 'gases'} onClick={() => setActiveTab('gases')}>
+          {uiLabels.gases}
+        </TabButton>
         <TabButton active={activeTab === 'cursor'} onClick={() => setActiveTab('cursor')}>
           Cursor
         </TabButton>
@@ -54,6 +57,7 @@ const DetailContent = memo(function DetailContent({
       <div className="flex-1 overflow-auto p-4">
         {activeTab === 'dive' && <DiveTab dive={dive} isPersonalBest={isPersonalBest} />}
         {activeTab === 'computer' && <ComputerTab dive={dive} />}
+        {activeTab === 'gases' && <GasesTab dive={dive} />}
         {activeTab === 'cursor' && <CursorTab cursorData={cursorData} />}
       </div>
     </div>

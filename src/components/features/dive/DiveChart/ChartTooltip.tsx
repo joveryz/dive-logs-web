@@ -68,7 +68,7 @@ function ChartTooltipComponent({
  */
 function getDecimalPlaces(key: string): number {
   if (key === 'depth' || key === 'temperature') return 1;
-  if (key === 'ppO2' || key === 'ppN2' || key === 'ascentRate') return 2;
+  if (key === 'ppO2' || key === 'ppN2' || key === 'ascentRate' || key === 'sac') return 2;
   return 0;
 }
 

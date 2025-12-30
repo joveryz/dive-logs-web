@@ -37,7 +37,7 @@ export const DEFAULT_CHART_SERIES: ChartSeriesConfig[] = [
   // 安全指标
   { key: 'cns', name: fieldLabels.cns, color: '#f59e0b', type: 'line', visible: false, unit: '%' },
   // 气瓶与消耗
-  { key: 'sac', name: fieldLabels.sac, color: '#d946ef', type: 'line', visible: false, unit: 'L/min' },
+  { key: 'sac', name: fieldLabels.sac, color: '#d946ef', type: 'line', visible: false, unit: 'bar/min' },
   { key: 'tank1Pressure', name: fieldLabels.tank1Pressure, color: '#a855f7', type: 'line', visible: false, unit: 'bar' },
   { key: 'tank2Pressure', name: fieldLabels.tank2Pressure, color: '#8b5cf6', type: 'line', visible: false, unit: 'bar' },
 ];

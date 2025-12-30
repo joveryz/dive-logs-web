@@ -2,10 +2,11 @@
  * Shearwater CSV 数据解析模块
  */
 
-import { Dive, DiveProfilePoint } from '@/types';
+import { Dive, DiveProfilePoint, GasesInfo, TankInfo } from '@/types';
 import { mapDiveMode } from '@/constants/labels';
 import summaryCSV from './shearwater-export-summary.csv?raw';
 import samplesCSV from './shearwater-export-samples.csv?raw';
+import tanksCSV from './shearwater-export-tanks.csv?raw';
 
 interface SummaryRow {
   Number: string;
@@ -65,11 +66,32 @@ interface SampleRow {
   PPO2: string;
   PPN2: string;
   PPHE: string;
-  TankPressureInBar: string;
+  Tank1PressureInBar: string;
+  Tank2PressureInBar: string;
+  Tank3PressureInBar: string;
+  Tank4PressureInBar: string;
   SAC: string;
   Temperature: string;
   BatteryVoltage: string;
   GasTimeRemainingInMinutes: string;
+}
+
+interface TankRow {
+  Number: string;
+  Tank1Enabled: string;
+  Tank1TransmitterName: string;
+  Tank1TransmitterSerialNumber: string;
+  Tank1AverageDepthInMeters: string;
+  Tank1GasO2Percent: string;
+  Tank1GasHePercent: string;
+  Tank1GasN2Percent: string;
+  Tank2Enabled: string;
+  Tank2TransmitterName: string;
+  Tank2TransmitterSerialNumber: string;
+  Tank2AverageDepthInMeters: string;
+  Tank2GasO2Percent: string;
+  Tank2GasHePercent: string;
+  Tank2GasN2Percent: string;
 }
 
 /**
@@ -129,11 +151,146 @@ function calculateAscentRate(
 }
 
 /**
+ * 解析气瓶压力值，处理特殊情况
+ */
+function parseTankPressure(val: string): number | undefined {
+  if (!val || val === 'AI is off' || val === '0') return undefined;
+  const num = parseFloat(val);
+  return isNaN(num) || num <= 0 ? undefined : num;
+}
+
+/**
+ * 从样本数据中提取气瓶信息
+ */
+function extractGasesInfo(samples: SampleRow[], mode: string, avgDepth: number, tankRow?: TankRow): GasesInfo | undefined {
+  if (samples.length === 0) return undefined;
+
+  // 获取有效的气瓶压力数据（带时间和深度）
+  const tank1Data = samples
+    .map(s => ({
+      pressure: parseTankPressure(s.Tank1PressureInBar),
+      time: parseInt(s.ElapsedTimeInSeconds, 10) || 0,
+      depth: parseFloat(s.Depth) || 0,
+    }))
+    .filter((d): d is { pressure: number; time: number; depth: number } => d.pressure !== undefined && d.pressure > 0);
+  
+  const tank2Data = samples
+    .map(s => ({
+      pressure: parseTankPressure(s.Tank2PressureInBar),
+      time: parseInt(s.ElapsedTimeInSeconds, 10) || 0,
+      depth: parseFloat(s.Depth) || 0,
+    }))
+    .filter((d): d is { pressure: number; time: number; depth: number } => d.pressure !== undefined && d.pressure > 0);
+  
+  // 检查是否有气体集成（AI）数据
+  const hasAI = tank1Data.length > 0 || tank2Data.length > 0;
+  
+  if (!hasAI) return undefined;
+
+  const tanks: TankInfo[] = [];
+
+  // 从 tankRow 获取 transmitter 序列号
+  const tank1Serial = tankRow?.Tank1TransmitterSerialNumber && tankRow.Tank1TransmitterSerialNumber !== '000000' 
+    ? tankRow.Tank1TransmitterSerialNumber 
+    : undefined;
+  const tank2Serial = tankRow?.Tank2TransmitterSerialNumber && tankRow.Tank2TransmitterSerialNumber !== '000000' 
+    ? tankRow.Tank2TransmitterSerialNumber 
+    : undefined;
+
+  // Tank 1
+  if (tank1Data.length > 0) {
+    const startPressure = tank1Data[0].pressure;
+    const endPressure = tank1Data[tank1Data.length - 1].pressure;
+    const pressureChange = startPressure - endPressure;
+    const startTime = tank1Data[0].time;
+    const endTime = tank1Data[tank1Data.length - 1].time;
+    const durationMin = (endTime - startTime) / 60;
+    
+    // SAC = (压力变化 / 时间) / 环境压力(ATA)
+    // 环境压力 = 平均深度/10 + 1
+    const ambientPressure = avgDepth / 10 + 1;
+    const sacCalculated = durationMin > 0 && ambientPressure > 0 
+      ? Math.round((pressureChange / durationMin / ambientPressure) * 100) / 100
+      : undefined;
+    
+    tanks.push({
+      name: 'Tank 1',
+      startPressure: Math.round(startPressure * 100) / 100,
+      endPressure: Math.round(endPressure * 100) / 100,
+      pressureChange: Math.round(pressureChange * 100) / 100,
+      transmitter: tank1Serial ? `T1 (${tank1Serial})` : 'T1',
+      avgDepth: Math.round(avgDepth * 100) / 100,
+      sacCalculated,
+    });
+  }
+
+  // Tank 2
+  if (tank2Data.length > 0) {
+    const startPressure = tank2Data[0].pressure;
+    const endPressure = tank2Data[tank2Data.length - 1].pressure;
+    const pressureChange = startPressure - endPressure;
+    const startTime = tank2Data[0].time;
+    const endTime = tank2Data[tank2Data.length - 1].time;
+    const durationMin = (endTime - startTime) / 60;
+    
+    const ambientPressure = avgDepth / 10 + 1;
+    const sacCalculated = durationMin > 0 && ambientPressure > 0 
+      ? Math.round((pressureChange / durationMin / ambientPressure) * 100) / 100
+      : undefined;
+    
+    tanks.push({
+      name: 'Tank 2',
+      startPressure: Math.round(startPressure * 100) / 100,
+      endPressure: Math.round(endPressure * 100) / 100,
+      pressureChange: Math.round(pressureChange * 100) / 100,
+      transmitter: tank2Serial ? `T2 (${tank2Serial})` : 'T2',
+      avgDepth: Math.round(avgDepth * 100) / 100,
+      sacCalculated,
+    });
+  }
+
+  // 构建发射器列表
+  const transmitters: string[] = [];
+  if (tank1Data.length > 0) transmitters.push(tank1Serial ? `T1 (${tank1Serial})` : 'T1');
+  if (tank2Data.length > 0) transmitters.push(tank2Serial ? `T2 (${tank2Serial})` : 'T2');
+
+  // 根据模式判断 OC/CC gases
+  const isCC = mode.toLowerCase().includes('cc') || mode.toLowerCase().includes('closed');
+  const gasString = mode === 'Air' ? '21/0' : mode;
+
+  return {
+    ocGases: !isCC ? {
+      programmed: gasString,
+      used: gasString,
+    } : undefined,
+    ccGases: isCC ? {
+      programmed: gasString,
+      used: gasString,
+    } : {
+      programmed: 'None',
+      used: 'None',
+    },
+    airIntegration: {
+      aiEnabled: hasAI,
+      transmitters: transmitters.length > 0 ? transmitters : undefined,
+      gtrMode: tanks.length === 1 ? 'T1 (Single Tank)' : tanks.length > 1 ? 'Average' : undefined,
+    },
+    tanks: tanks.length > 0 ? tanks : undefined,
+  };
+}
+
+/**
  * 将样本数据转换为 DiveProfilePoint
+ * @param sample 当前样本
+ * @param ascentRate 上升速率
+ * @param prevSample 上一个样本（用于计算 SAC）
+ * @param sampleRateMs 采样率（毫秒）
  */
 function sampleToProfilePoint(
   sample: SampleRow,
-  ascentRate: number
+  ascentRate: number,
+  prevSample: SampleRow | null,
+  sampleRateMs: number
 ): DiveProfilePoint {
   const parseNum = (val: string): number | undefined => {
     const num = parseFloat(val);
@@ -147,6 +304,25 @@ function sampleToProfilePoint(
   const gf99Raw = parseNum(gf99Str);
   const gf99 = gf99Raw !== undefined && gf99Raw < 200 ? gf99Raw : undefined;
 
+  const tank1Pressure = parseTankPressure(sample.Tank1PressureInBar);
+  const tank2Pressure = parseTankPressure(sample.Tank2PressureInBar);
+  
+  // 从气瓶压力计算 SAC
+  // SAC = (压力变化率 bar/min) / (深度/10 + 1)
+  let sac: number | undefined = undefined;
+  if (prevSample && depth > 0) {
+    const prevTank1 = parseTankPressure(prevSample.Tank1PressureInBar);
+    const sampleRateMin = sampleRateMs / 1000 / 60; // 转换为分钟
+    
+    if (tank1Pressure !== undefined && prevTank1 !== undefined && sampleRateMin > 0) {
+      const pressureChangeRate = (prevTank1 - tank1Pressure) / sampleRateMin; // bar/min
+      const ambientPressure = depth / 10 + 1; // ATA
+      if (pressureChangeRate >= 0 && ambientPressure > 0) {
+        sac = pressureChangeRate / ambientPressure;
+      }
+    }
+  }
+
   return {
     time: parseInt(sample.ElapsedTimeInSeconds, 10) || 0,
     depth: Math.round(depth * 10) / 10,
@@ -159,14 +335,9 @@ function sampleToProfilePoint(
     ppO2: parseNum(sample.PPO2),
     ppN2: parseNum(sample.PPN2),
     ppHe: parseNum(sample.PPHE),
-    // tank1Pressure 需要特殊处理，CSV 中可能是 "AI is off"
-    tank1Pressure: sample.TankPressureInBar !== 'AI is off' 
-      ? parseNum(sample.TankPressureInBar) 
-      : undefined,
-    // SAC 也可能是 "GTR and SAC are off"
-    sac: sample.SAC !== 'GTR and SAC are off' 
-      ? parseNum(sample.SAC) 
-      : undefined,
+    tank1Pressure,
+    tank2Pressure,
+    sac: sac !== undefined ? Math.round(sac * 100) / 100 : undefined,
     tts: parseNum(sample.TimeToSurfaceInMinutes),
     tts5: parseNum(sample.TimeToSurfaceInMinutesAtPlusFive),
     deco: 0,
@@ -180,6 +351,7 @@ function sampleToProfilePoint(
 export function parseDivesFromCSV(): Dive[] {
   const summaryRows = parseCSV<SummaryRow>(summaryCSV);
   const sampleRows = parseCSV<SampleRow>(samplesCSV);
+  const tankRows = parseCSV<TankRow>(tanksCSV);
 
   // 按潜水编号分组样本数据
   const samplesByDive = new Map<string, SampleRow[]>();
@@ -189,6 +361,12 @@ export function parseDivesFromCSV(): Dive[] {
       samplesByDive.set(diveNum, []);
     }
     samplesByDive.get(diveNum)!.push(sample);
+  });
+
+  // 按潜水编号索引 tank 数据
+  const tanksByDive = new Map<string, TankRow>();
+  tankRows.forEach((tank) => {
+    tanksByDive.set(tank.Number, tank);
   });
 
   const parseNum = (val: string): number | undefined => {
@@ -204,11 +382,14 @@ export function parseDivesFromCSV(): Dive[] {
   const dives: Dive[] = summaryRows.map((summary) => {
     const diveNum = summary.Number;
     const samples = samplesByDive.get(diveNum) || [];
+    const tankRow = tanksByDive.get(diveNum);
+    const sampleRateMs = parseIntNum(summary.SampleRateInMs) || 10000;
     
     // 生成 profile 数据
     const profile: DiveProfilePoint[] = samples.map((sample, index) => {
       const ascentRate = calculateAscentRate(samples, index);
-      return sampleToProfilePoint(sample, ascentRate);
+      const prevSample = index > 0 ? samples[index - 1] : null;
+      return sampleToProfilePoint(sample, ascentRate, prevSample, sampleRateMs);
     });
 
     // 填充 GF99 缺失值：使用之前的已知点，默认值为 0
@@ -221,13 +402,15 @@ export function parseDivesFromCSV(): Dive[] {
       }
     }
 
-    // 填充 SAC 缺失值：使用之前的已知点，默认值为 0
-    let lastKnownSac = 0;
-    for (const point of profile) {
-      if (point.sac !== undefined) {
-        lastKnownSac = point.sac;
-      } else {
-        point.sac = lastKnownSac;
+    // 使用滑动窗口平均平滑 SAC 值
+    const sacWindowSize = 6; // 6个采样点的窗口
+    const rawSacValues = profile.map(p => p.sac);
+    for (let i = 0; i < profile.length; i++) {
+      const windowStart = Math.max(0, i - Math.floor(sacWindowSize / 2));
+      const windowEnd = Math.min(profile.length, i + Math.ceil(sacWindowSize / 2));
+      const windowValues = rawSacValues.slice(windowStart, windowEnd).filter((v): v is number => v !== undefined && v > 0);
+      if (windowValues.length > 0) {
+        profile[i].sac = Math.round(windowValues.reduce((a, b) => a + b, 0) / windowValues.length * 100) / 100;
       }
     }
 
@@ -259,6 +442,8 @@ export function parseDivesFromCSV(): Dive[] {
       return `${minutes}m`;
     };
 
+    const avgDepth = parseFloat(summary.DepthInMetersAvg) || 0;
+
     return {
       id: diveNum,
       diveNumber: parseInt(diveNum, 10),
@@ -267,7 +452,7 @@ export function parseDivesFromCSV(): Dive[] {
       endTime,
       duration: parseInt(summary.DurationInSeconds, 10) || 0,
       maxDepth: parseFloat(summary.DepthInMetersMax) || 0,
-      avgDepth: parseFloat(summary.DepthInMetersAvg) || 0,
+      avgDepth,
       diveType: mapDiveMode(summary.Mode),
       location: summary.Location || 'Unknown',
       site: summary.Site || 'Unknown',
@@ -322,6 +507,9 @@ export function parseDivesFromCSV(): Dive[] {
         avgTemp: parseNum(summary.TemperatureInCelsiusAvg),
         surfacePressure: parseNum(summary.SurfacePressureInMillibarPreDive),
       },
+      
+      // 气体信息
+      gasesInfo: extractGasesInfo(samples, summary.Mode, avgDepth, tankRow),
     };
   });
 

@@ -27,7 +27,7 @@ const CURSOR_DATA_DISPLAY_CONFIG: Record<string, {
   ppN2: { label: 'ppN₂', color: '#6366f1', unit: 'ATA', decimals: 2, group: 'gas' },
   tank1Pressure: { label: 'Tank 1', color: '#ef4444', unit: 'Bar', decimals: 0, group: 'tank' },
   tank2Pressure: { label: 'Tank 2', color: '#f97316', unit: 'Bar', decimals: 0, group: 'tank' },
-  sac: { label: 'SAC', color: '#84cc16', unit: 'L/min', decimals: 1, group: 'tank' },
+  sac: { label: 'SAC', color: '#84cc16', unit: 'bar/min', decimals: 2, group: 'tank' },
 };
 
 interface DataItem {

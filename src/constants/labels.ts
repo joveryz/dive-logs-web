@@ -200,6 +200,27 @@ export const uiLabels = {
   weight: 'Weight',
   tank: 'Tank',
   
+  // 气体标签
+  gases: 'Gases',
+  ocGases: 'OC Gases',
+  ccGases: 'CC Gases',
+  programmed: 'Programmed',
+  used: 'Used',
+  airIntegration: 'Air Integration',
+  aiEnabled: 'AI Enabled',
+  transmitters: 'Transmitters',
+  transmitter: 'Transmitter',
+  gtrMode: 'GTR Mode',
+  sacRecorded: 'SAC (Recorded)',
+  sacCalculated: 'SAC (Calculated)',
+  startPressure: 'Start Pressure',
+  endPressure: 'End Pressure',
+  pressureChange: 'Pressure Change',
+  gasUsage: 'Gas Usage',
+  gasNotes: 'Gas Notes',
+  noGasesData: 'No gases data available.',
+  noTankData: 'No tank data available.',
+  
   // 状态文案
   emptyState: 'Select a dive to view details',
   statsComingSoon: 'Statistics view coming soon...',
