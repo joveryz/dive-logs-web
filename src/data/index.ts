@@ -1,1 +1,1 @@
-export * from './mockDives';
+export * from './dives';

@@ -1,17 +1,28 @@
 import { useMemo, useState } from 'react';
 import { useDiveStore } from '@/store';
-import { useFilteredDives } from '@/hooks';
-import { SearchInput } from '@/components/common';
+import { SearchInput } from '@/components/common/ui';
 import { formatDuration, formatDepth } from '@/utils';
 
 type SortField = 'diveNumber' | 'date' | 'diveType' | 'location' | 'maxDepth' | 'duration';
 type SortDirection = 'asc' | 'desc';
 
 export function DiveList() {
-  const { selectedDiveId, setSelectedDiveId, filterText, setFilterText } = useDiveStore();
-  const filteredDives = useFilteredDives();
+  const { dives, selectedDiveId, setSelectedDiveId, filterText, setFilterText } = useDiveStore();
   const [sortField, setSortField] = useState<SortField>('diveNumber');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+
+  // 筛选后的潜水列表
+  const filteredDives = useMemo(() => {
+    if (!filterText.trim()) return dives;
+    const searchText = filterText.toLowerCase();
+    return dives.filter((dive) =>
+      dive.site.toLowerCase().includes(searchText) ||
+      dive.location.toLowerCase().includes(searchText) ||
+      dive.diveType.toLowerCase().includes(searchText) ||
+      dive.date.includes(searchText) ||
+      String(dive.diveNumber).includes(searchText)
+    );
+  }, [dives, filterText]);
 
   // 排序后的潜水列表
   const sortedDives = useMemo(() => {
@@ -191,7 +202,7 @@ export function DiveList() {
           </tbody>
         </table>
         
-        {sortedDives.length === 0 && (
+        {filteredDives.length === 0 && (
           <div className="text-center text-gray-500 py-10" role="status">
             No dives found matching "{filterText}"
           </div>
