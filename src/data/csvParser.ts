@@ -2,7 +2,8 @@
  * Shearwater CSV 数据解析模块
  */
 
-import { Dive, DiveProfilePoint, DiveType } from '@/types';
+import { Dive, DiveProfilePoint } from '@/types';
+import { mapDiveMode } from '@/constants/labels';
 import summaryCSV from './shearwater-export-summary.csv?raw';
 import samplesCSV from './shearwater-export-samples.csv?raw';
 
@@ -91,24 +92,6 @@ function parseCSV<T>(csv: string): T[] {
   }
 
   return rows;
-}
-
-/**
- * 将 Mode 转换为 DiveType
- */
-function modeToDiveType(mode: string): DiveType {
-  switch (mode) {
-    case 'Air':
-      return 'Air';
-    case 'Nitrox':
-      return 'Nitrox';
-    case 'Gauge':
-      return 'Gauge';
-    case 'CCR':
-      return 'CCR';
-    default:
-      return 'Air';
-  }
 }
 
 /**
@@ -251,7 +234,7 @@ export function parseDivesFromCSV(): Dive[] {
       duration: parseInt(summary.DurationInSeconds, 10) || 0,
       maxDepth: parseFloat(summary.DepthInMetersMax) || 0,
       avgDepth: parseFloat(summary.DepthInMetersAvg) || 0,
-      diveType: modeToDiveType(summary.Mode),
+      diveType: mapDiveMode(summary.Mode),
       location: summary.Location || 'Unknown',
       site: summary.Site || 'Unknown',
       buddy: summary.Buddy || undefined,

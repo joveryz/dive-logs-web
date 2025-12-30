@@ -177,9 +177,11 @@ export function DiveList() {
                 </td>
                 <td className="px-3 py-2">
                   <span className={`inline-block px-2 py-0.5 rounded text-xs ${
-                    dive.diveType === 'Air' ? 'bg-blue-900/50 text-blue-300' :
-                    dive.diveType === 'Nitrox' ? 'bg-green-900/50 text-green-300' :
-                    dive.diveType === 'Gauge' ? 'bg-yellow-900/50 text-yellow-300' :
+                    dive.diveType === 'CC/BO' ? 'bg-purple-900/50 text-purple-300' :
+                    dive.diveType === 'OC Tec' ? 'bg-red-900/50 text-red-300' :
+                    dive.diveType.startsWith('OC Rec') ? 'bg-blue-900/50 text-blue-300' :
+                    dive.diveType === 'FreeDive' ? 'bg-cyan-900/50 text-cyan-300' :
+                    dive.diveType === 'Avelo' ? 'bg-green-900/50 text-green-300' :
                     'bg-gray-700 text-gray-300'
                   }`}>
                     {dive.diveType}

@@ -10,7 +10,16 @@
 /**
  * 潜水类型
  */
-export type DiveType = 'Air' | 'Nitrox' | 'Gauge' | 'Freedive' | 'CCR';
+export type DiveType = 
+  | 'CC/BO' 
+  | 'OC Tec' 
+  | 'OC Rec' 
+  | 'OC Rec(Air)' 
+  | 'OC Rec(EAN)' 
+  | 'OC Rec(3GasNx)' 
+  | 'FreeDive' 
+  | 'Avelo' 
+  | 'None';
 
 /**
  * 水体类型

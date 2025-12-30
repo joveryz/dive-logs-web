@@ -165,6 +165,32 @@ export const fieldLabels: Record<string, string> = {
 };
 
 // ============================================================================
+// Dive Mode 映射（CSV Mode -> DiveType）
+// ============================================================================
+
+import type { DiveType } from '@/types';
+
+export const diveModeMapping: Record<string, DiveType> = {
+  'CC/BO': 'CC/BO',
+  'OC Tec': 'OC Tec',
+  'OC Rec': 'OC Rec',
+  'Gauge': 'FreeDive',
+  'Free Dive': 'FreeDive',
+  'Avelo': 'Avelo',
+  'None': 'None',
+  '3 Gas Nx': 'OC Rec(3GasNx)',
+  'Air': 'OC Rec',
+  'Nitrox': 'OC Rec(EAN)',
+};
+
+/**
+ * 将 CSV Mode 转换为 DiveType
+ */
+export function mapDiveMode(mode: string): DiveType {
+  return diveModeMapping[mode] || 'OC Rec';
+}
+
+// ============================================================================
 // 辅助函数
 // ============================================================================
 
