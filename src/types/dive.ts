@@ -353,7 +353,7 @@ export interface Dive {
   /** 潜点名称 */
   site: string;
   /** 潜伴 */
-  buddy?: string;
+  buddy: string;
   /** 潜水电脑 */
   diveComputer: DiveComputer;
   /** 电脑详细信息 */

@@ -66,7 +66,7 @@ function getCategoryValue(dive: Dive, category: StatsCategory): string {
     case 'site':
       return dive.site;
     case 'buddy':
-      return dive.buddy || 'Solo';
+      return dive.buddy;
     case 'yearMonth':
       return dive.date.substring(0, 7); // YYYY-MM
     case 'year':

@@ -504,7 +504,7 @@ export function parseDivesFromCSV(): Dive[] {
       diveType: mapDiveMode(summary.Mode),
       location: summary.Location || 'Unknown',
       site: summary.Site || 'Unknown',
-      buddy: summary.Buddy || undefined,
+      buddy: summary.Buddy || 'Solo',
       notes: summary.Note || undefined,
       tags: summary.Note ? summary.Note.split(';').map(t => t.trim()).filter(t => t.length > 0) : [],
       rating: 3,

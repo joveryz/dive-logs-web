@@ -97,12 +97,12 @@ export const DiveTab = memo(function DiveTab({ dive, isPersonalBest }: DiveTabPr
             {dive.site !== dive.location ? (
               <InfoCard label={uiLabels.location} value={dive.location} />
             ) : (
-              <InfoCard label={uiLabels.buddy} value={dive.buddy || '-'} />
+              <InfoCard label={uiLabels.buddy} value={dive.buddy} />
             )}
           </div>
           {dive.site !== dive.location && (
             <div className="grid grid-cols-2 gap-3">
-              <InfoCard label={uiLabels.buddy} value={dive.buddy || '-'} />
+              <InfoCard label={uiLabels.buddy} value={dive.buddy} />
             </div>
           )}
         </Section>

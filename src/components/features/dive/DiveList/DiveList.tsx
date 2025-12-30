@@ -331,7 +331,7 @@ export function DiveList() {
                 </td>
                 {columnVisibility.buddy && (
                   <td className="px-2 py-1.5 text-dive-text-secondary">
-                    {dive.buddy || '-'}
+                    {dive.buddy}
                   </td>
                 )}
                 {columnVisibility.tags && (
