@@ -9,7 +9,15 @@ export function Footer({ appName = 'Dive Logs' }: FooterProps) {
       role="contentinfo"
     >
       <span className="text-gray-500 text-xs">
-        © {new Date().getFullYear()} {appName} • Built with React + TypeScript + Recharts
+        © {new Date().getFullYear()} {appName} by{' '}
+        <a 
+          href="https://redebug.com" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-cyan-400 hover:text-cyan-300 transition-colors"
+        >
+          REDEBUG
+        </a>
       </span>
     </footer>
   );

@@ -93,7 +93,7 @@ export function DiveList() {
       <div className="flex items-center justify-between p-3 border-b border-gray-700">
         <h2 className="text-cyan-400 font-semibold text-lg">Dive List</h2>
         <span className="text-gray-400 text-sm" aria-live="polite">
-          Visible: {filteredDives.length} of {useDiveStore.getState().dives.length}
+          Visible: <span className="text-cyan-400">{filteredDives.length}/{useDiveStore.getState().dives.length}</span>
         </span>
       </div>
       

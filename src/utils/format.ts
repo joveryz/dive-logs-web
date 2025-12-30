@@ -17,9 +17,10 @@ export function formatDuration(seconds: number): string {
  * 格式化持续时间为可读字符串（如 "46min 55s"）
  */
 export function formatDurationReadable(seconds: number): string {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = seconds % 60;
+  const totalSecs = Math.round(seconds);
+  const hours = Math.floor(totalSecs / 3600);
+  const minutes = Math.floor((totalSecs % 3600) / 60);
+  const secs = totalSecs % 60;
   
   const parts: string[] = [];
   if (hours > 0) parts.push(`${hours}h`);

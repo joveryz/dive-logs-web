@@ -1,8 +1,9 @@
 import { useState, memo, useCallback } from 'react';
 import { Database } from 'lucide-react';
-import { useSelectedDive, getFreeDivePBId } from '@/hooks';
+import { useSelectedDive, getFreeDivePBId, useFilteredDives } from '@/hooks';
 import { useDiveStore } from '@/store';
 import { DiveChart } from '../DiveChart';
+import { DiveStats } from '../DiveStats';
 import { ResizablePanels } from '@/components/layout';
 import { TabButton } from '@/components/common';
 import { uiLabels } from '@/constants';
@@ -430,6 +431,7 @@ const DetailContent = memo(function DetailContent({ dive }: { dive: Dive }) {
  */
 export function DiveDetail() {
   const dive = useSelectedDive();
+  const filteredDives = useFilteredDives();
   const [viewMode, setViewMode] = useState<ViewMode>('graph');
 
   const handleViewModeChange = useCallback((mode: ViewMode) => {
@@ -464,9 +466,7 @@ export function DiveDetail() {
         {viewMode === 'graph' ? (
           <DiveChart profile={dive.profile} maxDepth={dive.maxDepth} diveType={dive.diveType} />
         ) : (
-          <div className="flex items-center justify-center h-full text-gray-500">
-            {uiLabels.statsComingSoon}
-          </div>
+          <DiveStats dives={filteredDives} />
         )}
       </div>
     </div>
