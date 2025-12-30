@@ -134,7 +134,7 @@ export function DiveList() {
           <thead className="sticky top-0 bg-gray-900 z-10">
             <tr className="text-left text-gray-400 border-b border-gray-700 whitespace-nowrap">
               <th 
-                className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
+                className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none sticky left-0 bg-gray-900 z-20" 
                 scope="col"
                 onClick={() => handleSort('diveNumber')}
               >
@@ -214,7 +214,7 @@ export function DiveList() {
                     : 'text-gray-300 hover:bg-gray-800/50'
                 }`}
               >
-                <td className="px-2 py-1.5">{dive.diveNumber}</td>
+                <td className={`px-2 py-1.5 sticky left-0 z-10 ${selectedDiveId === dive.id ? 'bg-gray-800' : 'bg-gray-900'}`}>{dive.diveNumber}</td>
                 <td className="px-2 py-1.5">
                   {dive.date} {dive.startTime}
                 </td>

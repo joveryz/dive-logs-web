@@ -5,11 +5,15 @@ import { Dive } from '@/types';
 /**
  * 判断潜水记录是否有效
  * - 潜水编号 > 1000 的无效
- * - FreeDive 深度 < 8m 的无效
+ * - FreeDive 深度 < 5m 的无效
+ * - 非 FreeDive 深度 < 10m 的无效
+ * - 非 FreeDive 时长 < 15min 的无效
  */
 export function isValidDive(dive: Dive): boolean {
   if (dive.diveNumber > 1000) return false;
-  if (dive.diveType === 'FreeDive' && dive.maxDepth < 8) return false;
+  if (dive.diveType === 'FreeDive' && dive.maxDepth < 5) return false;
+  if (dive.diveType !== 'FreeDive' && dive.maxDepth < 10) return false;
+  if (dive.diveType !== 'FreeDive' && dive.duration < 15 * 60) return false;
   return true;
 }
 
