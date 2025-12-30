@@ -1,10 +1,8 @@
 interface HeaderProps {
-  title?: string;
   slogan?: string;
 }
 
 export function Header({ 
-  title = 'Dive Logs', 
   slogan = 'Deep Dive, Dive Deep' 
 }: HeaderProps) {
   return (
@@ -17,8 +15,7 @@ export function Header({
         alt="Dive Logs"
         className="w-6 h-6 md:w-7 md:h-7 mr-2" 
       />
-      <h1 className="text-lg md:text-xl font-bold text-white">{title}</h1>
-      <span className="hidden sm:inline text-amber-500 text-sm italic ml-3">{slogan}</span>
+      <span className="text-amber-500 font-semibold text-lg">{slogan}</span>
     </header>
   );
 }

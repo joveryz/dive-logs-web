@@ -9,15 +9,15 @@ export function Footer({ appName = 'Dive Logs' }: FooterProps) {
       role="contentinfo"
     >
       <span className="text-zinc-500 text-xs">
-        © {new Date().getFullYear()} {appName} by{' '}
+        © {new Date().getFullYear()} {' '}
         <a 
           href="https://redebug.com" 
           target="_blank" 
           rel="noopener noreferrer"
           className="text-amber-500 hover:text-amber-400 transition-colors"
         >
-          REDEBUG
-        </a>
+          Jovery Zhang
+        </a>. Some rights reserved.
       </span>
     </footer>
   );
