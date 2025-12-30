@@ -1,10 +1,10 @@
 export function Footer() {
   return (
     <footer 
-      className="px-4 py-1.5 bg-zinc-800 border-t border-zinc-700 text-center"
+      className="px-4 py-1.5 bg-dive-surface border-t border-dive-border text-center"
       role="contentinfo"
     >
-      <span className="text-zinc-500 text-xs">
+      <span className="text-dive-text-muted text-xs">
         © {new Date().getFullYear()} {' '}
         <a 
           href="https://redebug.com" 

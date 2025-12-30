@@ -8,7 +8,7 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   return (
-    <div className="h-screen flex flex-col bg-zinc-900">
+    <div className="h-screen flex flex-col bg-dive-surface">
       <Header />
       <main className="flex-1 overflow-hidden" role="main">
         {children}

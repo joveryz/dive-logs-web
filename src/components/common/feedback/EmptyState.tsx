@@ -7,7 +7,7 @@ import { uiLabels } from '@/constants';
  */
 export const EmptyState = memo(function EmptyState() {
   return (
-    <div className="flex items-center justify-center h-full bg-zinc-900 text-zinc-500">
+    <div className="flex items-center justify-center h-full bg-dive-surface text-dive-text-muted">
       <Database className="w-12 h-12 mr-3 opacity-50" />
       <span className="text-lg">{uiLabels.emptyState}</span>
     </div>

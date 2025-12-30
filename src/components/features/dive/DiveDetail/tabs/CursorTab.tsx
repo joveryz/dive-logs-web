@@ -65,7 +65,7 @@ function extractDisplayableDataItems(cursorData: DiveProfilePoint): DataItem[] {
 const DataValue = memo(function DataValue({ item }: { item: DataItem }) {
   return (
     <div className="flex flex-col">
-      <span className="text-xs text-zinc-500 uppercase tracking-wider">{item.label}</span>
+      <span className="text-xs text-dive-text-muted uppercase tracking-wider">{item.label}</span>
       <span className="text-base font-medium" style={{ color: item.color }}>
         {item.value} {item.unit}
       </span>
@@ -83,7 +83,7 @@ interface CursorTabProps {
 export const CursorTab = memo(function CursorTab({ cursorData }: CursorTabProps) {
   if (!cursorData) {
     return (
-      <div className="flex items-center justify-center h-full text-zinc-500">
+      <div className="flex items-center justify-center h-full text-dive-text-muted">
         <span>Hover over the chart to see data</span>
       </div>
     );
@@ -100,8 +100,8 @@ export const CursorTab = memo(function CursorTab({ cursorData }: CursorTabProps)
       {/* 时间显示 - 横跨整行 */}
       <div className="col-span-12">
         <Section>
-          <div className="bg-zinc-800/60 rounded-lg p-3 text-center">
-            <div className="text-xs text-zinc-500 uppercase">Time</div>
+          <div className="bg-dive-card/60 rounded-lg p-3 text-center">
+            <div className="text-xs text-dive-text-muted uppercase">Time</div>
             <div className="text-xl font-bold text-amber-500">
               {formatTimeForChart(cursorData.time)}
             </div>

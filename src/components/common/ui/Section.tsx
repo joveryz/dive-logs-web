@@ -17,7 +17,7 @@ export const Section = memo(function Section({
   return (
     <div className={`space-y-2 ${className}`}>
       {title && (
-        <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider border-b border-zinc-700/50 pb-1">
+        <h3 className="text-xs font-semibold text-dive-text-secondary uppercase tracking-wider border-b border-dive-border/50 pb-1">
           {title}
         </h3>
       )}

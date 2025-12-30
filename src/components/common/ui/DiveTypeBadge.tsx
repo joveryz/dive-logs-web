@@ -12,7 +12,7 @@ const DIVE_TYPE_STYLES: Record<string, string> = {
   // OC Rec 系列使用蓝色
   default: 'bg-blue-900/50 text-blue-300',
   // 未知类型
-  unknown: 'bg-zinc-700 text-zinc-300',
+  unknown: 'bg-dive-hover text-dive-text',
 };
 
 /**

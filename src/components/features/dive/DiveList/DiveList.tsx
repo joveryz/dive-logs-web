@@ -115,7 +115,7 @@ export function DiveList() {
   // 排序图标
   const SortIcon = ({ field }: { field: SortField }) => {
     if (sortField !== field) {
-      return <span className="ml-1 text-zinc-600">⇅</span>;
+      return <span className="ml-1 text-dive-text-muted">⇅</span>;
     }
     return (
       <span className="ml-1 text-amber-500">
@@ -133,17 +133,17 @@ export function DiveList() {
   };
   
   return (
-    <div className="flex flex-col h-full bg-zinc-900" role="region" aria-label="Dive List">
+    <div className="flex flex-col h-full bg-dive-surface" role="region" aria-label="Dive List">
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b border-zinc-700">
+      <div className="flex items-center justify-between p-3 border-b border-dive-border">
         <h2 className="text-amber-500 font-semibold text-lg">Dive List</h2>
-        <span className="text-zinc-400 text-sm" aria-live="polite">
+        <span className="text-dive-text-secondary text-sm" aria-live="polite">
           Visible: <span className="text-amber-500">{filteredDives.length}/{useDiveStore.getState().dives.length}</span>
         </span>
       </div>
       
       {/* Search & Filter */}
-      <div className="p-3 border-b border-zinc-700 flex items-center gap-3">
+      <div className="p-3 border-b border-dive-border flex items-center gap-3">
         <div className="flex-1">
           <SearchInput
             value={searchQuery}
@@ -161,13 +161,13 @@ export function DiveList() {
           className={`group flex items-center gap-1.5 px-2 py-1 rounded-md text-xs transition-all duration-200 ${
             filterValidDivesOnly 
               ? 'bg-amber-900/40 text-amber-500 hover:bg-amber-900/60' 
-              : 'bg-zinc-800 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-400'
+              : 'bg-dive-card text-dive-text-muted hover:bg-dive-hover hover:text-dive-text-secondary'
           }`}
         >
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
           </svg>
-          <span className={`transition-colors ${filterValidDivesOnly ? 'text-amber-500' : 'text-zinc-500 group-hover:text-zinc-400'}`}>
+          <span className={`transition-colors ${filterValidDivesOnly ? 'text-amber-500' : 'text-dive-text-muted group-hover:text-dive-text-secondary'}`}>
             {filterValidDivesOnly ? 'Valid' : 'All'}
           </span>
         </button>
@@ -183,7 +183,7 @@ export function DiveList() {
             className={`group flex items-center gap-1.5 px-2 py-1 rounded-md text-xs transition-all duration-200 ${
               isColumnMenuOpen
                 ? 'bg-amber-900/40 text-amber-500'
-                : 'bg-zinc-800 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-400'
+                : 'bg-dive-card text-dive-text-muted hover:bg-dive-hover hover:text-dive-text-secondary'
             }`}
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -193,19 +193,19 @@ export function DiveList() {
           </button>
           
           {isColumnMenuOpen && (
-            <div className="absolute right-0 top-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg z-50 min-w-[140px] py-1">
+            <div className="absolute right-0 top-full mt-1 bg-dive-card border border-dive-border rounded-lg shadow-lg z-50 min-w-[140px] py-1">
               {OPTIONAL_COLUMNS.map(({ key, label }) => (
                 <label
                   key={key}
-                  className="flex items-center gap-2 px-3 py-1.5 hover:bg-zinc-700 cursor-pointer text-sm"
+                  className="flex items-center gap-2 px-3 py-1.5 hover:bg-dive-hover cursor-pointer text-sm"
                 >
                   <input
                     type="checkbox"
                     checked={columnVisibility[key]}
                     onChange={() => toggleColumnVisibility(key)}
-                    className="w-3.5 h-3.5 rounded border-zinc-600 bg-zinc-700 text-amber-500 focus:ring-amber-500 focus:ring-offset-0"
+                    className="w-3.5 h-3.5 rounded border-dive-border bg-dive-hover text-amber-500 focus:ring-amber-500 focus:ring-offset-0"
                   />
-                  <span className={columnVisibility[key] ? 'text-zinc-200' : 'text-zinc-500'}>
+                  <span className={columnVisibility[key] ? 'text-dive-text' : 'text-dive-text-muted'}>
                     {label}
                   </span>
                 </label>
@@ -218,8 +218,8 @@ export function DiveList() {
       {/* Table */}
       <div className="flex-1 overflow-auto" role="table" aria-label="Dive records">
         <table className="w-full text-sm">
-          <thead className="sticky top-0 bg-zinc-900 z-10">
-            <tr className="text-left text-zinc-400 border-b border-zinc-700 whitespace-nowrap">
+          <thead className="sticky top-0 bg-dive-surface z-10">
+            <tr className="text-left text-dive-text-secondary border-b border-dive-border whitespace-nowrap">
               <th 
                 className="px-2 py-1.5 font-medium cursor-pointer hover:text-amber-500 select-none" 
                 scope="col"
@@ -306,7 +306,7 @@ export function DiveList() {
                 className={`cursor-pointer transition-colors focus:outline-none whitespace-nowrap border-b ${
                   selectedDiveId === dive.id
                     ? 'bg-amber-900/30 text-amber-100 border-amber-600'
-                    : 'text-zinc-300 hover:bg-zinc-800/50 border-zinc-800'
+                    : 'text-dive-text hover:bg-dive-card/50 border-dive-card'
                 }`}
               >
                 <td className="px-2 py-1.5">{dive.diveNumber}</td>
@@ -314,7 +314,7 @@ export function DiveList() {
                   {dive.date} {dive.startTime}
                 </td>
                 {columnVisibility.diveComputer && (
-                  <td className="px-2 py-1.5 text-zinc-400">
+                  <td className="px-2 py-1.5 text-dive-text-secondary">
                     {dive.diveComputer.model}
                   </td>
                 )}
@@ -322,7 +322,7 @@ export function DiveList() {
                   <td className="px-2 py-1.5">
                     <span className="text-amber-500">{dive.site}</span>
                     {dive.site !== dive.location && (
-                      <span className="text-zinc-500 ml-1">({dive.location})</span>
+                      <span className="text-dive-text-muted ml-1">({dive.location})</span>
                     )}
                   </td>
                 )}
@@ -330,7 +330,7 @@ export function DiveList() {
                   <DiveTypeBadge diveType={dive.diveType} />
                 </td>
                 {columnVisibility.buddy && (
-                  <td className="px-2 py-1.5 text-zinc-400">
+                  <td className="px-2 py-1.5 text-dive-text-secondary">
                     {dive.buddy || '-'}
                   </td>
                 )}
@@ -348,7 +348,7 @@ export function DiveList() {
                         ))}
                       </div>
                     ) : (
-                      <span className="text-zinc-600">-</span>
+                      <span className="text-dive-text-muted">-</span>
                     )}
                   </td>
                 )}
@@ -371,7 +371,7 @@ export function DiveList() {
         </table>
         
         {sortedDives.length === 0 && (
-          <div className="text-center text-zinc-500 py-10" role="status">
+          <div className="text-center text-dive-text-muted py-10" role="status">
             No dives found matching "{searchQuery}"
           </div>
         )}

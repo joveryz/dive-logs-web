@@ -7,7 +7,7 @@ export function Header({
 }: HeaderProps) {
   return (
     <header 
-      className="flex items-center px-3 md:px-4 py-2 bg-zinc-800 border-b border-zinc-700"
+      className="flex items-center px-3 md:px-4 py-2 bg-dive-surface border-b border-dive-border"
       role="banner"
     >
       <img 

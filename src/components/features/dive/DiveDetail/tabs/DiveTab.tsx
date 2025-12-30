@@ -27,8 +27,8 @@ export const DiveTab = memo(function DiveTab({ dive, isPersonalBest }: DiveTabPr
         {/* 核心数据 */}
         <Section>
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-zinc-800/60 rounded-lg p-3 text-center">
-              <div className="text-xs text-zinc-500 uppercase">{uiLabels.maxDepth}</div>
+            <div className="bg-dive-card/60 rounded-lg p-3 text-center">
+              <div className="text-xs text-dive-text-muted uppercase">{uiLabels.maxDepth}</div>
               <div className="text-xl font-bold text-amber-500 flex items-center justify-center gap-1">
                 {isPersonalBest && (
                   <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-500/20 text-yellow-400">
@@ -38,8 +38,8 @@ export const DiveTab = memo(function DiveTab({ dive, isPersonalBest }: DiveTabPr
                 {formatDepth(dive.maxDepth)}
               </div>
             </div>
-            <div className="bg-zinc-800/60 rounded-lg p-3 text-center">
-              <div className="text-xs text-zinc-500 uppercase">{uiLabels.duration}</div>
+            <div className="bg-dive-card/60 rounded-lg p-3 text-center">
+              <div className="text-xs text-dive-text-muted uppercase">{uiLabels.duration}</div>
               <div className="text-xl font-bold text-green-400">{formatDurationReadable(dive.duration)}</div>
             </div>
           </div>
@@ -50,7 +50,7 @@ export const DiveTab = memo(function DiveTab({ dive, isPersonalBest }: DiveTabPr
           <div className="grid grid-cols-2 gap-3">
             <InfoCard label={uiLabels.diveNumber} value={dive.diveNumber} />
             <div className="flex flex-col">
-              <span className="text-xs text-zinc-500 uppercase tracking-wider">{uiLabels.type}</span>
+              <span className="text-xs text-dive-text-muted uppercase tracking-wider">{uiLabels.type}</span>
               <DiveTypeBadge diveType={dive.diveType} className="text-base w-fit" />
             </div>
           </div>
@@ -148,14 +148,14 @@ export const DiveTab = memo(function DiveTab({ dive, isPersonalBest }: DiveTabPr
             <div className="space-y-1">
               {gasConfigs.map((gas, idx) => (
                 <div key={idx} className="flex items-center gap-2 text-xs">
-                  <span className="px-1.5 py-0.5 bg-zinc-700 rounded text-zinc-300">
+                  <span className="px-1.5 py-0.5 bg-dive-hover rounded text-dive-text">
                     {gas.name || `Gas ${idx + 1}`}
                   </span>
-                  <span className="text-zinc-400">
+                  <span className="text-dive-text-secondary">
                     O₂: {formatNumber(gas.o2)}% {(gas.he ?? 0) > 0 && `He: ${formatNumber(gas.he)}%`}
                   </span>
                   {gas.startPressure && (
-                    <span className="text-zinc-500">
+                    <span className="text-dive-text-muted">
                       {formatNumber(gas.startPressure, '', 'tank1Pressure')} → {formatNumber(gas.endPressure, '', 'tank1Pressure') || '?'} bar
                     </span>
                   )}

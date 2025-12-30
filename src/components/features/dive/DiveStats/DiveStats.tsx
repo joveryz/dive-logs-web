@@ -19,12 +19,12 @@ const StatsRow = memo(function StatsRow({
   isHighlight?: boolean;
 }) {
   return (
-    <tr className={isHighlight ? 'bg-zinc-800/30' : ''}>
-      <td className="px-4 py-2 text-zinc-400 font-medium">{label}</td>
+    <tr className={isHighlight ? 'bg-dive-card/30' : ''}>
+      <td className="px-4 py-2 text-dive-text-secondary font-medium">{label}</td>
       {values.map((value, idx) => (
         <td 
           key={idx} 
-          className={`px-4 py-2 text-center ${idx === 0 ? 'text-amber-500 font-medium' : 'text-zinc-300'}`}
+          className={`px-4 py-2 text-center ${idx === 0 ? 'text-amber-500 font-medium' : 'text-dive-text'}`}
         >
           {value}
         </td>
@@ -46,22 +46,22 @@ export const DiveStats = memo(function DiveStats({ dives }: DiveStatsProps) {
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden bg-zinc-900">
+    <div className="h-full flex flex-col overflow-hidden bg-dive-surface">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-700">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-dive-border">
         <div className="flex items-center gap-4">
-          <span className="text-zinc-400 text-sm">Category</span>
+          <span className="text-dive-text-secondary text-sm">Category</span>
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value as StatsCategory)}
-            className="bg-zinc-800 text-zinc-200 px-3 py-1.5 rounded border border-zinc-600 text-sm focus:outline-none focus:border-amber-500"
+            className="bg-dive-card text-dive-text px-3 py-1.5 rounded border border-dive-border text-sm focus:outline-none focus:border-amber-500"
           >
             {Object.entries(STATS_CATEGORY_LABELS).map(([key, label]) => (
               <option key={key} value={key}>{label}</option>
             ))}
           </select>
         </div>
-        <div className="text-zinc-400 text-sm">
+        <div className="text-dive-text-secondary text-sm">
           Included: <span className="text-amber-500">{totalDives}/{totalDives}</span>
         </div>
       </div>
@@ -69,20 +69,20 @@ export const DiveStats = memo(function DiveStats({ dives }: DiveStatsProps) {
       {/* Table */}
       <div className="flex-1 overflow-auto">
         <table className="w-full text-sm">
-          <thead className="sticky top-0 bg-zinc-800">
+          <thead className="sticky top-0 bg-dive-card">
             <tr>
-              <th className="px-4 py-2 text-left text-zinc-400 font-medium">Statistic</th>
+              <th className="px-4 py-2 text-left text-dive-text-secondary font-medium">Statistic</th>
               {categories.map((cat, idx) => (
                 <th 
                   key={idx} 
-                  className={`px-4 py-2 text-center font-medium ${idx === 0 ? 'text-amber-500' : 'text-zinc-300'}`}
+                  className={`px-4 py-2 text-center font-medium ${idx === 0 ? 'text-amber-500' : 'text-dive-text'}`}
                 >
                   {idx === 0 ? 'All' : cat.name}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-800">
+          <tbody className="divide-y divide-dive-card">
             <StatsRow label={STATS_ROW_LABELS.totalTime} values={getRowValues('totalTime')} isHighlight />
             <StatsRow label={STATS_ROW_LABELS.totalDepth} values={getRowValues('totalDepth')} />
             <StatsRow label={STATS_ROW_LABELS.maxDepth} values={getRowValues('maxDepth')} isHighlight />

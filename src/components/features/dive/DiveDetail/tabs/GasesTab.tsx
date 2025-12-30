@@ -13,12 +13,12 @@ interface GasesTabProps {
  */
 const TankCard = memo(function TankCard({ tank }: { tank: TankInfo }) {
   return (
-    <div className="bg-zinc-800/40 rounded-lg p-3 space-y-3">
+    <div className="bg-dive-card/40 rounded-lg p-3 space-y-3">
       {/* 标题栏：气瓶名称和发射器 */}
-      <div className="flex items-center justify-between border-b border-zinc-700 pb-2">
+      <div className="flex items-center justify-between border-b border-dive-border pb-2">
         <span className="text-sm font-medium text-amber-500">{tank.name}</span>
         {tank.transmitter && (
-          <span className="text-xs text-zinc-500">Transmitter: {tank.transmitter}</span>
+          <span className="text-xs text-dive-text-muted">Transmitter: {tank.transmitter}</span>
         )}
       </div>
       
@@ -66,7 +66,7 @@ export const GasesTab = memo(function GasesTab({ dive }: GasesTabProps) {
   // 如果没有气体信息，显示空状态
   if (!gasesInfo) {
     return (
-      <div className="flex items-center justify-center h-full text-zinc-500">
+      <div className="flex items-center justify-center h-full text-dive-text-muted">
         {uiLabels.noGasesData}
       </div>
     );
@@ -142,7 +142,7 @@ export const GasesTab = memo(function GasesTab({ dive }: GasesTabProps) {
             <TankCard key={tank.name || index} tank={tank} />
           ))
         ) : (
-          <div className="text-zinc-500 text-sm">{uiLabels.noTankData}</div>
+          <div className="text-dive-text-muted text-sm">{uiLabels.noTankData}</div>
         )}
       </div>
     </div>

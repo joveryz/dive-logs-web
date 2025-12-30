@@ -20,9 +20,9 @@ export const InfoCard = memo(function InfoCard({
 }: InfoCardProps) {
   return (
     <div className="flex flex-col">
-      <span className="text-xs text-zinc-500 uppercase tracking-wider">{label}</span>
+      <span className="text-xs text-dive-text-muted uppercase tracking-wider">{label}</span>
       <span 
-        className={`text-base font-medium whitespace-pre-line ${highlight ? 'text-amber-500' : 'text-zinc-200'} ${className}`}
+        className={`text-base font-medium whitespace-pre-line ${highlight ? 'text-amber-500' : 'text-dive-text'} ${className}`}
         style={style}
       >
         {value}

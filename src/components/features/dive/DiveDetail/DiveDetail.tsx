@@ -36,9 +36,9 @@ const DetailContent = memo(function DetailContent({
   const isPersonalBest = dive.diveType === 'FreeDive' && dive.id === freeDivePersonalBestId;
 
   return (
-    <div className="h-full flex flex-col bg-zinc-900">
+    <div className="h-full flex flex-col bg-dive-surface">
       {/* Tab 导航 */}
-      <div className="flex border-b border-zinc-700 flex-shrink-0">
+      <div className="flex border-b border-dive-border flex-shrink-0">
         <TabButton active={activeTab === 'dive'} onClick={() => setActiveTab('dive')}>
           {uiLabels.diveSummary}
         </TabButton>
@@ -91,9 +91,9 @@ export function DiveDetail() {
 
   // 图表区域内容
   const chartContent = (
-    <div className="flex flex-col h-full bg-zinc-900">
+    <div className="flex flex-col h-full bg-dive-surface">
       {/* Header Tabs - Graph / Stats */}
-      <div className="flex border-b border-zinc-700 flex-shrink-0">
+      <div className="flex border-b border-dive-border flex-shrink-0">
         <TabButton
           active={viewMode === 'graph'}
           onClick={() => handleViewModeChange('graph')}

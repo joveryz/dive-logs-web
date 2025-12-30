@@ -15,7 +15,7 @@ export function MobileLayout() {
   return (
     <div className="flex flex-col h-full">
       {/* 移动端 Tab 切换 */}
-      <div className="flex border-b border-zinc-700 bg-zinc-800">
+      <div className="flex border-b border-dive-border bg-dive-card">
         <TabButton
           active={activeTab === 'list'}
           onClick={() => setActiveTab('list')}

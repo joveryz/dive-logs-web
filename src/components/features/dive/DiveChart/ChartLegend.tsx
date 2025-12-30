@@ -27,28 +27,25 @@ function ChartLegendComponent({
   onMouseLeave,
 }: ChartLegendProps) {
   return (
-    <div className="flex flex-wrap justify-center items-center gap-2 px-2 py-2 border-t border-zinc-700">
+    <div className="flex flex-wrap justify-center items-center gap-2 px-2 py-2 border-t border-dive-border">
       {/* 全选/默认/清空按钮 */}
       <div className="flex items-center gap-1 mr-2">
         <button
           onClick={onShowAll}
-          className="px-2 py-1 rounded text-xs bg-zinc-700 hover:bg-zinc-600 text-zinc-300 transition-colors"
-          title="Show all series"
-        >
+          className="px-2 py-1 rounded text-xs bg-dive-hover hover:bg-dive-card text-dive-text transition-colors"
+          title="Show all series">
           All
         </button>
         <button
           onClick={onResetToDefault}
-          className="px-2 py-1 rounded text-xs bg-zinc-700 hover:bg-zinc-600 text-zinc-300 transition-colors"
-          title="Reset to default (Depth, Ascent, Temp)"
-        >
+          className="px-2 py-1 rounded text-xs bg-dive-hover hover:bg-dive-card text-dive-text transition-colors"
+          title="Reset to default (Depth, Ascent, Temp)">
           Default
         </button>
         <button
           onClick={onHideAll}
-          className="px-2 py-1 rounded text-xs bg-zinc-700 hover:bg-zinc-600 text-zinc-300 transition-colors"
-          title="Hide all series"
-        >
+          className="px-2 py-1 rounded text-xs bg-dive-hover hover:bg-dive-card text-dive-text transition-colors"
+          title="Hide all series">
           None
         </button>
       </div>
@@ -105,7 +102,7 @@ function LegendButton({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       className={`flex items-center gap-1.5 px-2 py-1 rounded text-xs transition-all ${
-        isHovered ? 'bg-zinc-700' : 'hover:bg-zinc-800'
+        isHovered ? 'bg-dive-hover' : 'hover:bg-dive-card'
       } ${!isVisible ? 'opacity-40' : ''}`}
     >
       {children}
@@ -122,7 +119,7 @@ interface LegendLabelProps {
 function LegendLabel({ children, isVisible, color }: LegendLabelProps) {
   return (
     <span
-      className={`${!isVisible ? 'line-through text-zinc-500' : 'text-zinc-300'}`}
+      className={`${!isVisible ? 'line-through text-dive-text-muted' : 'text-dive-text'}`}
       style={{ color: isVisible ? color : undefined }}
     >
       {children}
