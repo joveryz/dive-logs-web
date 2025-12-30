@@ -3,7 +3,7 @@
  */
 export const APP_CONFIG = {
   name: 'Dive Logs',
-  description: 'Dive Log Management System',
+  description: 'Deep Dive, Dive Deep',
   version: '0.1.0',
 } as const;
 

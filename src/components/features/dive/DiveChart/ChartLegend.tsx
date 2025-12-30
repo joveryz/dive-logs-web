@@ -7,7 +7,6 @@ interface ChartLegendProps {
   onToggleVisibility: (key: string) => void;
   onHideAll: () => void;
   onShowAll: () => void;
-  allHidden: boolean;
   onMouseEnter: (key: string) => void;
   onMouseLeave: () => void;
 }
@@ -22,7 +21,6 @@ function ChartLegendComponent({
   onToggleVisibility,
   onHideAll,
   onShowAll,
-  allHidden,
   onMouseEnter,
   onMouseLeave,
 }: ChartLegendProps) {

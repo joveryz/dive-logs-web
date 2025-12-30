@@ -1,11 +1,11 @@
 interface HeaderProps {
   title?: string;
-  subtitle?: string;
+  slogan?: string;
 }
 
 export function Header({ 
   title = 'Dive Logs', 
-  subtitle = 'Dive Log Management System' 
+  slogan = 'Deep Dive, Dive Deep' 
 }: HeaderProps) {
   return (
     <header 
@@ -18,8 +18,7 @@ export function Header({
         className="w-7 h-7 mr-2" 
       />
       <h1 className="text-xl font-bold text-white">{title}</h1>
-      <div className="flex-1" />
-      <span className="text-gray-400 text-sm">{subtitle}</span>
+      <span className="text-cyan-400 text-sm italic ml-3">{slogan}</span>
     </header>
   );
 }
