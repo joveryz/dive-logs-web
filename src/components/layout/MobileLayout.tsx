@@ -9,7 +9,7 @@ import { useUrlParams } from '@/hooks';
  */
 export function MobileLayout() {
   // 如果 URL 有 diveNumber 参数，默认显示 detail
-  const hasDiveNumberParam = useUrlParams();
+  const { hasDiveNumberParam } = useUrlParams();
   const [activeTab, setActiveTab] = useState<'list' | 'detail'>(hasDiveNumberParam ? 'detail' : 'list');
 
   return (

@@ -5,13 +5,16 @@ import { useIsMobile, useUrlParams } from '@/hooks';
 function App() {
   const isMobile = useIsMobile();
   
-  // 桌面端处理 URL 参数（移动端在 MobileLayout 中处理以支持自动跳转 detail）
-  useUrlParams();
+  // 处理 URL 参数（如 ?diveNumber=1, ?layout=mobile）
+  const { forceLayout } = useUrlParams();
+  
+  // 确定使用哪种布局：URL 参数优先，否则根据设备判断
+  const useMobileLayout = forceLayout ? forceLayout === 'mobile' : isMobile;
 
   return (
     <ErrorBoundary>
       <AppLayout>
-        {isMobile ? <MobileLayout /> : <DesktopLayout />}
+        {useMobileLayout ? <MobileLayout /> : <DesktopLayout />}
       </AppLayout>
     </ErrorBoundary>
   );
