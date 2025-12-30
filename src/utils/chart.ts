@@ -21,9 +21,9 @@ export function calculateDynamicRange(
 
   // ascentRate 特殊处理：对称范围，以0为中心
   if (key === 'ascentRate') {
-    const maxAbs = Math.max(Math.abs(dataMin), Math.abs(dataMax), 1);
-    // 添加 20% padding，并取整到合适的值
-    const padded = Math.ceil(maxAbs * 1.2);
+    const maxAbs = Math.max(Math.abs(dataMin), Math.abs(dataMax), 0.1);
+    // 只添加很小的 padding，保持数据幅度明显
+    const padded = maxAbs * 1.05;
     return { min: -padded, max: padded };
   }
 
@@ -86,10 +86,11 @@ export function formatYAxisTick(
   minValue: number,
   maxValue: number
 ): string {
-  // ascentRate 特殊处理：0在中点(50)
+  // ascentRate 特殊处理：0 在中点(50)，使用 scale=45
   if (key === 'ascentRate') {
     const maxAbs = Math.max(Math.abs(minValue), Math.abs(maxValue));
-    const actualValue = ((50 - value) / 50) * maxAbs;
+    const scale = 45;
+    const actualValue = ((50 - value) / scale) * maxAbs;
     return actualValue.toFixed(2);
   }
 

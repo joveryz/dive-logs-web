@@ -61,7 +61,7 @@ export function DiveChart({ profile, maxDepth }: DiveChartProps) {
     return [0, maxTime];
   }, [profile]);
 
-  // 获取当前悬停的系列配置
+  // 获取当前悬停的系列配置（用于 Y 轴显示）
   const hoveredConfig = hoveredSeries
     ? seriesConfigs.find((s) => s.key === hoveredSeries)
     : null;
@@ -135,7 +135,7 @@ export function DiveChart({ profile, maxDepth }: DiveChartProps) {
                 tickLine={{ stroke: CHART_COLORS.axis }}
                 axisLine={{ stroke: CHART_COLORS.axis }}
                 tickCount={CHART_CONFIG.tickCount}
-                ticks={[0, 20, 40, 60, 80, 100]}
+                ticks={hoveredSeries === 'ascentRate' ? [5, 27.5, 50, 72.5, 95] : [0, 20, 40, 60, 80, 100]}
                 width={CHART_CONFIG.yAxisWidth}
                 tickFormatter={(v) => {
                   if (!hoveredConfig || hoveredConfig.key === 'depth') return '';
@@ -169,16 +169,14 @@ export function DiveChart({ profile, maxDepth }: DiveChartProps) {
                 strokeWidth={2}
               />
 
-              {/* 零线参考 - Ascent Rate (在50的位置，即0点) */}
-              {hoveredSeries === 'ascentRate' && (
-                <ReferenceLine
-                  yAxisId="normalized"
-                  y={50}
-                  stroke={CHART_COLORS.axis}
-                  strokeWidth={1}
-                  strokeDasharray="3 3"
-                />
-              )}
+              {/* 零线参考 - Ascent Rate (y=50 是 0 点) */}
+              <ReferenceLine
+                yAxisId="normalized"
+                y={50}
+                stroke="#666"
+                strokeWidth={1}
+                strokeDasharray="3 3"
+              />
 
               {/* 渲染所有数据系列 */}
               {chartSeriesElements}

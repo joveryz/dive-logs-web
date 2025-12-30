@@ -79,19 +79,19 @@ export function useDiveChartData(profile: DiveProfilePoint[]) {
           config.minValue !== undefined &&
           config.maxValue !== undefined
         ) {
-          // ascentRate 特殊处理：拆分为正负两个系列
+          // ascentRate 特殊处理：拆分为正负两个系列，0点在中心
           if (config.key === 'ascentRate') {
-            const maxAbs = Math.max(
-              Math.abs(config.minValue),
-              Math.abs(config.maxValue)
-            );
-            // 上升部分 (负值 -> 从50向上延伸)
+            // 使用 maxValue 作为缩放基准（范围是对称的）
+            const maxAbs = config.maxValue;
+            // 0点在Y轴中点(50)，上下各占用45的范围(5-95)
+            const scale = 45;
+            // 上升部分 (负值 -> 从50向上延伸，绿色)
             normalized['ascentRate_up'] =
-              value < 0 ? 50 + (Math.abs(value) / maxAbs) * 50 : 50;
-            // 下降部分 (正值 -> 从50向下延伸)
+              value < 0 ? 50 + (Math.abs(value) / maxAbs) * scale : 50;
+            // 下降部分 (正值 -> 从50向下延伸，红色)
             normalized['ascentRate_down'] =
-              value > 0 ? 50 - (value / maxAbs) * 50 : 50;
-            normalized[`${config.key}_normalized`] = 50; // 基准线位置
+              value > 0 ? 50 - (value / maxAbs) * scale : 50;
+            normalized[`${config.key}_normalized`] = 50;
           } else {
             // 其他数据归一化到 0-100 范围
             const range = config.maxValue - config.minValue;

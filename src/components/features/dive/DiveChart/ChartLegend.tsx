@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { ChartSeriesConfig, CHART_COLORS } from '@/constants';
+import { ChartSeriesConfig } from '@/constants';
 
 interface ChartLegendProps {
   seriesConfigs: ChartSeriesConfig[];
@@ -25,44 +25,12 @@ function ChartLegendComponent({
       {seriesConfigs.map((series) => {
         const isVisible = series.visible;
         const isHovered = hoveredSeries === series.key;
-        const isOtherHovered =
-          hoveredSeries !== null && hoveredSeries !== series.key;
-
-        // Ascent Rate 特殊图例 - 显示双色
-        if (series.key === 'ascentRate') {
-          return (
-            <LegendButton
-              key={series.key}
-              isVisible={isVisible}
-              isHovered={isHovered}
-              isOtherHovered={isOtherHovered}
-              onClick={() => onToggleVisibility(series.key)}
-              onMouseEnter={() => onMouseEnter(series.key)}
-              onMouseLeave={onMouseLeave}
-            >
-              <div
-                className={`flex gap-0.5 ${!isVisible ? 'opacity-40' : ''}`}
-              >
-                <div
-                  className="w-1.5 h-3 rounded-sm"
-                  style={{ backgroundColor: CHART_COLORS.ascent.up }}
-                />
-                <div
-                  className="w-1.5 h-3 rounded-sm"
-                  style={{ backgroundColor: CHART_COLORS.ascent.down }}
-                />
-              </div>
-              <LegendLabel isVisible={isVisible}>{series.name}</LegendLabel>
-            </LegendButton>
-          );
-        }
 
         return (
           <LegendButton
             key={series.key}
             isVisible={isVisible}
             isHovered={isHovered}
-            isOtherHovered={isOtherHovered}
             onClick={() => onToggleVisibility(series.key)}
             onMouseEnter={() => onMouseEnter(series.key)}
             onMouseLeave={onMouseLeave}
@@ -85,7 +53,6 @@ interface LegendButtonProps {
   children: React.ReactNode;
   isVisible: boolean;
   isHovered: boolean;
-  isOtherHovered: boolean;
   onClick: () => void;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
@@ -95,7 +62,6 @@ function LegendButton({
   children,
   isVisible,
   isHovered,
-  isOtherHovered,
   onClick,
   onMouseEnter,
   onMouseLeave,
@@ -107,7 +73,7 @@ function LegendButton({
       onMouseLeave={onMouseLeave}
       className={`flex items-center gap-1.5 px-2 py-1 rounded text-xs transition-all ${
         isHovered ? 'bg-gray-700' : 'hover:bg-gray-800'
-      } ${isOtherHovered ? 'opacity-30' : ''} ${!isVisible ? 'opacity-40' : ''}`}
+      } ${!isVisible ? 'opacity-40' : ''}`}
     >
       {children}
     </button>
