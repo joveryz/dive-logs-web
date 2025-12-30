@@ -7,8 +7,8 @@ import { DiveStats } from '../DiveStats';
 import { ResizablePanels } from '@/components/layout';
 import { TabButton } from '@/components/common';
 import { uiLabels } from '@/constants';
-import { formatDepth, formatDurationReadable } from '@/utils';
-import type { ViewMode, Dive } from '@/types';
+import { formatDepth, formatDurationReadable, formatTimeForChart } from '@/utils';
+import type { ViewMode, Dive, DiveProfilePoint } from '@/types';
 
 // ============================================================================
 // 工具函数
@@ -91,7 +91,7 @@ const Section = memo(function Section({
 // Tab 内容组件
 // ============================================================================
 
-type TabId = 'dive' | 'computer';
+type TabId = 'dive' | 'computer' | 'cursor';
 
 /**
  * Dive Tab - 潜水核心信息
@@ -285,6 +285,82 @@ const DiveTab = memo(function DiveTab({
 });
 
 /**
+ * Cursor Tab - 显示图表上鼠标位置的数据
+ */
+const CursorTab = memo(function CursorTab({
+  cursorData,
+}: {
+  cursorData: DiveProfilePoint | null;
+}) {
+  if (!cursorData) {
+    return (
+      <div className="flex items-center justify-center h-full text-zinc-500">
+        <span>Hover over the chart to see data</span>
+      </div>
+    );
+  }
+
+  // 获取所有有值的数据项
+  const dataItems: { key: string; label: string; value: string; color: string; unit: string }[] = [];
+  
+  // 遍历所有可能的数据系列
+  const seriesMap: Record<string, { label: string; color: string; unit: string; decimals: number }> = {
+    depth: { label: 'Depth', color: '#f59e0b', unit: 'm', decimals: 1 },
+    temperature: { label: 'Temperature', color: '#06b6d4', unit: '°C', decimals: 1 },
+    ascentRate: { label: 'Ascent Rate', color: '#22c55e', unit: 'm/s', decimals: 2 },
+    ndl: { label: 'NDL', color: '#10b981', unit: 'min', decimals: 0 },
+    gf99: { label: 'GF99', color: '#8b5cf6', unit: '%', decimals: 0 },
+    cns: { label: 'CNS', color: '#ec4899', unit: '%', decimals: 0 },
+    gasDensity: { label: 'Gas Density', color: '#14b8a6', unit: 'g/L', decimals: 2 },
+    ppO2: { label: 'ppO₂', color: '#3b82f6', unit: 'ATA', decimals: 2 },
+    ppHe: { label: 'ppHe', color: '#a855f7', unit: 'ATA', decimals: 2 },
+    ppN2: { label: 'ppN₂', color: '#6366f1', unit: 'ATA', decimals: 2 },
+    tank1Pressure: { label: 'Tank 1', color: '#ef4444', unit: 'Bar', decimals: 0 },
+    tank2Pressure: { label: 'Tank 2', color: '#f97316', unit: 'Bar', decimals: 0 },
+    sac: { label: 'SAC', color: '#84cc16', unit: 'L/min', decimals: 1 },
+    deco: { label: 'Deco', color: '#f43f5e', unit: 'min', decimals: 0 },
+    tts: { label: 'TTS', color: '#fb923c', unit: 'min', decimals: 0 },
+  };
+
+  Object.entries(seriesMap).forEach(([key, config]) => {
+    const value = cursorData[key as keyof DiveProfilePoint];
+    if (value !== undefined && value !== null && typeof value === 'number') {
+      dataItems.push({
+        key,
+        label: config.label,
+        value: value.toFixed(config.decimals),
+        color: config.color,
+        unit: config.unit,
+      });
+    }
+  });
+
+  return (
+    <div className="space-y-4">
+      {/* 时间显示 */}
+      <div className="bg-zinc-800/60 rounded-lg p-3">
+        <div className="text-xs text-zinc-500 uppercase mb-1">Time</div>
+        <div className="text-2xl font-bold text-amber-500 font-mono">
+          {formatTimeForChart(cursorData.time)}
+        </div>
+      </div>
+
+      {/* 数据网格 */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        {dataItems.map(({ key, label, value, color, unit }) => (
+          <div key={key} className="bg-zinc-800/40 rounded-lg p-2">
+            <div className="text-xs text-zinc-500 uppercase truncate">{label}</div>
+            <div className="font-mono text-lg" style={{ color }}>
+              {value} <span className="text-xs text-zinc-500">{unit}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+});
+
+/**
  * Computer Tab - 电脑与设置信息
  */
 const ComputerTab = memo(function ComputerTab({
@@ -367,9 +443,15 @@ const ComputerTab = memo(function ComputerTab({
 // ============================================================================
 
 /**
- * 详情内容 - 带有两个Tab的潜水信息
+ * 详情内容 - 带有三个Tab的潜水信息
  */
-const DetailContent = memo(function DetailContent({ dive }: { dive: Dive }) {
+const DetailContent = memo(function DetailContent({ 
+  dive, 
+  cursorData 
+}: { 
+  dive: Dive; 
+  cursorData: DiveProfilePoint | null;
+}) {
   const [activeTab, setActiveTab] = useState<TabId>('dive');
   
   const env = dive.environment;
@@ -394,11 +476,14 @@ const DetailContent = memo(function DetailContent({ dive }: { dive: Dive }) {
         <TabButton active={activeTab === 'computer'} onClick={() => setActiveTab('computer')}>
           {uiLabels.computer}
         </TabButton>
+        <TabButton active={activeTab === 'cursor'} onClick={() => setActiveTab('cursor')}>
+          Cursor
+        </TabButton>
       </div>
 
       {/* Tab 内容 */}
       <div className="flex-1 overflow-auto p-4">
-        {activeTab === 'dive' ? (
+        {activeTab === 'dive' && (
           <DiveTab 
             dive={dive} 
             env={env} 
@@ -408,7 +493,8 @@ const DetailContent = memo(function DetailContent({ dive }: { dive: Dive }) {
             diveSettings={diveSettings}
             isPB={isPB} 
           />
-        ) : (
+        )}
+        {activeTab === 'computer' && (
           <ComputerTab 
             dive={dive} 
             computerInfo={computerInfo} 
@@ -416,6 +502,9 @@ const DetailContent = memo(function DetailContent({ dive }: { dive: Dive }) {
             diveSettings={diveSettings}
             deco={deco}
           />
+        )}
+        {activeTab === 'cursor' && (
+          <CursorTab cursorData={cursorData} />
         )}
       </div>
     </div>
@@ -433,9 +522,14 @@ export function DiveDetail() {
   const dive = useSelectedDive();
   const filteredDives = useFilteredDives();
   const [viewMode, setViewMode] = useState<ViewMode>('graph');
+  const [cursorData, setCursorData] = useState<DiveProfilePoint | null>(null);
 
   const handleViewModeChange = useCallback((mode: ViewMode) => {
     setViewMode(mode);
+  }, []);
+  
+  const handleCursorChange = useCallback((data: DiveProfilePoint | null) => {
+    setCursorData(data);
   }, []);
 
   if (!dive) {
@@ -464,7 +558,12 @@ export function DiveDetail() {
       {/* Chart Area */}
       <div className="flex-1 min-h-0">
         {viewMode === 'graph' ? (
-          <DiveChart profile={dive.profile} maxDepth={dive.maxDepth} diveType={dive.diveType} />
+          <DiveChart 
+            profile={dive.profile} 
+            maxDepth={dive.maxDepth} 
+            diveType={dive.diveType}
+            onCursorChange={handleCursorChange}
+          />
         ) : (
           <DiveStats dives={filteredDives} />
         )}
@@ -482,7 +581,7 @@ export function DiveDetail() {
           defaultSize: 45,
         },
         {
-          content: <DetailContent dive={dive} />,
+          content: <DetailContent dive={dive} cursorData={cursorData} />,
           minSize: 100,
           defaultSize: 55,
         },

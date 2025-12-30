@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import {
   ComposedChart,
   XAxis,
@@ -26,13 +26,14 @@ interface DiveChartProps {
   profile: DiveProfilePoint[];
   maxDepth: number;
   diveType?: DiveType;
+  onCursorChange?: (data: DiveProfilePoint | null) => void;
 }
 
 /**
  * 潜水剖面图表组件
  * 显示深度、温度、气压等多种数据的交互式图表
  */
-export function DiveChart({ profile, maxDepth, diveType }: DiveChartProps) {
+export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveChartProps) {
   const { containerRef, containerSize } = useContainerSize();
   const { chartData, seriesConfigs, toggleSeriesVisibility, resetToDefault, showAllSeries, hideAllSeries } =
     useDiveChartData(profile, diveType);
@@ -41,6 +42,19 @@ export function DiveChart({ profile, maxDepth, diveType }: DiveChartProps) {
     handleSeriesMouseEnter,
     handleSeriesMouseLeave,
   } = useSeriesHover();
+
+  // 处理鼠标移动事件
+  const handleMouseMove = useCallback((state: { activePayload?: Array<{ payload: DiveProfilePoint }> }) => {
+    if (state?.activePayload?.[0]?.payload && onCursorChange) {
+      onCursorChange(state.activePayload[0].payload);
+    }
+  }, [onCursorChange]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (onCursorChange) {
+      onCursorChange(null);
+    }
+  }, [onCursorChange]);
 
   // 生成图表系列元素
   const chartSeriesElements = useChartSeries({
@@ -77,12 +91,13 @@ export function DiveChart({ profile, maxDepth, diveType }: DiveChartProps) {
   return (
     <div className="h-full flex flex-col">
       {/* 图表区域 */}
-      <div ref={containerRef} className="flex-1 relative min-h-0">
+      <div ref={containerRef} className="flex-1 relative min-h-0" onMouseLeave={handleMouseLeave}>
         {containerSize.width > 0 && containerSize.height > 0 && (
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
               data={chartData}
               margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
+              onMouseMove={handleMouseMove}
             >
               {/* 网格 */}
               <CartesianGrid
