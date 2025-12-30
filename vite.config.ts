@@ -7,5 +7,5 @@ export default defineConfig({
   // GitHub Pages 部署配置
   // 如果部署到 https://<username>.github.io/<repo>/ 需要设置 base
   // 如果部署到 https://<username>.github.io/ 则设为 '/'
-  base: '/online-dive-logs/',
+  base: '/dive-logs/',
 })
