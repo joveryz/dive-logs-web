@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState, useEffect } from 'react';
 import {
   ComposedChart,
   XAxis,
@@ -42,6 +42,15 @@ export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveC
     handleSeriesMouseEnter,
     handleSeriesMouseLeave,
   } = useSeriesHover();
+  
+  // 检测是否为移动端
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // 处理鼠标移动事件
   const handleMouseMove = useCallback((state: { activePayload?: Array<{ payload: DiveProfilePoint }> }) => {
@@ -204,16 +213,18 @@ export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveC
               {/* 渲染所有数据系列 */}
               {chartSeriesElements}
 
-              {/* Tooltip */}
-              <Tooltip
-                content={<ChartTooltip seriesConfigs={seriesConfigs} />}
-                cursor={{
-                  stroke: CHART_COLORS.tooltip.cursor,
-                  strokeWidth: 1,
-                  strokeDasharray: '5 5',
-                }}
-                isAnimationActive={false}
-              />
+              {/* Tooltip - 移动端隐藏 */}
+              {!isMobile && (
+                <Tooltip
+                  content={<ChartTooltip seriesConfigs={seriesConfigs} />}
+                  cursor={{
+                    stroke: CHART_COLORS.tooltip.cursor,
+                    strokeWidth: 1,
+                    strokeDasharray: '5 5',
+                  }}
+                  isAnimationActive={false}
+                />
+              )}
             </ComposedChart>
           </ResponsiveContainer>
         )}

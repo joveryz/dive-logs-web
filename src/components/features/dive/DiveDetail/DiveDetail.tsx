@@ -336,25 +336,74 @@ const CursorTab = memo(function CursorTab({
   });
 
   return (
-    <div className="space-y-4">
-      {/* 时间显示 */}
-      <div className="bg-zinc-800/60 rounded-lg p-3">
-        <div className="text-xs text-zinc-500 uppercase mb-1">Time</div>
-        <div className="text-2xl font-bold text-amber-500 font-mono">
-          {formatTimeForChart(cursorData.time)}
-        </div>
-      </div>
-
-      {/* 数据网格 */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-        {dataItems.map(({ key, label, value, color, unit }) => (
-          <div key={key} className="bg-zinc-800/40 rounded-lg p-2">
-            <div className="text-xs text-zinc-500 uppercase truncate">{label}</div>
-            <div className="font-mono text-lg" style={{ color }}>
-              {value} <span className="text-xs text-zinc-500">{unit}</span>
+    <div className="grid grid-cols-12 gap-4">
+      {/* 时间显示 - 横跨整行 */}
+      <div className="col-span-12">
+        <Section>
+          <div className="bg-zinc-800/60 rounded-lg p-3 text-center">
+            <div className="text-xs text-zinc-500 uppercase">Time</div>
+            <div className="text-xl font-bold text-amber-500">
+              {formatTimeForChart(cursorData.time)}
             </div>
           </div>
-        ))}
+        </Section>
+      </div>
+
+      {/* 数据网格 - 使用与其他 tab 相同的 InfoCard 样式 */}
+      <div className="col-span-6 space-y-4">
+        <Section title="Depth & Environment">
+          <div className="grid grid-cols-2 gap-3">
+            {dataItems.filter(d => ['depth', 'temperature', 'ascentRate'].includes(d.key)).map(({ key, label, value, color, unit }) => (
+              <div key={key} className="flex flex-col">
+                <span className="text-xs text-zinc-500 uppercase tracking-wider">{label}</span>
+                <span className="text-base font-medium" style={{ color }}>
+                  {value} {unit}
+                </span>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        <Section title="Decompression">
+          <div className="grid grid-cols-2 gap-3">
+            {dataItems.filter(d => ['ndl', 'gf99', 'cns', 'deco', 'tts'].includes(d.key)).map(({ key, label, value, color, unit }) => (
+              <div key={key} className="flex flex-col">
+                <span className="text-xs text-zinc-500 uppercase tracking-wider">{label}</span>
+                <span className="text-base font-medium" style={{ color }}>
+                  {value} {unit}
+                </span>
+              </div>
+            ))}
+          </div>
+        </Section>
+      </div>
+
+      <div className="col-span-6 space-y-4">
+        <Section title="Gas & Pressure">
+          <div className="grid grid-cols-2 gap-3">
+            {dataItems.filter(d => ['ppO2', 'ppN2', 'ppHe', 'gasDensity'].includes(d.key)).map(({ key, label, value, color, unit }) => (
+              <div key={key} className="flex flex-col">
+                <span className="text-xs text-zinc-500 uppercase tracking-wider">{label}</span>
+                <span className="text-base font-medium" style={{ color }}>
+                  {value} {unit}
+                </span>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        <Section title="Tank & Consumption">
+          <div className="grid grid-cols-2 gap-3">
+            {dataItems.filter(d => ['tank1Pressure', 'tank2Pressure', 'sac'].includes(d.key)).map(({ key, label, value, color, unit }) => (
+              <div key={key} className="flex flex-col">
+                <span className="text-xs text-zinc-500 uppercase tracking-wider">{label}</span>
+                <span className="text-base font-medium" style={{ color }}>
+                  {value} {unit}
+                </span>
+              </div>
+            ))}
+          </div>
+        </Section>
       </div>
     </div>
   );
