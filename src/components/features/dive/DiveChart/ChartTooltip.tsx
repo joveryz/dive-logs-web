@@ -28,8 +28,8 @@ function ChartTooltipComponent({
   const data = payload[0].payload;
 
   return (
-    <div className="bg-gray-900/95 border border-gray-600 rounded-lg p-2 shadow-xl text-xs">
-      <div className="text-yellow-400 font-mono mb-1.5 border-b border-gray-600 pb-1">
+    <div className="bg-zinc-900/95 border border-zinc-600 rounded-lg p-2 shadow-xl text-xs">
+      <div className="text-yellow-400 font-mono mb-1.5 border-b border-zinc-600 pb-1">
         Time: {formatTimeForChart(data.time)}
       </div>
       <div className="grid grid-cols-4 gap-x-3 gap-y-0.5">

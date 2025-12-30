@@ -8,11 +8,11 @@ export default {
     extend: {
       colors: {
         'dive': {
-          'dark': '#1a1a2e',
-          'darker': '#16213e',
-          'accent': '#0f3460',
-          'highlight': '#00a8cc',
-          'surface': '#252542',
+          'dark': '#1a1a1e',
+          'darker': '#141416',
+          'accent': '#252528',
+          'highlight': '#f59e0b',
+          'surface': '#27272a',
         }
       }
     },

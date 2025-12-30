@@ -33,11 +33,11 @@ export const TabButton = memo(function TabButton({
 
   const variantStyles = {
     filled: active
-      ? 'bg-cyan-600 text-white'
-      : 'bg-gray-800 text-gray-400 hover:bg-gray-700',
+      ? 'bg-amber-600 text-white'
+      : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700',
     underline: active
-      ? 'text-cyan-400 border-b-2 border-cyan-400'
-      : 'text-gray-400 hover:text-gray-300',
+      ? 'text-amber-500 border-b-2 border-amber-500'
+      : 'text-zinc-400 hover:text-zinc-300',
   };
 
   return (

@@ -32,7 +32,7 @@ function fmt(value: number | undefined | null, unit = ''): string {
  */
 const EmptyState = memo(function EmptyState() {
   return (
-    <div className="flex items-center justify-center h-full bg-gray-900 text-gray-500">
+    <div className="flex items-center justify-center h-full bg-zinc-900 text-zinc-500">
       <Database className="w-12 h-12 mr-3 opacity-50" />
       <span className="text-lg">{uiLabels.emptyState}</span>
     </div>
@@ -55,8 +55,8 @@ const InfoCard = memo(function InfoCard({
 }) {
   return (
     <div className="flex flex-col">
-      <span className="text-xs text-gray-500 uppercase tracking-wider">{label}</span>
-      <span className={`text-base font-medium ${highlight ? 'text-cyan-400' : 'text-gray-200'} ${className}`}>
+      <span className="text-xs text-zinc-500 uppercase tracking-wider">{label}</span>
+      <span className={`text-base font-medium ${highlight ? 'text-amber-500' : 'text-zinc-200'} ${className}`}>
         {value}
       </span>
     </div>
@@ -78,7 +78,7 @@ const Section = memo(function Section({
   return (
     <div className={`space-y-2 ${className}`}>
       {title && (
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider border-b border-gray-700/50 pb-1">
+        <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider border-b border-zinc-700/50 pb-1">
           {title}
         </h3>
       )}
@@ -120,9 +120,9 @@ const DiveTab = memo(function DiveTab({
         {/* 核心数据 */}
         <Section>
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-gray-800/60 rounded-lg p-3 text-center">
-              <div className="text-xs text-gray-500 uppercase">{uiLabels.maxDepth}</div>
-              <div className="text-xl font-bold text-cyan-400 flex items-center justify-center gap-1">
+            <div className="bg-zinc-800/60 rounded-lg p-3 text-center">
+              <div className="text-xs text-zinc-500 uppercase">{uiLabels.maxDepth}</div>
+              <div className="text-xl font-bold text-amber-500 flex items-center justify-center gap-1">
                 {isPB && (
                   <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-500/20 text-yellow-400">
                     PB
@@ -131,8 +131,8 @@ const DiveTab = memo(function DiveTab({
                 {formatDepth(dive.maxDepth)}
               </div>
             </div>
-            <div className="bg-gray-800/60 rounded-lg p-3 text-center">
-              <div className="text-xs text-gray-500 uppercase">{uiLabels.duration}</div>
+            <div className="bg-zinc-800/60 rounded-lg p-3 text-center">
+              <div className="text-xs text-zinc-500 uppercase">{uiLabels.duration}</div>
               <div className="text-xl font-bold text-green-400">{formatDurationReadable(dive.duration)}</div>
             </div>
           </div>
@@ -143,14 +143,14 @@ const DiveTab = memo(function DiveTab({
           <div className="grid grid-cols-2 gap-3">
             <InfoCard label={uiLabels.diveNumber} value={dive.diveNumber} />
             <div className="flex flex-col">
-              <span className="text-xs text-gray-500 uppercase tracking-wider">{uiLabels.type}</span>
+              <span className="text-xs text-zinc-500 uppercase tracking-wider">{uiLabels.type}</span>
               <span className={`inline-block w-fit px-1.5 py-0.5 rounded text-base font-medium ${
                 dive.diveType === 'CC/BO' ? 'bg-purple-900/50 text-purple-300' :
                 dive.diveType === 'OC Tec' ? 'bg-red-900/50 text-red-300' :
                 dive.diveType.startsWith('OC Rec') ? 'bg-blue-900/50 text-blue-300' :
-                dive.diveType === 'FreeDive' ? 'bg-cyan-900/50 text-cyan-300' :
+                dive.diveType === 'FreeDive' ? 'bg-teal-900/50 text-teal-300' :
                 dive.diveType === 'Avelo' ? 'bg-green-900/50 text-green-300' :
-                'bg-gray-700 text-gray-300'
+                'bg-zinc-700 text-zinc-300'
               }`}>
                 {dive.diveType}
               </span>
@@ -164,21 +164,21 @@ const DiveTab = memo(function DiveTab({
             <>
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col">
-                  <span className="text-xs text-gray-500 uppercase tracking-wider">{uiLabels.maxAscent}</span>
+                  <span className="text-xs text-zinc-500 uppercase tracking-wider">{uiLabels.maxAscent}</span>
                   <span className="text-base font-medium" style={{ color: '#22c55e' }}>{Math.abs(dive.ascentRateStats.maxAscent).toFixed(2)} m/s</span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs text-gray-500 uppercase tracking-wider">{uiLabels.maxDescent}</span>
+                  <span className="text-xs text-zinc-500 uppercase tracking-wider">{uiLabels.maxDescent}</span>
                   <span className="text-base font-medium" style={{ color: '#ef4444' }}>{Math.abs(dive.ascentRateStats.maxDescent).toFixed(2)} m/s</span>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col">
-                  <span className="text-xs text-gray-500 uppercase tracking-wider">{uiLabels.avgAscent}</span>
+                  <span className="text-xs text-zinc-500 uppercase tracking-wider">{uiLabels.avgAscent}</span>
                   <span className="text-base font-medium" style={{ color: '#22c55e' }}>{Math.abs(dive.ascentRateStats.avgAscent).toFixed(2)} m/s</span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs text-gray-500 uppercase tracking-wider">{uiLabels.avgDescent}</span>
+                  <span className="text-xs text-zinc-500 uppercase tracking-wider">{uiLabels.avgDescent}</span>
                   <span className="text-base font-medium" style={{ color: '#ef4444' }}>{Math.abs(dive.ascentRateStats.avgDescent).toFixed(2)} m/s</span>
                 </div>
               </div>
@@ -236,14 +236,14 @@ const DiveTab = memo(function DiveTab({
             <div className="space-y-1">
               {gases.map((gas, idx) => (
                 <div key={idx} className="flex items-center gap-2 text-xs">
-                  <span className="px-1.5 py-0.5 bg-gray-700 rounded text-gray-300">
+                  <span className="px-1.5 py-0.5 bg-zinc-700 rounded text-zinc-300">
                     {gas.name || `Gas ${idx + 1}`}
                   </span>
-                  <span className="text-gray-400">
+                  <span className="text-zinc-400">
                     O₂: {fmt(gas.o2)}% {(gas.he ?? 0) > 0 && `He: ${fmt(gas.he)}%`}
                   </span>
                   {gas.startPressure && (
-                    <span className="text-gray-500">
+                    <span className="text-zinc-500">
                       {fmt(gas.startPressure)} → {fmt(gas.endPressure) || '?'} bar
                     </span>
                   )}
@@ -385,9 +385,9 @@ const DetailContent = memo(function DetailContent({ dive }: { dive: Dive }) {
   const isPB = dive.diveType === 'FreeDive' && dive.id === freeDivePBId;
 
   return (
-    <div className="h-full flex flex-col bg-gray-900">
+    <div className="h-full flex flex-col bg-zinc-900">
       {/* Tab 导航 */}
-      <div className="flex border-b border-gray-700 flex-shrink-0">
+      <div className="flex border-b border-zinc-700 flex-shrink-0">
         <TabButton active={activeTab === 'dive'} onClick={() => setActiveTab('dive')}>
           {uiLabels.diveSummary}
         </TabButton>
@@ -444,9 +444,9 @@ export function DiveDetail() {
 
   // 图表区域内容
   const chartContent = (
-    <div className="flex flex-col h-full bg-gray-900">
+    <div className="flex flex-col h-full bg-zinc-900">
       {/* Header Tabs - Graph / Stats */}
-      <div className="flex border-b border-gray-700 flex-shrink-0">
+      <div className="flex border-b border-zinc-700 flex-shrink-0">
         <TabButton
           active={viewMode === 'graph'}
           onClick={() => handleViewModeChange('graph')}
