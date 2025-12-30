@@ -8,7 +8,7 @@ import {
   ReferenceLine,
   CartesianGrid,
 } from 'recharts';
-import { DiveProfilePoint } from '@/types';
+import { DiveProfilePoint, DiveType } from '@/types';
 import { formatTimeForChart } from '@/utils';
 import { calculateNiceYMax, formatYAxisTick } from '@/utils/chart';
 import { CHART_COLORS, CHART_CONFIG } from '@/constants';
@@ -20,7 +20,6 @@ import {
 import { ChartTooltip } from './ChartTooltip';
 import { ChartLegend } from './ChartLegend';
 import { useChartSeries } from './useChartSeries';
-import { DiveType } from '@/types';
 
 interface DiveChartProps {
   profile: DiveProfilePoint[];

@@ -1,8 +1,4 @@
-interface FooterProps {
-  appName?: string;
-}
-
-export function Footer({}: FooterProps) {
+export function Footer() {
   return (
     <footer 
       className="px-4 py-1.5 bg-zinc-800 border-t border-zinc-700 text-center"

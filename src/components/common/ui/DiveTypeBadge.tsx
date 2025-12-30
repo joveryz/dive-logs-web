@@ -18,7 +18,7 @@ const DIVE_TYPE_STYLES: Record<string, string> = {
 /**
  * 获取潜水类型的样式类名
  */
-export function getDiveTypeStyle(diveType: DiveType): string {
+function getDiveTypeStyle(diveType: DiveType): string {
   if (diveType.startsWith('OC Rec')) {
     return DIVE_TYPE_STYLES.default;
   }

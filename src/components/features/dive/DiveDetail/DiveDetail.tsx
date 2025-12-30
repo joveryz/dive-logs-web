@@ -1,11 +1,10 @@
 import { useState, memo, useCallback } from 'react';
-import { Database } from 'lucide-react';
 import { useSelectedDive, getFreeDivePBId, useFilteredDives } from '@/hooks';
 import { useDiveStore } from '@/store';
 import { DiveChart } from '../DiveChart';
 import { DiveStats } from '../DiveStats';
 import { ResizablePanels } from '@/components/layout';
-import { TabButton } from '@/components/common';
+import { TabButton, EmptyState } from '@/components/common';
 import { uiLabels } from '@/constants';
 import { DiveTab, ComputerTab, CursorTab } from './tabs';
 import type { ViewMode, Dive, DiveProfilePoint } from '@/types';
@@ -19,18 +18,6 @@ type TabId = 'dive' | 'computer' | 'cursor';
 // ============================================================================
 // 内部组件
 // ============================================================================
-
-/**
- * 空状态组件
- */
-const EmptyState = memo(function EmptyState() {
-  return (
-    <div className="flex items-center justify-center h-full bg-zinc-900 text-zinc-500">
-      <Database className="w-12 h-12 mr-3 opacity-50" />
-      <span className="text-lg">{uiLabels.emptyState}</span>
-    </div>
-  );
-});
 
 /**
  * 详情内容 - Tab 导航与内容区域
