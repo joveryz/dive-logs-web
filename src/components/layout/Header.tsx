@@ -10,11 +10,17 @@ export function Header({
       className="flex items-center px-3 md:px-4 py-2 bg-dive-surface border-b border-dive-border"
       role="banner"
     >
-      <img 
-        src={`${import.meta.env.BASE_URL}favicon.svg`}
-        alt="Dive Logs"
-        className="w-6 h-6 md:w-7 md:h-7 mr-2" 
-      />
+      <a 
+        href={import.meta.env.BASE_URL}
+        className="flex-shrink-0 hover:opacity-80 transition-opacity"
+        title="Home"
+      >
+        <img 
+          src={`${import.meta.env.BASE_URL}favicon.svg`}
+          alt="Dive Logs"
+          className="w-6 h-6 md:w-7 md:h-7 mr-2" 
+        />
+      </a>
       <span className="text-cyan-400 font-semibold text-lg">{slogan}</span>
     </header>
   );
