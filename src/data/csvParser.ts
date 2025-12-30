@@ -92,6 +92,20 @@ interface TankRow {
   Tank2GasO2Percent: string;
   Tank2GasHePercent: string;
   Tank2GasN2Percent: string;
+  Tank3Enabled: string;
+  Tank3TransmitterName: string;
+  Tank3TransmitterSerialNumber: string;
+  Tank3AverageDepthInMeters: string;
+  Tank3GasO2Percent: string;
+  Tank3GasHePercent: string;
+  Tank3GasN2Percent: string;
+  Tank4Enabled: string;
+  Tank4TransmitterName: string;
+  Tank4TransmitterSerialNumber: string;
+  Tank4AverageDepthInMeters: string;
+  Tank4GasO2Percent: string;
+  Tank4GasHePercent: string;
+  Tank4GasN2Percent: string;
 }
 
 /**
@@ -165,94 +179,79 @@ function parseTankPressure(val: string): number | undefined {
 function extractGasesInfo(samples: SampleRow[], mode: string, avgDepth: number, tankRow?: TankRow): GasesInfo | undefined {
   if (samples.length === 0) return undefined;
 
+  // 辅助函数：提取气瓶压力数据
+  const extractTankData = (pressureKey: keyof SampleRow) => samples
+    .map(s => ({
+      pressure: parseTankPressure(s[pressureKey]),
+      time: parseInt(s.ElapsedTimeInSeconds, 10) || 0,
+      depth: parseFloat(s.Depth) || 0,
+    }))
+    .filter((d): d is { pressure: number; time: number; depth: number } => d.pressure !== undefined && d.pressure > 0);
+
   // 获取有效的气瓶压力数据（带时间和深度）
-  const tank1Data = samples
-    .map(s => ({
-      pressure: parseTankPressure(s.Tank1PressureInBar),
-      time: parseInt(s.ElapsedTimeInSeconds, 10) || 0,
-      depth: parseFloat(s.Depth) || 0,
-    }))
-    .filter((d): d is { pressure: number; time: number; depth: number } => d.pressure !== undefined && d.pressure > 0);
-  
-  const tank2Data = samples
-    .map(s => ({
-      pressure: parseTankPressure(s.Tank2PressureInBar),
-      time: parseInt(s.ElapsedTimeInSeconds, 10) || 0,
-      depth: parseFloat(s.Depth) || 0,
-    }))
-    .filter((d): d is { pressure: number; time: number; depth: number } => d.pressure !== undefined && d.pressure > 0);
+  const tank1Data = extractTankData('Tank1PressureInBar');
+  const tank2Data = extractTankData('Tank2PressureInBar');
+  const tank3Data = extractTankData('Tank3PressureInBar');
+  const tank4Data = extractTankData('Tank4PressureInBar');
   
   // 检查是否有气体集成（AI）数据
-  const hasAI = tank1Data.length > 0 || tank2Data.length > 0;
+  const hasAI = tank1Data.length > 0 || tank2Data.length > 0 || tank3Data.length > 0 || tank4Data.length > 0;
   
   if (!hasAI) return undefined;
 
   const tanks: TankInfo[] = [];
 
   // 从 tankRow 获取 transmitter 序列号
-  const tank1Serial = tankRow?.Tank1TransmitterSerialNumber && tankRow.Tank1TransmitterSerialNumber !== '000000' 
-    ? tankRow.Tank1TransmitterSerialNumber 
-    : undefined;
-  const tank2Serial = tankRow?.Tank2TransmitterSerialNumber && tankRow.Tank2TransmitterSerialNumber !== '000000' 
-    ? tankRow.Tank2TransmitterSerialNumber 
-    : undefined;
+  const getSerial = (serial?: string) => serial && serial !== '000000' ? serial : undefined;
+  const tank1Serial = getSerial(tankRow?.Tank1TransmitterSerialNumber);
+  const tank2Serial = getSerial(tankRow?.Tank2TransmitterSerialNumber);
+  const tank3Serial = getSerial(tankRow?.Tank3TransmitterSerialNumber);
+  const tank4Serial = getSerial(tankRow?.Tank4TransmitterSerialNumber);
 
-  // Tank 1
-  if (tank1Data.length > 0) {
-    const startPressure = tank1Data[0].pressure;
-    const endPressure = tank1Data[tank1Data.length - 1].pressure;
+  // 辅助函数：计算并添加气瓶信息
+  const addTankInfo = (
+    tankData: { pressure: number; time: number; depth: number }[],
+    tankNum: number,
+    serial?: string
+  ) => {
+    if (tankData.length === 0) return;
+    
+    const startPressure = tankData[0].pressure;
+    const endPressure = tankData[tankData.length - 1].pressure;
     const pressureChange = startPressure - endPressure;
-    const startTime = tank1Data[0].time;
-    const endTime = tank1Data[tank1Data.length - 1].time;
+    const startTime = tankData[0].time;
+    const endTime = tankData[tankData.length - 1].time;
     const durationMin = (endTime - startTime) / 60;
     
     // SAC = (压力变化 / 时间) / 环境压力(ATA)
-    // 环境压力 = 平均深度/10 + 1
     const ambientPressure = avgDepth / 10 + 1;
     const sacCalculated = durationMin > 0 && ambientPressure > 0 
       ? Math.round((pressureChange / durationMin / ambientPressure) * 100) / 100
       : undefined;
     
     tanks.push({
-      name: 'Tank 1',
+      name: `Tank ${tankNum}`,
       startPressure: Math.round(startPressure * 100) / 100,
       endPressure: Math.round(endPressure * 100) / 100,
       pressureChange: Math.round(pressureChange * 100) / 100,
-      transmitter: tank1Serial ? `T1 (${tank1Serial})` : 'T1',
+      transmitter: serial ? `T${tankNum} (${serial})` : `T${tankNum}`,
       avgDepth: Math.round(avgDepth * 100) / 100,
       sacCalculated,
     });
-  }
+  };
 
-  // Tank 2
-  if (tank2Data.length > 0) {
-    const startPressure = tank2Data[0].pressure;
-    const endPressure = tank2Data[tank2Data.length - 1].pressure;
-    const pressureChange = startPressure - endPressure;
-    const startTime = tank2Data[0].time;
-    const endTime = tank2Data[tank2Data.length - 1].time;
-    const durationMin = (endTime - startTime) / 60;
-    
-    const ambientPressure = avgDepth / 10 + 1;
-    const sacCalculated = durationMin > 0 && ambientPressure > 0 
-      ? Math.round((pressureChange / durationMin / ambientPressure) * 100) / 100
-      : undefined;
-    
-    tanks.push({
-      name: 'Tank 2',
-      startPressure: Math.round(startPressure * 100) / 100,
-      endPressure: Math.round(endPressure * 100) / 100,
-      pressureChange: Math.round(pressureChange * 100) / 100,
-      transmitter: tank2Serial ? `T2 (${tank2Serial})` : 'T2',
-      avgDepth: Math.round(avgDepth * 100) / 100,
-      sacCalculated,
-    });
-  }
+  // 添加各气瓶信息
+  addTankInfo(tank1Data, 1, tank1Serial);
+  addTankInfo(tank2Data, 2, tank2Serial);
+  addTankInfo(tank3Data, 3, tank3Serial);
+  addTankInfo(tank4Data, 4, tank4Serial);
 
   // 构建发射器列表
   const transmitters: string[] = [];
   if (tank1Data.length > 0) transmitters.push(tank1Serial ? `T1 (${tank1Serial})` : 'T1');
   if (tank2Data.length > 0) transmitters.push(tank2Serial ? `T2 (${tank2Serial})` : 'T2');
+  if (tank3Data.length > 0) transmitters.push(tank3Serial ? `T3 (${tank3Serial})` : 'T3');
+  if (tank4Data.length > 0) transmitters.push(tank4Serial ? `T4 (${tank4Serial})` : 'T4');
 
   // 根据模式判断 OC/CC gases
   const isCC = mode.toLowerCase().includes('cc') || mode.toLowerCase().includes('closed');
@@ -306,6 +305,8 @@ function sampleToProfilePoint(
 
   const tank1Pressure = parseTankPressure(sample.Tank1PressureInBar);
   const tank2Pressure = parseTankPressure(sample.Tank2PressureInBar);
+  const tank3Pressure = parseTankPressure(sample.Tank3PressureInBar);
+  const tank4Pressure = parseTankPressure(sample.Tank4PressureInBar);
   
   // 从气瓶压力计算 SAC
   // SAC = (压力变化率 bar/min) / (深度/10 + 1)
@@ -337,6 +338,8 @@ function sampleToProfilePoint(
     ppHe: parseNum(sample.PPHE),
     tank1Pressure,
     tank2Pressure,
+    tank3Pressure,
+    tank4Pressure,
     sac: sac !== undefined ? Math.round(sac * 100) / 100 : undefined,
     tts: parseNum(sample.TimeToSurfaceInMinutes),
     tts5: parseNum(sample.TimeToSurfaceInMinutesAtPlusFive),
@@ -401,6 +404,51 @@ export function parseDivesFromCSV(): Dive[] {
         point.gf99 = lastKnownGf99;
       }
     }
+
+    // 线性插值填充气瓶压力缺失值
+    const interpolateTankPressure = (key: 'tank1Pressure' | 'tank2Pressure' | 'tank3Pressure' | 'tank4Pressure') => {
+      // 找到所有有效数据点的索引
+      const validIndices: number[] = [];
+      for (let i = 0; i < profile.length; i++) {
+        if (profile[i][key] !== undefined) {
+          validIndices.push(i);
+        }
+      }
+      
+      if (validIndices.length < 2) return; // 不足两个点无法插值
+      
+      // 对每个缺失值进行线性插值
+      for (let i = 0; i < profile.length; i++) {
+        if (profile[i][key] !== undefined) continue;
+        
+        // 找到前后最近的有效点
+        let prevIdx = -1, nextIdx = -1;
+        for (const idx of validIndices) {
+          if (idx < i) prevIdx = idx;
+          if (idx > i && nextIdx === -1) nextIdx = idx;
+        }
+        
+        if (prevIdx !== -1 && nextIdx !== -1) {
+          // 线性插值
+          const prevVal = profile[prevIdx][key]!;
+          const nextVal = profile[nextIdx][key]!;
+          const ratio = (i - prevIdx) / (nextIdx - prevIdx);
+          profile[i][key] = Math.round((prevVal + (nextVal - prevVal) * ratio) * 100) / 100;
+        } else if (prevIdx !== -1) {
+          // 只有前面的点，使用前向填充
+          profile[i][key] = profile[prevIdx][key];
+        } else if (nextIdx !== -1) {
+          // 只有后面的点，使用后向填充
+          profile[i][key] = profile[nextIdx][key];
+        }
+      }
+    };
+    
+    // 对所有气瓶进行插值处理
+    interpolateTankPressure('tank1Pressure');
+    interpolateTankPressure('tank2Pressure');
+    interpolateTankPressure('tank3Pressure');
+    interpolateTankPressure('tank4Pressure');
 
     // 使用滑动窗口平均平滑 SAC 值
     const sacWindowSize = 6; // 6个采样点的窗口

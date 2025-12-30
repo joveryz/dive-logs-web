@@ -76,6 +76,10 @@ export interface DiveProfilePoint {
   tank1Pressure?: number;
   /** 气瓶2压力（Bar） */
   tank2Pressure?: number;
+  /** 气瓶3压力（Bar） */
+  tank3Pressure?: number;
+  /** 气瓶4压力（Bar） */
+  tank4Pressure?: number;
   /** 气体消耗率（L/min） */
   sac?: number;
   /** 减压停留时间（分钟），0 = 无需减压 */

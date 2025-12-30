@@ -40,6 +40,8 @@ export const DEFAULT_CHART_SERIES: ChartSeriesConfig[] = [
   { key: 'sac', name: fieldLabels.sac, color: '#d946ef', type: 'line', visible: false, unit: 'bar/min' },
   { key: 'tank1Pressure', name: fieldLabels.tank1Pressure, color: '#a855f7', type: 'line', visible: false, unit: 'bar' },
   { key: 'tank2Pressure', name: fieldLabels.tank2Pressure, color: '#8b5cf6', type: 'line', visible: false, unit: 'bar' },
+  { key: 'tank3Pressure', name: fieldLabels.tank3Pressure, color: '#7c3aed', type: 'line', visible: false, unit: 'bar' },
+  { key: 'tank4Pressure', name: fieldLabels.tank4Pressure, color: '#6366f1', type: 'line', visible: false, unit: 'bar' },
 ];
 
 /**

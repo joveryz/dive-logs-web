@@ -36,7 +36,7 @@ export function calculateDynamicRange(
     let extend = Math.abs(dataMax) * 0.1 || 1; // 10% 扩展或至少 1
     if (key === 'temperature') {
       extend = 5; // 温度扩展 ±5°C
-    } else if (key === 'tank1Pressure' || key === 'tank2Pressure') {
+    } else if (key === 'tank1Pressure' || key === 'tank2Pressure' || key === 'tank3Pressure' || key === 'tank4Pressure') {
       extend = 50; // 气罐压力扩展 ±50 bar
     } else if (ZERO_BASED_SERIES_KEYS.includes(key)) {
       // 零基准系列：最小值为0，最大值为数据的两倍或至少为1
@@ -54,7 +54,7 @@ export function calculateDynamicRange(
   let max = Math.ceil((dataMax + padding) * 10) / 10;
 
   // 对于某些数据类型，取整到更漂亮的数字
-  if (key === 'tank1Pressure' || key === 'tank2Pressure') {
+  if (key === 'tank1Pressure' || key === 'tank2Pressure' || key === 'tank3Pressure' || key === 'tank4Pressure') {
     max = Math.ceil(max / 50) * 50;
   } else if (key === 'ndl') {
     max = Math.min(100, Math.ceil(max / 10) * 10);

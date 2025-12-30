@@ -13,8 +13,8 @@ const CURSOR_DATA_DISPLAY_CONFIG: Record<string, {
   decimals: number;
   group: 'environment' | 'decompression' | 'gas' | 'tank';
 }> = {
-  depth: { label: 'Depth', color: '#f59e0b', unit: 'm', decimals: 1, group: 'environment' },
-  temperature: { label: 'Temperature', color: '#06b6d4', unit: '°C', decimals: 1, group: 'environment' },
+  depth: { label: 'Depth', color: '#f59e0b', unit: 'm', decimals: 2, group: 'environment' },
+  temperature: { label: 'Temperature', color: '#06b6d4', unit: '°C', decimals: 2, group: 'environment' },
   ascentRate: { label: 'Ascent Rate', color: '#22c55e', unit: 'm/s', decimals: 2, group: 'environment' },
   ndl: { label: 'NDL', color: '#10b981', unit: 'min', decimals: 0, group: 'decompression' },
   gf99: { label: 'GF99', color: '#8b5cf6', unit: '%', decimals: 0, group: 'decompression' },
@@ -25,8 +25,8 @@ const CURSOR_DATA_DISPLAY_CONFIG: Record<string, {
   ppO2: { label: 'ppO₂', color: '#3b82f6', unit: 'ATA', decimals: 2, group: 'gas' },
   ppHe: { label: 'ppHe', color: '#a855f7', unit: 'ATA', decimals: 2, group: 'gas' },
   ppN2: { label: 'ppN₂', color: '#6366f1', unit: 'ATA', decimals: 2, group: 'gas' },
-  tank1Pressure: { label: 'Tank 1', color: '#ef4444', unit: 'Bar', decimals: 0, group: 'tank' },
-  tank2Pressure: { label: 'Tank 2', color: '#f97316', unit: 'Bar', decimals: 0, group: 'tank' },
+  tank1Pressure: { label: 'Tank 1', color: '#ef4444', unit: 'Bar', decimals: 2, group: 'tank' },
+  tank2Pressure: { label: 'Tank 2', color: '#f97316', unit: 'Bar', decimals: 2, group: 'tank' },
   sac: { label: 'SAC', color: '#84cc16', unit: 'bar/min', decimals: 2, group: 'tank' },
 };
 

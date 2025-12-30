@@ -94,6 +94,8 @@ export const chartSeriesLabels: Record<string, string> = {
   ppHe: 'ppHe',
   tank1Pressure: 'Tank 1',
   tank2Pressure: 'Tank 2',
+  tank3Pressure: 'Tank 3',
+  tank4Pressure: 'Tank 4',
   sac: 'SAC',
   ascentRate: 'Ascent',
   deco: 'Deco',
