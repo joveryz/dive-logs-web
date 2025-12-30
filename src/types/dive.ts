@@ -1,147 +1,314 @@
-// 潜水类型
+/**
+ * 潜水日志应用类型定义
+ * @module types/dive
+ */
+
+// ============================================================================
+// 基础类型定义
+// ============================================================================
+
+/**
+ * 潜水类型
+ */
 export type DiveType = 'Air' | 'Nitrox' | 'Gauge' | 'Freedive' | 'CCR';
 
-// 潜水电脑品牌
+/**
+ * 水体类型
+ */
+export type WaterType = 'Salt' | 'Fresh' | 'Brackish';
+
+/**
+ * 水流强度
+ */
+export type CurrentStrength = 'None' | 'Light' | 'Moderate' | 'Strong';
+
+/**
+ * 波浪状态
+ */
+export type WaveCondition = 'Calm' | 'Light' | 'Moderate' | 'Rough';
+
+/**
+ * 严重程度
+ */
+export type Severity = 'Low' | 'Medium' | 'High';
+
+// ============================================================================
+// 潜水剖面相关类型
+// ============================================================================
+
+/**
+ * 潜水剖面数据点的可用字段 key
+ */
+export type DiveProfileKey =
+  | 'time'
+  | 'depth'
+  | 'temperature'
+  | 'ascentRate'
+  | 'ndl'
+  | 'gf99'
+  | 'cns'
+  | 'gasDensity'
+  | 'ppO2'
+  | 'ppHe'
+  | 'ppN2'
+  | 'tank1Pressure'
+  | 'tank2Pressure'
+  | 'sac'
+  | 'deco'
+  | 'tts'
+  | 'ceiling';
+
+/**
+ * 潜水剖面数据点
+ * @description 记录潜水过程中每个时间点的各项数据
+ */
+export interface DiveProfilePoint {
+  /** 时间（秒） */
+  time: number;
+  /** 深度（米） */
+  depth: number;
+  /** 温度（摄氏度） */
+  temperature?: number;
+  /** 上升/下降速率（米/分钟），负值表示上升 */
+  ascentRate?: number;
+  /** 免减压极限时间（分钟） */
+  ndl?: number;
+  /** GF99 梯度因子值（%） */
+  gf99?: number;
+  /** CNS 氧中毒指数（%） */
+  cns?: number;
+  /** 气体密度（g/L） */
+  gasDensity?: number;
+  /** 氧分压（ATA） */
+  ppO2?: number;
+  /** 氦分压（ATA） */
+  ppHe?: number;
+  /** 氮分压（ATA） */
+  ppN2?: number;
+  /** 气瓶1压力（Bar） */
+  tank1Pressure?: number;
+  /** 气瓶2压力（Bar） */
+  tank2Pressure?: number;
+  /** 气体消耗率（L/min） */
+  sac?: number;
+  /** 减压停留时间（分钟），0 = 无需减压 */
+  deco?: number;
+  /** 到达水面所需时间（分钟） */
+  tts?: number;
+  /** 减压上限深度（米） */
+  ceiling?: number;
+}
+
+// ============================================================================
+// 设备相关类型
+// ============================================================================
+
+/**
+ * 潜水电脑基本信息
+ */
 export interface DiveComputer {
+  /** 型号名称 */
   model: string;
+  /** 序列号 */
   serial: string;
 }
 
-// 潜水剖面数据点
-export interface DiveProfilePoint {
-  time: number; // 秒
-  depth: number; // 米
-  temperature?: number; // 摄氏度
-  ascentRate?: number; // 米/分钟
-  ndl?: number; // 免减压极限（分钟）
-  gf99?: number; // GF99 值 (%)
-  cns?: number; // CNS 氧中毒 (%)
-  gasDensity?: number; // 气体密度 (g/l)
-  ppO2?: number; // 氧分压 (ATA)
-  ppHe?: number; // 氦分压 (ATA)
-  ppN2?: number; // 氮分压 (ATA)
-  tank1Pressure?: number; // 气瓶1压力 (Bar)
-  tank2Pressure?: number; // 气瓶2压力 (Bar)
-  sac?: number; // 气体消耗率 (Bar/min)
-  deco?: number; // 减压停留时间 (分钟), 0 = None
-  tts?: number; // 到达水面时间 (分钟)
-  ceiling?: number; // 减压上限深度 (米)
-}
-
-// 气瓶信息
+/**
+ * 气瓶信息
+ */
 export interface TankInfo {
+  /** 气瓶名称/编号 */
   name: string;
-  startPressure: number; // bar
-  endPressure: number; // bar
-  pressureChange: number; // bar
+  /** 起始压力（Bar） */
+  startPressure: number;
+  /** 结束压力（Bar） */
+  endPressure: number;
+  /** 压力变化量（Bar） */
+  pressureChange: number;
+  /** 发射器ID */
   transmitter?: string;
+  /** 气体用途 */
   gasUsage?: string;
-  avgDepth?: number; // m
-  sacCalculated?: number; // bar/min
+  /** 平均深度（米） */
+  avgDepth?: number;
+  /** 计算的 SAC（Bar/min） */
+  sacCalculated?: number;
 }
 
-// 气体配置
+/**
+ * 气体配置
+ */
 export interface GasConfig {
+  /** 气体名称 */
   name: string;
-  o2: number; // 氧气百分比
-  he?: number; // 氦气百分比（技术潜水）
-  startPressure?: number; // 起始气压 (bar)
-  endPressure?: number; // 结束气压 (bar)
+  /** 氧气百分比 */
+  o2: number;
+  /** 氦气百分比（技术潜水） */
+  he?: number;
+  /** 起始气压（Bar） */
+  startPressure?: number;
+  /** 结束气压（Bar） */
+  endPressure?: number;
 }
 
-// 气体详细信息
+// ============================================================================
+// 详细信息类型
+// ============================================================================
+
+/**
+ * 气体详细信息
+ */
 export interface GasesInfo {
+  /** 开放式（OC）气体 */
   ocGases?: {
     programmed: string;
     used: string;
   };
+  /** 密闭式（CC）气体 */
   ccGases?: {
     programmed: string;
     used: string;
   };
+  /** 气体整合信息 */
   airIntegration?: {
     aiEnabled: boolean;
     transmitters?: string[];
     gtrMode?: string;
-    sacRecorded?: number; // bar/min
+    sacRecorded?: number;
   };
+  /** 气瓶列表 */
   tanks?: TankInfo[];
+  /** 备注 */
   notes?: string;
 }
 
-// 装备信息
+/**
+ * 装备信息
+ */
 export interface GearInfo {
+  /** 潜水服类型 */
   dress?: string;
+  /** 装备类型 */
   apparatus?: string;
+  /** 气瓶容量 */
   tankSize?: string;
-  weight?: number; // kg
+  /** 配重（kg） */
+  weight?: number;
+  /** 潜水服 */
   suit?: string;
+  /** 气瓶 */
   tank?: string;
+  /** BCD */
   bcd?: string;
+  /** 脚蹼 */
   fins?: string;
+  /** 面镜 */
   mask?: string;
+  /** 潜水电脑 */
   computer?: string;
+  /** 备注 */
   notes?: string;
 }
 
-// 环境信息
+/**
+ * 环境信息
+ */
 export interface EnvironmentInfo {
-  minTemp?: number; // 摄氏度
-  maxTemp?: number; // 摄氏度
-  avgTemp?: number; // 摄氏度
-  surfacePressure?: number; // mBar
-  airTemp?: number; // 摄氏度
-  visibility?: number; // 米
+  /** 最低温度（摄氏度） */
+  minTemp?: number;
+  /** 最高温度（摄氏度） */
+  maxTemp?: number;
+  /** 平均温度（摄氏度） */
+  avgTemp?: number;
+  /** 水面气压（mBar） */
+  surfacePressure?: number;
+  /** 气温（摄氏度） */
+  airTemp?: number;
+  /** 能见度（米） */
+  visibility?: number;
+  /** 天气状况 */
   weather?: string;
+  /** 入水平台 */
   platform?: string;
+  /** 环境类型 */
   environment?: string;
+  /** 水况 */
   conditions?: string;
-  waterType?: 'Salt' | 'Fresh' | 'Brackish';
-  current?: 'None' | 'Light' | 'Moderate' | 'Strong';
-  surfaceTemp?: number; // 摄氏度
-  waterTemp?: number; // 摄氏度
-  waves?: 'Calm' | 'Light' | 'Moderate' | 'Rough';
+  /** 水体类型 */
+  waterType?: WaterType;
+  /** 水流强度 */
+  current?: CurrentStrength;
+  /** 水面温度（摄氏度） */
+  surfaceTemp?: number;
+  /** 水温（摄氏度） */
+  waterTemp?: number;
+  /** 波浪状态 */
+  waves?: WaveCondition;
+  /** 备注 */
   notes?: string;
 }
 
-// 问题/事件记录
+/**
+ * 问题/事件记录
+ */
 export interface ProblemsInfo {
+  /** 热舒适度 */
   thermalComfort?: string;
+  /** 工作强度 */
   workload?: string;
+  /** 遇到的问题 */
   problems?: string;
+  /** 设备故障 */
   equipmentMalfunction?: string;
+  /** 任何症状 */
   anySymptoms?: string;
+  /** 是否暴露于高海拔 */
   exposureToAltitude?: string;
+  /** 备注 */
   notes?: string;
 }
 
-// 电脑详细信息
+/**
+ * 潜水电脑详细信息
+ */
 export interface ComputerInfo {
+  /** 型号 */
   model: string;
+  /** 序列号 */
   serial: string;
+  /** OEM 厂商 */
   oem?: string;
+  /** 固件版本 */
   firmwareVersion?: string;
+  /** 语言 */
   language?: string;
+  /** 数据格式 */
   dataFormat?: string;
+  /** 日志版本 */
   logVersion?: string;
+  /** 数据库版本 */
   dbVersion?: string;
+  /** 电池信息 */
   battery?: {
     type?: string;
     vStart?: number;
     vEnd?: number;
   };
+  /** 日期时间设置 */
   dateTime?: {
     timezoneOffset?: number;
     daylightSavings?: boolean;
   };
+  /** 潜水设置 */
   dive?: {
     mode?: string;
-    sampleRate?: number; // 秒
+    sampleRate?: number;
     recordedUnits?: string;
     salinitySetting?: string;
-    surfacePressure?: number; // mBar
+    surfacePressure?: number;
     surfaceInterval?: string;
   };
+  /** 减压设置 */
   deco?: {
     cnsStart?: number;
     cnsEnd?: number;
@@ -151,47 +318,119 @@ export interface ComputerInfo {
   };
 }
 
-// 旧问题类型（保持兼容）
+/**
+ * 潜水问题（旧版兼容）
+ * @deprecated 使用 ProblemsInfo 替代
+ */
 export interface DiveProblem {
   type: string;
   description: string;
-  severity: 'Low' | 'Medium' | 'High';
+  severity: Severity;
 }
 
-// 主潜水记录接口
+// ============================================================================
+// 主记录类型
+// ============================================================================
+
+/**
+ * 潜水记录
+ * @description 完整的潜水记录，包含所有相关信息
+ */
 export interface Dive {
+  /** 唯一标识符 */
   id: string;
+  /** 潜水编号 */
   diveNumber: number;
-  date: string; // ISO 日期字符串
-  startTime: string; // HH:mm
+  /** 日期（ISO 格式） */
+  date: string;
+  /** 开始时间（HH:mm） */
+  startTime: string;
+  /** 结束时间 */
   endTime: string;
-  duration: number; // 秒
-  maxDepth: number; // 米
-  avgDepth: number; // 米
+  /** 持续时间（秒） */
+  duration: number;
+  /** 最大深度（米） */
+  maxDepth: number;
+  /** 平均深度（米） */
+  avgDepth: number;
+  /** 潜水类型 */
   diveType: DiveType;
+  /** 地点 */
   location: string;
+  /** 潜点名称 */
   site: string;
+  /** 潜伴 */
   buddy?: string;
+  /** 潜水电脑 */
   diveComputer: DiveComputer;
+  /** 电脑详细信息 */
   computerInfo?: ComputerInfo;
+  /** 潜水剖面数据 */
   profile: DiveProfilePoint[];
+  /** 气体配置 */
   gases?: GasConfig[];
+  /** 气体详细信息 */
   gasesInfo?: GasesInfo;
+  /** 装备信息 */
   gear?: GearInfo;
+  /** 环境信息 */
   environment?: EnvironmentInfo;
+  /** 问题记录 */
   problemsInfo?: ProblemsInfo;
+  /** 问题列表（旧版） */
   problems?: DiveProblem[];
+  /** 备注 */
   notes?: string;
-  rating?: number; // 1-5
+  /** 评分（1-5） */
+  rating?: number;
+  /** 标签 */
   tags?: string[];
 }
 
-// 潜水统计
+// ============================================================================
+// 统计类型
+// ============================================================================
+
+/**
+ * 潜水统计
+ */
 export interface DiveStats {
+  /** 总潜水次数 */
   totalDives: number;
-  totalDiveTime: number; // 秒
+  /** 总潜水时间（秒） */
+  totalDiveTime: number;
+  /** 最大深度（米） */
   maxDepth: number;
+  /** 平均深度（米） */
   avgDepth: number;
+  /** 常去地点 */
   favoriteLocations: { name: string; count: number }[];
+  /** 按月统计 */
   divesByMonth: { month: string; count: number }[];
+}
+
+// ============================================================================
+// 类型守卫和工具函数
+// ============================================================================
+
+/**
+ * 检查值是否为有效的 DiveProfileKey
+ */
+export function isDiveProfileKey(key: string): key is DiveProfileKey {
+  const validKeys: DiveProfileKey[] = [
+    'time', 'depth', 'temperature', 'ascentRate', 'ndl', 'gf99',
+    'cns', 'gasDensity', 'ppO2', 'ppHe', 'ppN2', 'tank1Pressure',
+    'tank2Pressure', 'sac', 'deco', 'tts', 'ceiling'
+  ];
+  return validKeys.includes(key as DiveProfileKey);
+}
+
+/**
+ * 从 DiveProfilePoint 获取指定 key 的数值
+ */
+export function getProfileValue(
+  point: DiveProfilePoint,
+  key: DiveProfileKey
+): number | undefined {
+  return point[key];
 }

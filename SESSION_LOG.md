@@ -276,6 +276,7 @@ src/
 - [x] 重构项目结构（按功能组织）
 - [x] 提取自定义 Hooks
 - [x] 添加 Services 层
+- [x] 代码分割优化（bundle 从 618KB → 55KB 业务代码 + vendor chunks）
 - [ ] 真实潜水数据导入（Subsurface XML、UDDF 格式）
 - [ ] 数据库持久化
 - [ ] 用户认证
@@ -284,9 +285,175 @@ src/
 - [ ] 更多图表类型（气体消耗分析、潜水统计等）
 - [ ] 移动端响应式适配
 - [ ] 多语言支持
-- [ ] 代码分割优化（当前 bundle > 500KB）
+
+---
+
+## 2025年1月 - 专家级重构
+
+### 重构目标
+以资深专家视角重构项目，提升代码质量、可维护性和性能。
+
+### DiveChart 组件重构 (615行 → ~200行主组件)
+
+**问题**:
+- 单文件过大（615行）
+- 职责混杂（数据处理、UI渲染、事件处理）
+- 重复定义已存在于 constants 的配置
+
+**解决方案**:
+1. **创建子组件**:
+   - `ChartTooltip.tsx` - 自定义 Tooltip 组件
+   - `ChartLegend.tsx` - 图例组件
+   - `ChartSeries.tsx` - 数据系列渲染组件
+
+2. **提取 Hooks**:
+   - `useDiveChartData` - 处理数据归一化和系列配置
+   - `useContainerSize` - 监听容器尺寸变化
+   - `useSeriesHover` - 管理悬停状态
+
+3. **工具函数**:
+   - `utils/chart.ts` - `calculateDynamicRange`、`formatYAxisTick`、`calculateNiceYMax`
+
+### DiveDetail 组件重构 (671行 → ~200行主组件)
+
+**问题**:
+- 单文件包含6个完整Tab组件和多个辅助组件
+- 无法单独测试和复用
+
+**解决方案**:
+1. **拆分 Tab 组件**:
+   - `components/SummaryTab.tsx`
+   - `components/GearTab.tsx`
+   - `components/EnvironmentTab.tsx`
+   - `components/GasesTab.tsx`
+   - `components/ProblemsTab.tsx`
+   - `components/ComputerTab.tsx`
+
+2. **提取通用表单组件**:
+   - `components/FormComponents.tsx` - InfoRow、SelectField、InputField、TextAreaField 等
+
+### 类型系统优化
+
+**改进**:
+- 添加 `DiveProfileKey` union type
+- 添加类型守卫函数 `isDiveProfileKey`
+- 完善 JSDoc 注释
+- 所有接口字段添加中文注释
+
+### Zustand Store 优化
+
+**改进**:
+1. **中间件**:
+   - `devtools` - 开发环境调试支持
+   - `persist` - 持久化用户选择（selectedDiveId、filterText）
+
+2. **新增操作**:
+   - `addDive` - 添加潜水记录
+   - `updateDive` - 更新潜水记录
+   - `deleteDive` - 删除潜水记录
+   - `clearFilter` - 清空筛选
+
+3. **Selector Hooks**:
+   - `useDives` - 获取所有记录
+   - `useSelectedDiveId` - 获取选中 ID
+   - `useFilterText` - 获取筛选文本
+   - `useDiveActions` - 获取所有操作方法
+
+### 构建优化
+
+**代码分割配置** (`vite.config.ts`):
+```typescript
+build: {
+  rollupOptions: {
+    output: {
+      manualChunks: {
+        'vendor-react': ['react', 'react-dom'],
+        'vendor-recharts': ['recharts'],
+        'vendor-zustand': ['zustand'],
+        'vendor-icons': ['lucide-react'],
+      },
+    },
+  },
+}
+```
+
+**构建结果**:
+| Chunk | 大小 | Gzip |
+|-------|------|------|
+| index (业务代码) | 55 KB | 16 KB |
+| vendor-react | 142 KB | 46 KB |
+| vendor-recharts | 416 KB | 112 KB |
+| vendor-zustand | 0.7 KB | 0.4 KB |
+| vendor-icons | 3.5 KB | 1.1 KB |
+
+### 代码质量
+
+**新增配置**:
+- `eslint.config.js` - ESLint 9.x 扁平配置
+- React Hooks 规则
+- TypeScript 严格规则
+- 未使用变量检查（支持 `_` 前缀忽略）
+
+### 最终项目结构
+
+```
+src/
+├── components/
+│   ├── common/
+│   │   ├── ui/
+│   │   └── feedback/
+│   ├── layout/
+│   │   ├── AppLayout/
+│   │   ├── Header/
+│   │   ├── Footer/
+│   │   └── ResizablePanels/
+│   └── features/
+│       └── dive/
+│           ├── DiveList/
+│           ├── DiveDetail/
+│           │   ├── DiveDetail.tsx
+│           │   ├── index.ts
+│           │   └── components/
+│           │       ├── FormComponents.tsx
+│           │       ├── SummaryTab.tsx
+│           │       ├── GearTab.tsx
+│           │       ├── EnvironmentTab.tsx
+│           │       ├── GasesTab.tsx
+│           │       ├── ProblemsTab.tsx
+│           │       ├── ComputerTab.tsx
+│           │       └── index.ts
+│           └── DiveChart/
+│               ├── DiveChart.tsx
+│               ├── ChartTooltip.tsx
+│               ├── ChartLegend.tsx
+│               ├── ChartSeries.tsx
+│               └── index.ts
+├── hooks/
+│   ├── useFilteredDives.ts
+│   ├── useSelectedDive.ts
+│   ├── useDiveChartData.ts  # 新增
+│   ├── useDebounce.ts
+│   ├── useLocalStorage.ts
+│   └── index.ts
+├── constants/
+│   ├── app.ts
+│   └── chart.ts
+├── services/
+│   ├── api.ts
+│   └── diveService.ts
+├── store/
+│   └── diveStore.ts         # 增强版
+├── types/
+│   └── dive.ts              # 增强版
+├── utils/
+│   ├── format.ts
+│   └── chart.ts             # 新增
+└── data/
+    └── mockDives.ts
+```
 
 ---
 
 ## Session 日期
-2024年12月30日
+- 2024年12月30日（初始开发）
+- 2025年1月（专家级重构）
