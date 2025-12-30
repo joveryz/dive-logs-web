@@ -4,9 +4,7 @@ import { useFilteredDives, getFreeDivePBId } from '@/hooks';
 import { SearchInput } from '@/components/common';
 import { formatDuration, formatDepth } from '@/utils';
 import { fieldLabels } from '@/constants';
-
-type SortField = 'diveNumber' | 'date' | 'diveComputer' | 'diveType' | 'location' | 'buddy' | 'tags' | 'maxDepth' | 'duration';
-type SortDirection = 'asc' | 'desc';
+import type { SortField, SortDirection } from '@/types';
 
 export function DiveList() {
   const { selectedDiveId, setSelectedDiveId, filterText, setFilterText, showValidOnly, setShowValidOnly } = useDiveStore();

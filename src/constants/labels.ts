@@ -103,11 +103,34 @@ export const chartSeriesLabels: Record<string, string> = {
 // UI 通用标签（用于界面显示）
 // ============================================================================
 
-export const uiLabels: Record<string, string> = {
+export const uiLabels = {
+  // Tab 标签
+  diveSummary: 'Dive Summary',
+  computerSettings: 'Computer & Settings',
+  diveList: 'Dive List',
+  diveDetail: 'Dive Detail',
+  graph: 'Graph',
+  stats: 'Stats',
+  
+  // Section 标题
+  sectionDiveInfo: 'Dive Info',
+  sectionLocationBuddy: 'Location & Buddy',
+  sectionEnvironment: 'Environment',
+  sectionDecompression: 'Decompression',
+  sectionGases: 'Gases',
+  sectionGear: 'Gear',
+  sectionTags: 'Tags',
+  sectionComputer: 'Computer',
+  sectionDataFormat: 'Data Format',
+  sectionBattery: 'Battery',
+  sectionDiveSettings: 'Dive Settings',
+  sectionDecoSettings: 'Decompression Settings',
+  
   // 列表表头
   diveNumber: 'Dive #',
   date: 'Date',
   time: 'Time',
+  type: 'Type',
   diveType: 'Dive Type',
   diveComputer: 'Dive Computer',
   location: 'Location',
@@ -140,20 +163,44 @@ export const uiLabels: Record<string, string> = {
   
   // 电脑标签
   model: 'Model',
+  serial: 'Serial',
   serialNumber: 'Serial Number',
   oem: 'OEM',
+  firmware: 'Firmware',
   firmwareVersion: 'Firmware Version',
   language: 'Language',
+  format: 'Format',
   dataFormat: 'Data Format',
   logVersion: 'Log Version',
   dbVersion: 'DB Version',
   batteryType: 'Battery Type',
+  voltageStart: 'Voltage Start',
+  voltageEnd: 'Voltage End',
+  
+  // 潜水设置标签
+  mode: 'Mode',
+  sampleRate: 'Sample Rate',
   
   // 减压标签
   deco: 'Deco',
   decoModel: 'Deco Model',
+  gfSetting: 'GF Setting',
   cns: 'CNS',
-};
+  cnsStart: 'CNS Start',
+  cnsEnd: 'CNS End',
+  gf99Max: 'GF99 Max',
+  surfaceGFEnd: 'SurGF End',
+  
+  // 装备标签
+  dress: 'Dress',
+  weight: 'Weight',
+  tank: 'Tank',
+  
+  // 状态文案
+  emptyState: 'Select a dive to view details',
+  statsComingSoon: 'Statistics view coming soon...',
+  noNotes: 'No notes for this dive.',
+} as const;
 
 // ============================================================================
 // 向后兼容：合并所有标签为 fieldLabels

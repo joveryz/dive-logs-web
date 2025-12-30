@@ -1,2 +1,2 @@
 export { SearchInput } from './SearchInput';
-export { Tabs } from './Tabs';
+export { TabButton } from './TabButton';

@@ -3,12 +3,10 @@ import { Database } from 'lucide-react';
 import { useSelectedDive } from '@/hooks';
 import { DiveChart } from '../DiveChart';
 import { ResizablePanels } from '@/components/layout';
+import { TabButton } from '@/components/common';
 import { SummaryPanel } from './components';
-
-/**
- * 视图模式
- */
-type ViewMode = 'graph' | 'stats';
+import { uiLabels } from '@/constants';
+import type { ViewMode } from '@/types';
 
 /**
  * 空状态组件
@@ -17,38 +15,8 @@ const EmptyState = memo(function EmptyState() {
   return (
     <div className="flex items-center justify-center h-full bg-gray-900 text-gray-500">
       <Database className="w-12 h-12 mr-3 opacity-50" />
-      <span className="text-lg">Select a dive to view details</span>
+      <span className="text-lg">{uiLabels.emptyState}</span>
     </div>
-  );
-});
-
-/**
- * 视图模式切换按钮
- */
-interface ViewModeButtonProps {
-  mode: ViewMode;
-  currentMode: ViewMode;
-  onClick: (mode: ViewMode) => void;
-  children: React.ReactNode;
-}
-
-const ViewModeButton = memo(function ViewModeButton({
-  mode,
-  currentMode,
-  onClick,
-  children,
-}: ViewModeButtonProps) {
-  return (
-    <button
-      onClick={() => onClick(mode)}
-      className={`px-6 py-2 text-sm font-medium transition-colors ${
-        currentMode === mode
-          ? 'bg-cyan-600 text-white'
-          : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-      }`}
-    >
-      {children}
-    </button>
   );
 });
 
@@ -87,20 +55,18 @@ export function DiveDetail() {
     <div className="flex flex-col h-full bg-gray-900">
       {/* Header Tabs - Graph / Stats */}
       <div className="flex border-b border-gray-700 flex-shrink-0">
-        <ViewModeButton
-          mode="graph"
-          currentMode={viewMode}
-          onClick={handleViewModeChange}
+        <TabButton
+          active={viewMode === 'graph'}
+          onClick={() => handleViewModeChange('graph')}
         >
-          Graph
-        </ViewModeButton>
-        <ViewModeButton
-          mode="stats"
-          currentMode={viewMode}
-          onClick={handleViewModeChange}
+          {uiLabels.graph}
+        </TabButton>
+        <TabButton
+          active={viewMode === 'stats'}
+          onClick={() => handleViewModeChange('stats')}
         >
-          Stats
-        </ViewModeButton>
+          {uiLabels.stats}
+        </TabButton>
 
         {/* Secondary Tabs */}
         <div className="flex-1 flex justify-center gap-2 px-4">
@@ -116,7 +82,7 @@ export function DiveDetail() {
           <DiveChart profile={dive.profile} maxDepth={dive.maxDepth} />
         ) : (
           <div className="flex items-center justify-center h-full text-gray-500">
-            Statistics view coming soon...
+            {uiLabels.statsComingSoon}
           </div>
         )}
       </div>

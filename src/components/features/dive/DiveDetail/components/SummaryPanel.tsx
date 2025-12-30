@@ -3,6 +3,8 @@ import { Dive } from '@/types';
 import { formatDepth, formatDurationReadable } from '@/utils';
 import { getFreeDivePBId } from '@/hooks';
 import { useDiveStore } from '@/store';
+import { TabButton } from '@/components/common';
+import { uiLabels } from '@/constants';
 
 interface SummaryPanelProps {
   dive: Dive;
@@ -68,34 +70,6 @@ const Section = memo(function Section({
 type TabId = 'dive' | 'computer';
 
 /**
- * Tab 按钮 - 与 Chart Tab 风格一致
- */
-const TabButton = memo(function TabButton({
-  id,
-  label,
-  active,
-  onClick,
-}: {
-  id: TabId;
-  label: string;
-  active: boolean;
-  onClick: (id: TabId) => void;
-}) {
-  return (
-    <button
-      onClick={() => onClick(id)}
-      className={`px-6 py-2 text-sm font-medium transition-colors ${
-        active
-          ? 'bg-cyan-600 text-white'
-          : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-      }`}
-    >
-      {label}
-    </button>
-  );
-});
-
-/**
  * Summary Panel - 带有两个Tab的潜水信息面板
  */
 export const SummaryPanel = memo(function SummaryPanel({ dive }: SummaryPanelProps) {
@@ -117,8 +91,12 @@ export const SummaryPanel = memo(function SummaryPanel({ dive }: SummaryPanelPro
     <div className="h-full flex flex-col">
       {/* Tab 导航 - 与 Chart 风格一致 */}
       <div className="flex border-b border-gray-700 flex-shrink-0">
-        <TabButton id="dive" label="Dive Summary" active={activeTab === 'dive'} onClick={setActiveTab} />
-        <TabButton id="computer" label="Computer & Settings" active={activeTab === 'computer'} onClick={setActiveTab} />
+        <TabButton active={activeTab === 'dive'} onClick={() => setActiveTab('dive')}>
+          {uiLabels.diveSummary}
+        </TabButton>
+        <TabButton active={activeTab === 'computer'} onClick={() => setActiveTab('computer')}>
+          {uiLabels.computerSettings}
+        </TabButton>
       </div>
 
       {/* Tab 内容 */}
@@ -175,7 +153,7 @@ const DiveTab = memo(function DiveTab({
         <Section>
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-gray-800/60 rounded-lg p-3 text-center">
-              <div className="text-xs text-gray-500 uppercase">Max Depth</div>
+              <div className="text-xs text-gray-500 uppercase">{uiLabels.maxDepth}</div>
               <div className="text-xl font-bold text-cyan-400 flex items-center justify-center gap-1">
                 {isPB && (
                   <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-500/20 text-yellow-400">
@@ -186,74 +164,74 @@ const DiveTab = memo(function DiveTab({
               </div>
             </div>
             <div className="bg-gray-800/60 rounded-lg p-3 text-center">
-              <div className="text-xs text-gray-500 uppercase">Duration</div>
+              <div className="text-xs text-gray-500 uppercase">{uiLabels.duration}</div>
               <div className="text-xl font-bold text-green-400">{formatDurationReadable(dive.duration)}</div>
             </div>
           </div>
         </Section>
 
         {/* 潜水信息 */}
-        <Section title="Dive Info">
+        <Section title={uiLabels.sectionDiveInfo}>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label="Dive #" value={dive.diveNumber} />
-            <InfoCard label="Type" value={dive.diveType} />
+            <InfoCard label={uiLabels.diveNumber} value={dive.diveNumber} />
+            <InfoCard label={uiLabels.type} value={dive.diveType} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label="Avg Depth" value={formatDepth(dive.avgDepth)} />
-            <InfoCard label="Date" value={dive.date} />
+            <InfoCard label={uiLabels.avgDepth} value={formatDepth(dive.avgDepth)} />
+            <InfoCard label={uiLabels.date} value={dive.date} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label="Time" value={`${dive.startTime} - ${dive.endTime}`} />
+            <InfoCard label={uiLabels.time} value={`${dive.startTime} - ${dive.endTime}`} />
           </div>
         </Section>
 
         {/* 地点与潜伴 */}
-        <Section title="Location & Buddy">
-          <InfoCard label="Site" value={dive.site} highlight />
+        <Section title={uiLabels.sectionLocationBuddy}>
+          <InfoCard label={uiLabels.site} value={dive.site} highlight />
           {dive.site !== dive.location && (
-            <InfoCard label="Location" value={dive.location} />
+            <InfoCard label={uiLabels.location} value={dive.location} />
           )}
-          <InfoCard label="Buddy" value={dive.buddy || '-'} />
+          <InfoCard label={uiLabels.buddy} value={dive.buddy || '-'} />
         </Section>
       </div>
 
       {/* 环境与气体装备 */}
       <div className="col-span-6 space-y-4">
         {/* 环境 */}
-        <Section title="Environment">
+        <Section title={uiLabels.sectionEnvironment}>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label="Min Temp" value={fmt(env?.minTemp, '°C')} />
-            <InfoCard label="Max Temp" value={fmt(env?.maxTemp, '°C')} />
+            <InfoCard label={uiLabels.minTemp} value={fmt(env?.minTemp, '°C')} />
+            <InfoCard label={uiLabels.maxTemp} value={fmt(env?.maxTemp, '°C')} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label="Avg Temp" value={fmt(env?.avgTemp, '°C')} />
-            <InfoCard label="Surface Pressure" value={fmt(env?.surfacePressure, ' mBar')} />
+            <InfoCard label={uiLabels.avgTemp} value={fmt(env?.avgTemp, '°C')} />
+            <InfoCard label={uiLabels.surfacePressure} value={fmt(env?.surfacePressure, ' mBar')} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label="Salinity" value={diveSettings?.salinitySetting || '-'} />
-            <InfoCard label="Surface Interval" value={diveSettings?.surfaceInterval || '-'} />
+            <InfoCard label={uiLabels.salinity} value={diveSettings?.salinitySetting || '-'} />
+            <InfoCard label={uiLabels.surfaceInterval} value={diveSettings?.surfaceInterval || '-'} />
           </div>
         </Section>
 
         {/* 减压信息 */}
-        <Section title="Decompression">
+        <Section title={uiLabels.sectionDecompression}>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label="Model" value={deco?.decoModel || '-'} />
-            <InfoCard label="GF Setting" value={deco?.conservatism || '-'} />
+            <InfoCard label={uiLabels.model} value={deco?.decoModel || '-'} />
+            <InfoCard label={uiLabels.gfSetting} value={deco?.conservatism || '-'} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label="CNS Start" value={fmt(deco?.cnsStart, '%')} />
-            <InfoCard label="CNS End" value={fmt(deco?.cnsEnd, '%')} />
+            <InfoCard label={uiLabels.cnsStart} value={fmt(deco?.cnsStart, '%')} />
+            <InfoCard label={uiLabels.cnsEnd} value={fmt(deco?.cnsEnd, '%')} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label="GF99 Max" value={fmt(deco?.endSurfaceGF, '%')} />
-            <InfoCard label="SurGF End" value={fmt(deco?.endSurfaceGF, '%')} />
+            <InfoCard label={uiLabels.gf99Max} value={fmt(deco?.endSurfaceGF, '%')} />
+            <InfoCard label={uiLabels.surfaceGFEnd} value={fmt(deco?.endSurfaceGF, '%')} />
           </div>
         </Section>
 
         {/* 气体 */}
         {gases && gases.length > 0 && (
-          <Section title="Gases">
+          <Section title={uiLabels.sectionGases}>
             <div className="space-y-1">
               {gases.map((gas, idx) => (
                 <div key={idx} className="flex items-center gap-2 text-xs">
@@ -276,18 +254,18 @@ const DiveTab = memo(function DiveTab({
 
         {/* 装备 */}
         {gear && (
-          <Section title="Gear">
+          <Section title={uiLabels.sectionGear}>
             <div className="grid grid-cols-3 gap-3 text-sm">
-              {gear.dress && <InfoCard label="Dress" value={gear.dress} />}
-              {gear.weight && <InfoCard label="Weight" value={fmt(gear.weight, ' kg')} />}
-              {gear.tankSize && <InfoCard label="Tank" value={gear.tankSize} />}
+              {gear.dress && <InfoCard label={uiLabels.dress} value={gear.dress} />}
+              {gear.weight && <InfoCard label={uiLabels.weight} value={fmt(gear.weight, ' kg')} />}
+              {gear.tankSize && <InfoCard label={uiLabels.tank} value={gear.tankSize} />}
             </div>
           </Section>
         )}
 
         {/* 标签 */}
         {dive.tags && dive.tags.length > 0 && (
-          <Section title="Tags">
+          <Section title={uiLabels.sectionTags}>
             <div className="flex flex-wrap gap-1">
               {dive.tags.map((tag) => (
                 <span
@@ -325,57 +303,57 @@ const ComputerTab = memo(function ComputerTab({
     <div className="grid grid-cols-12 gap-4">
       {/* 电脑与数据格式 */}
       <div className="col-span-6 space-y-4">
-        <Section title="Computer">
+        <Section title={uiLabels.sectionComputer}>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label="Model" value={dive.diveComputer.model} />
-            <InfoCard label="Serial" value={dive.diveComputer.serial || '-'} />
+            <InfoCard label={uiLabels.model} value={dive.diveComputer.model} />
+            <InfoCard label={uiLabels.serial} value={dive.diveComputer.serial || '-'} />
           </div>
-          <InfoCard label="Firmware" value={computerInfo?.firmwareVersion || '-'} />
+          <InfoCard label={uiLabels.firmware} value={computerInfo?.firmwareVersion || '-'} />
         </Section>
 
-        <Section title="Data Format">
+        <Section title={uiLabels.sectionDataFormat}>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label="Format" value={computerInfo?.dataFormat || '-'} />
-            <InfoCard label="Log Version" value={computerInfo?.logVersion || '-'} />
+            <InfoCard label={uiLabels.format} value={computerInfo?.dataFormat || '-'} />
+            <InfoCard label={uiLabels.logVersion} value={computerInfo?.logVersion || '-'} />
           </div>
-          <InfoCard label="DB Version" value={computerInfo?.dbVersion || '-'} />
+          <InfoCard label={uiLabels.dbVersion} value={computerInfo?.dbVersion || '-'} />
         </Section>
 
-        <Section title="Battery">
-          <InfoCard label="Type" value={battery?.type || '-'} />
+        <Section title={uiLabels.sectionBattery}>
+          <InfoCard label={uiLabels.type} value={battery?.type || '-'} />
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label="Voltage Start" value={fmt(battery?.vStart, 'V')} />
-            <InfoCard label="Voltage End" value={fmt(battery?.vEnd, 'V')} />
+            <InfoCard label={uiLabels.voltageStart} value={fmt(battery?.vStart, 'V')} />
+            <InfoCard label={uiLabels.voltageEnd} value={fmt(battery?.vEnd, 'V')} />
           </div>
         </Section>
       </div>
 
       {/* 潜水设置与减压 */}
       <div className="col-span-6 space-y-4">
-        <Section title="Dive Settings">
+        <Section title={uiLabels.sectionDiveSettings}>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label="Mode" value={diveSettings?.mode || '-'} />
-            <InfoCard label="Sample Rate" value={diveSettings?.sampleRate ? `${diveSettings.sampleRate}s` : '-'} />
+            <InfoCard label={uiLabels.mode} value={diveSettings?.mode || '-'} />
+            <InfoCard label={uiLabels.sampleRate} value={diveSettings?.sampleRate ? `${diveSettings.sampleRate}s` : '-'} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label="Salinity" value={diveSettings?.salinitySetting || '-'} />
-            <InfoCard label="Surface Interval" value={diveSettings?.surfaceInterval || '-'} />
+            <InfoCard label={uiLabels.salinity} value={diveSettings?.salinitySetting || '-'} />
+            <InfoCard label={uiLabels.surfaceInterval} value={diveSettings?.surfaceInterval || '-'} />
           </div>
-          <InfoCard label="Surface Pressure" value={fmt(diveSettings?.surfacePressure, ' mBar')} />
+          <InfoCard label={uiLabels.surfacePressure} value={fmt(diveSettings?.surfacePressure, ' mBar')} />
         </Section>
 
-        <Section title="Decompression Settings">
+        <Section title={uiLabels.sectionDecoSettings}>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label="Deco Model" value={deco?.decoModel || '-'} />
-            <InfoCard label="GF Setting" value={deco?.conservatism || '-'} />
+            <InfoCard label={uiLabels.decoModel} value={deco?.decoModel || '-'} />
+            <InfoCard label={uiLabels.gfSetting} value={deco?.conservatism || '-'} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label="CNS Start" value={fmt(deco?.cnsStart, '%')} />
-            <InfoCard label="CNS End" value={fmt(deco?.cnsEnd, '%')} />
+            <InfoCard label={uiLabels.cnsStart} value={fmt(deco?.cnsStart, '%')} />
+            <InfoCard label={uiLabels.cnsEnd} value={fmt(deco?.cnsEnd, '%')} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label="GF99 Max" value={fmt(deco?.endSurfaceGF, '%')} />
-            <InfoCard label="SurGF End" value={fmt(deco?.endSurfaceGF, '%')} />
+            <InfoCard label={uiLabels.gf99Max} value={fmt(deco?.endSurfaceGF, '%')} />
+            <InfoCard label={uiLabels.surfaceGFEnd} value={fmt(deco?.endSurfaceGF, '%')} />
           </div>
         </Section>
       </div>
