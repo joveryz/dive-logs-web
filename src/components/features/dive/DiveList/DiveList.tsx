@@ -118,7 +118,7 @@ export function DiveList() {
       return <span className="ml-1 text-dive-text-muted">⇅</span>;
     }
     return (
-      <span className="ml-1 text-amber-500">
+      <span className="ml-1 text-cyan-400">
         {sortDirection === 'asc' ? '↑' : '↓'}
       </span>
     );
@@ -136,9 +136,9 @@ export function DiveList() {
     <div className="flex flex-col h-full bg-dive-surface" role="region" aria-label="Dive List">
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-dive-border">
-        <h2 className="text-amber-500 font-semibold text-lg">Dive List</h2>
+        <h2 className="text-cyan-400 font-semibold text-lg">Dive List</h2>
         <span className="text-dive-text-secondary text-sm" aria-live="polite">
-          Visible: <span className="text-amber-500">{filteredDives.length}/{useDiveStore.getState().dives.length}</span>
+          Visible: <span className="text-cyan-400">{filteredDives.length}/{useDiveStore.getState().dives.length}</span>
         </span>
       </div>
       
@@ -160,14 +160,14 @@ export function DiveList() {
           title={filterValidDivesOnly ? "Showing valid dives only" : "Showing all dives"}
           className={`group flex items-center gap-1.5 px-2 py-1 rounded-md text-xs transition-all duration-200 ${
             filterValidDivesOnly 
-              ? 'bg-amber-900/40 text-amber-500 hover:bg-amber-900/60' 
+              ? 'bg-cyan-900/40 text-cyan-400 hover:bg-cyan-900/60' 
               : 'bg-dive-card text-dive-text-muted hover:bg-dive-hover hover:text-dive-text-secondary'
           }`}
         >
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
           </svg>
-          <span className={`transition-colors ${filterValidDivesOnly ? 'text-amber-500' : 'text-dive-text-muted group-hover:text-dive-text-secondary'}`}>
+          <span className={`transition-colors ${filterValidDivesOnly ? 'text-cyan-400' : 'text-dive-text-muted group-hover:text-dive-text-secondary'}`}>
             {filterValidDivesOnly ? 'Valid' : 'All'}
           </span>
         </button>
@@ -182,7 +182,7 @@ export function DiveList() {
             title="Select visible columns"
             className={`group flex items-center gap-1.5 px-2 py-1 rounded-md text-xs transition-all duration-200 ${
               isColumnMenuOpen
-                ? 'bg-amber-900/40 text-amber-500'
+                ? 'bg-cyan-900/40 text-cyan-400'
                 : 'bg-dive-card text-dive-text-muted hover:bg-dive-hover hover:text-dive-text-secondary'
             }`}
           >
@@ -203,7 +203,7 @@ export function DiveList() {
                     type="checkbox"
                     checked={columnVisibility[key]}
                     onChange={() => toggleColumnVisibility(key)}
-                    className="w-3.5 h-3.5 rounded border-dive-border bg-dive-hover text-amber-500 focus:ring-amber-500 focus:ring-offset-0"
+                    className="w-3.5 h-3.5 rounded border-dive-border bg-dive-hover text-cyan-400 focus:ring-cyan-400 focus:ring-offset-0"
                   />
                   <span className={columnVisibility[key] ? 'text-dive-text' : 'text-dive-text-muted'}>
                     {label}
@@ -221,14 +221,14 @@ export function DiveList() {
           <thead className="sticky top-0 bg-dive-surface z-10">
             <tr className="text-left text-dive-text-secondary border-b border-dive-border whitespace-nowrap">
               <th 
-                className="px-2 py-1.5 font-medium cursor-pointer hover:text-amber-500 select-none" 
+                className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
                 onClick={() => handleSort('diveNumber')}
               >
                 {fieldLabels.diveNumber}<SortIcon field="diveNumber" />
               </th>
               <th 
-                className="px-2 py-1.5 font-medium cursor-pointer hover:text-amber-500 select-none" 
+                className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
                 onClick={() => handleSort('date')}
               >
@@ -237,7 +237,7 @@ export function DiveList() {
               </th>
               {columnVisibility.diveComputer && (
                 <th 
-                  className="px-2 py-1.5 font-medium cursor-pointer hover:text-amber-500 select-none" 
+                  className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                   scope="col"
                   onClick={() => handleSort('diveComputer')}
                 >
@@ -246,7 +246,7 @@ export function DiveList() {
               )}
               {columnVisibility.location && (
                 <th 
-                  className="px-2 py-1.5 font-medium cursor-pointer hover:text-amber-500 select-none" 
+                  className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                   scope="col"
                   onClick={() => handleSort('location')}
                 >
@@ -254,7 +254,7 @@ export function DiveList() {
                 </th>
               )}
               <th 
-                className="px-2 py-1.5 font-medium cursor-pointer hover:text-amber-500 select-none" 
+                className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
                 onClick={() => handleSort('diveType')}
               >
@@ -262,7 +262,7 @@ export function DiveList() {
               </th>
               {columnVisibility.buddy && (
                 <th 
-                  className="px-2 py-1.5 font-medium cursor-pointer hover:text-amber-500 select-none" 
+                  className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                   scope="col"
                   onClick={() => handleSort('buddy')}
                 >
@@ -271,7 +271,7 @@ export function DiveList() {
               )}
               {columnVisibility.tags && (
                 <th 
-                  className="px-2 py-1.5 font-medium cursor-pointer hover:text-amber-500 select-none" 
+                  className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                   scope="col"
                   onClick={() => handleSort('tags')}
                 >
@@ -279,14 +279,14 @@ export function DiveList() {
                 </th>
               )}
               <th 
-                className="px-2 py-1.5 font-medium text-right cursor-pointer hover:text-amber-500 select-none" 
+                className="px-2 py-1.5 font-medium text-right cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
                 onClick={() => handleSort('maxDepth')}
               >
                 {fieldLabels.maxDepth}<SortIcon field="maxDepth" />
               </th>
               <th 
-                className="px-2 py-1.5 font-medium text-right cursor-pointer hover:text-amber-500 select-none" 
+                className="px-2 py-1.5 font-medium text-right cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
                 onClick={() => handleSort('duration')}
               >
@@ -305,7 +305,7 @@ export function DiveList() {
                 aria-selected={selectedDiveId === dive.id}
                 className={`cursor-pointer transition-colors focus:outline-none whitespace-nowrap border-b ${
                   selectedDiveId === dive.id
-                    ? 'bg-amber-900/30 text-amber-100 border-amber-600'
+                    ? 'bg-cyan-900/30 text-cyan-100 border-cyan-500'
                     : 'text-dive-text hover:bg-dive-card/50 border-dive-card'
                 }`}
               >
@@ -320,7 +320,7 @@ export function DiveList() {
                 )}
                 {columnVisibility.location && (
                   <td className="px-2 py-1.5">
-                    <span className="text-amber-500">{dive.site}</span>
+                    <span className="text-cyan-400">{dive.site}</span>
                     {dive.site !== dive.location && (
                       <span className="text-dive-text-muted ml-1">({dive.location})</span>
                     )}

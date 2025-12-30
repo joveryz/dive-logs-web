@@ -16,7 +16,7 @@ const TankCard = memo(function TankCard({ tank }: { tank: TankInfo }) {
     <div className="bg-dive-card/40 rounded-lg p-3 space-y-3">
       {/* 标题栏：气瓶名称和发射器 */}
       <div className="flex items-center justify-between border-b border-dive-border pb-2">
-        <span className="text-sm font-medium text-amber-500">{tank.name}</span>
+        <span className="text-sm font-medium text-cyan-400">{tank.name}</span>
         {tank.transmitter && (
           <span className="text-xs text-dive-text-muted">Transmitter: {tank.transmitter}</span>
         )}

@@ -11,7 +11,7 @@ export default {
           'dark': '#151518',        // 最深背景
           'darker': '#0f0f12',      // 更深背景
           'accent': '#1e1e21',      // 强调背景
-          'highlight': '#f59e0b',   // 高亮色
+          'highlight': '#22d3ee',   // 高亮色 (cyan-400)
           'surface': '#1b1b1e',     // 表面背景 (原 zinc-900)
           'card': '#232326',        // 卡片背景 (原 zinc-800: #27272a)
           'hover': '#2c2c30',       // 悬停背景 (原 zinc-700: #3f3f46)

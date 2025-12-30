@@ -24,7 +24,7 @@ const StatsRow = memo(function StatsRow({
       {values.map((value, idx) => (
         <td 
           key={idx} 
-          className={`px-4 py-2 text-center ${idx === 0 ? 'text-amber-500 font-medium' : 'text-dive-text'}`}
+          className={`px-4 py-2 text-center ${idx === 0 ? 'text-cyan-400 font-medium' : 'text-dive-text'}`}
         >
           {value}
         </td>
@@ -54,7 +54,7 @@ export const DiveStats = memo(function DiveStats({ dives }: DiveStatsProps) {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value as StatsCategory)}
-            className="bg-dive-card text-dive-text px-3 py-1.5 rounded border border-dive-border text-sm focus:outline-none focus:border-amber-500"
+            className="bg-dive-card text-dive-text px-3 py-1.5 rounded border border-dive-border text-sm focus:outline-none focus:border-cyan-400"
           >
             {Object.entries(STATS_CATEGORY_LABELS).map(([key, label]) => (
               <option key={key} value={key}>{label}</option>
@@ -62,7 +62,7 @@ export const DiveStats = memo(function DiveStats({ dives }: DiveStatsProps) {
           </select>
         </div>
         <div className="text-dive-text-secondary text-sm">
-          Included: <span className="text-amber-500">{totalDives}/{totalDives}</span>
+          Included: <span className="text-cyan-400">{totalDives}/{totalDives}</span>
         </div>
       </div>
 
@@ -75,7 +75,7 @@ export const DiveStats = memo(function DiveStats({ dives }: DiveStatsProps) {
               {categories.map((cat, idx) => (
                 <th 
                   key={idx} 
-                  className={`px-4 py-2 text-center font-medium ${idx === 0 ? 'text-amber-500' : 'text-dive-text'}`}
+                  className={`px-4 py-2 text-center font-medium ${idx === 0 ? 'text-cyan-400' : 'text-dive-text'}`}
                 >
                   {idx === 0 ? 'All' : cat.name}
                 </th>

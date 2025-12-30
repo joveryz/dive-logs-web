@@ -29,7 +29,7 @@ export const DiveTab = memo(function DiveTab({ dive, isPersonalBest }: DiveTabPr
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-dive-card/60 rounded-lg p-3 text-center">
               <div className="text-xs text-dive-text-muted uppercase">{uiLabels.maxDepth}</div>
-              <div className="text-xl font-bold text-amber-500 flex items-center justify-center gap-1">
+              <div className="text-xl font-bold text-cyan-400 flex items-center justify-center gap-1">
                 {isPersonalBest && (
                   <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-500/20 text-yellow-400">
                     PB

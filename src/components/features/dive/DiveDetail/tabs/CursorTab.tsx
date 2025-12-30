@@ -102,7 +102,7 @@ export const CursorTab = memo(function CursorTab({ cursorData }: CursorTabProps)
         <Section>
           <div className="bg-dive-card/60 rounded-lg p-3 text-center">
             <div className="text-xs text-dive-text-muted uppercase">Time</div>
-            <div className="text-xl font-bold text-amber-500">
+            <div className="text-xl font-bold text-cyan-400">
               {formatTimeForChart(cursorData.time)}
             </div>
           </div>

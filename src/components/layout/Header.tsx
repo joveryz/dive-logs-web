@@ -15,7 +15,7 @@ export function Header({
         alt="Dive Logs"
         className="w-6 h-6 md:w-7 md:h-7 mr-2" 
       />
-      <span className="text-amber-500 font-semibold text-lg">{slogan}</span>
+      <span className="text-cyan-400 font-semibold text-lg">{slogan}</span>
     </header>
   );
 }

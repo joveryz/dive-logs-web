@@ -10,7 +10,7 @@ export function Footer() {
           href="https://redebug.com" 
           target="_blank" 
           rel="noopener noreferrer"
-          className="text-amber-500 hover:text-amber-400 transition-colors"
+          className="text-cyan-400 hover:text-cyan-300 transition-colors"
         >
           Jovery Zhang
         </a>. Some rights reserved.

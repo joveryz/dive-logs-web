@@ -119,20 +119,20 @@ export function ResizablePanels({ panels, direction = 'horizontal', className = 
                 isVertical 
                   ? 'h-1 w-full cursor-row-resize' 
                   : 'w-1 h-full cursor-col-resize'
-              } bg-dive-hover hover:bg-amber-500 transition-colors flex-shrink-0 group relative`}
+              } bg-dive-hover hover:bg-cyan-400 transition-colors flex-shrink-0 group relative`}
               onMouseDown={(e) => handleMouseDown(index, e)}
             >
               {/* 拖拽手柄视觉提示 */}
               <div className={`absolute ${
                 isVertical 
-                  ? 'inset-x-0 -top-1 -bottom-1 group-hover:bg-amber-500/20' 
-                  : 'inset-y-0 -left-1 -right-1 group-hover:bg-amber-500/20'
+                  ? 'inset-x-0 -top-1 -bottom-1 group-hover:bg-cyan-400/20' 
+                  : 'inset-y-0 -left-1 -right-1 group-hover:bg-cyan-400/20'
               }`} />
               <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${
                 isVertical 
                   ? 'h-1 w-8' 
                   : 'w-1 h-8'
-              } rounded-full bg-dive-text-muted group-hover:bg-amber-400 transition-colors`} />
+              } rounded-full bg-dive-text-muted group-hover:bg-cyan-300 transition-colors`} />
             </div>
           )}
         </div>

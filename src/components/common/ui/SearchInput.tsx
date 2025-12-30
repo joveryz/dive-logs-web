@@ -36,7 +36,7 @@ export function SearchInput({
         aria-label={ariaLabel || placeholder}
         className="w-full pl-10 pr-4 py-2 bg-dive-card border border-dive-border rounded-lg 
                    text-dive-text placeholder-dive-text-muted text-sm
-                   focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                   focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent"
       />
     </div>
   );

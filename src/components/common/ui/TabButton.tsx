@@ -33,10 +33,10 @@ export const TabButton = memo(function TabButton({
 
   const variantStyles = {
     filled: active
-      ? 'bg-amber-600 text-white'
+      ? 'bg-cyan-500 text-white'
       : 'bg-dive-card text-dive-text-secondary hover:bg-dive-hover',
     underline: active
-      ? 'text-amber-500 border-b-2 border-amber-500'
+      ? 'text-cyan-400 border-b-2 border-cyan-400'
       : 'text-dive-text-secondary hover:text-dive-text',
   };
 
