@@ -17,6 +17,8 @@ interface DiveState {
   selectedDiveId: string | null;
   /** 筛选文本 */
   filterText: string;
+  /** 是否只显示有效潜水 */
+  showValidOnly: boolean;
 }
 
 /**
@@ -27,6 +29,8 @@ interface DiveActions {
   setSelectedDiveId: (id: string | null) => void;
   /** 设置筛选文本 */
   setFilterText: (text: string) => void;
+  /** 设置是否只显示有效潜水 */
+  setShowValidOnly: (show: boolean) => void;
   /** 设置潜水记录列表 */
   setDives: (dives: Dive[]) => void;
   /** 添加潜水记录 */
@@ -55,6 +59,7 @@ const initialState: DiveState = {
   dives: mockDives,
   selectedDiveId: mockDives[0]?.id || null,
   filterText: '',
+  showValidOnly: true,
 };
 
 /**
@@ -75,6 +80,10 @@ export const useDiveStore = create<DiveStore>()(
 
         setFilterText: (text) => {
           set({ filterText: text }, false, 'setFilterText');
+        },
+
+        setShowValidOnly: (show) => {
+          set({ showValidOnly: show }, false, 'setShowValidOnly');
         },
 
         setDives: (dives) => {
