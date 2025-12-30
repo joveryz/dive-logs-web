@@ -25,21 +25,21 @@ export const DEFAULT_CHART_SERIES: ChartSeriesConfig[] = [
   { key: 'temperature', name: fieldLabels.temperature, color: '#06b6d4', type: 'line', visible: true, unit: '°C' },
   // 减压相关
   { key: 'ndl', name: fieldLabels.ndl, color: '#ec4899', type: 'line', visible: false, unit: 'min' },
+  { key: 'gf99', name: fieldLabels.gf99, color: '#f43f5e', type: 'line', visible: false, unit: '%' },
   { key: 'deco', name: fieldLabels.deco, color: '#ef4444', type: 'line', visible: false, unit: 'min' },
   { key: 'tts', name: fieldLabels.tts, color: '#f97316', type: 'line', visible: false, unit: 'min' },
   { key: 'tts5', name: fieldLabels.tts5, color: '#fb923c', type: 'line', visible: false, unit: 'min' },
-  { key: 'gf99', name: fieldLabels.gf99, color: '#f43f5e', type: 'line', visible: false, unit: '%' },
   // 气体相关
+  { key: 'gasDensity', name: fieldLabels.gasDensity, color: '#14b8a6', type: 'line', visible: false, unit: 'g/L' },
   { key: 'ppO2', name: fieldLabels.ppO2, color: '#10b981', type: 'line', visible: false, unit: 'bar' },
   { key: 'ppN2', name: fieldLabels.ppN2, color: '#eab308', type: 'line', visible: false, unit: 'bar' },
   { key: 'ppHe', name: fieldLabels.ppHe, color: '#9ca3af', type: 'line', visible: false, unit: 'bar' },
-  { key: 'gasDensity', name: fieldLabels.gasDensity, color: '#14b8a6', type: 'line', visible: false, unit: 'g/L' },
-  // 气瓶与消耗
-  { key: 'tank1Pressure', name: fieldLabels.tank1Pressure, color: '#a855f7', type: 'line', visible: false, unit: 'bar' },
-  { key: 'tank2Pressure', name: fieldLabels.tank2Pressure, color: '#8b5cf6', type: 'line', visible: false, unit: 'bar' },
-  { key: 'sac', name: fieldLabels.sac, color: '#d946ef', type: 'line', visible: false, unit: 'L/min' },
   // 安全指标
   { key: 'cns', name: fieldLabels.cns, color: '#f59e0b', type: 'line', visible: false, unit: '%' },
+  // 气瓶与消耗
+  { key: 'sac', name: fieldLabels.sac, color: '#d946ef', type: 'line', visible: false, unit: 'L/min' },
+  { key: 'tank1Pressure', name: fieldLabels.tank1Pressure, color: '#a855f7', type: 'line', visible: false, unit: 'bar' },
+  { key: 'tank2Pressure', name: fieldLabels.tank2Pressure, color: '#8b5cf6', type: 'line', visible: false, unit: 'bar' },
 ];
 
 /**

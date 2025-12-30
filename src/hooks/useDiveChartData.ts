@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback, useRef, useEffect } from 'react';
-import { DiveProfilePoint } from '@/types';
+import { DiveProfilePoint, DiveType } from '@/types';
 import { ChartSeriesConfig, DEFAULT_CHART_SERIES } from '@/constants';
 import { calculateDynamicRange } from '@/utils/chart';
 
@@ -11,11 +11,23 @@ export interface EffectiveSeriesConfig extends ChartSeriesConfig {
   maxValue?: number;
 }
 
+// 默认系列 keys - 根据潜水类型
+const FREEDIVE_DEFAULT_KEYS = ['depth', 'ascentRate', 'temperature'];
+const OCREC_DEFAULT_KEYS = ['depth', 'ascentRate', 'temperature', 'ndl', 'gf99', 'tank1Pressure', 'sac'];
+
+function getDefaultVisibleKeys(diveType?: DiveType): string[] {
+  if (diveType === 'FreeDive') {
+    return FREEDIVE_DEFAULT_KEYS;
+  }
+  // OC Rec 及其他类型
+  return OCREC_DEFAULT_KEYS;
+}
+
 /**
  * 处理图表数据的 Hook
  * 负责计算数据范围、归一化数据、管理系列可见性
  */
-export function useDiveChartData(profile: DiveProfilePoint[]) {
+export function useDiveChartData(profile: DiveProfilePoint[], diveType?: DiveType) {
   // 可见性覆盖状态
   const [visibilityOverrides, setVisibilityOverrides] = useState<
     Record<string, boolean>
@@ -60,19 +72,19 @@ export function useDiveChartData(profile: DiveProfilePoint[]) {
     });
   }, []);
 
-  // 默认系列 keys
-  const DEFAULT_VISIBLE_KEYS = ['depth', 'ascentRate', 'temperature'];
+  // 获取当前潜水类型的默认系列
+  const defaultVisibleKeys = useMemo(() => getDefaultVisibleKeys(diveType), [diveType]);
 
-  // 重置为默认显示（depth, ascentRate, temperature）
+  // 重置为默认显示（根据潜水类型）
   const resetToDefault = useCallback(() => {
     setVisibilityOverrides((prev) => {
       const newOverrides: Record<string, boolean> = { ...prev };
       DEFAULT_CHART_SERIES.forEach((s) => {
-        newOverrides[s.key] = DEFAULT_VISIBLE_KEYS.includes(s.key);
+        newOverrides[s.key] = defaultVisibleKeys.includes(s.key);
       });
       return newOverrides;
     });
-  }, []);
+  }, [defaultVisibleKeys]);
 
   // 显示所有系列
   const showAllSeries = useCallback(() => {

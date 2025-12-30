@@ -462,7 +462,7 @@ export function DiveDetail() {
       {/* Chart Area */}
       <div className="flex-1 min-h-0">
         {viewMode === 'graph' ? (
-          <DiveChart profile={dive.profile} maxDepth={dive.maxDepth} />
+          <DiveChart profile={dive.profile} maxDepth={dive.maxDepth} diveType={dive.diveType} />
         ) : (
           <div className="flex items-center justify-center h-full text-gray-500">
             {uiLabels.statsComingSoon}

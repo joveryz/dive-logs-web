@@ -20,20 +20,22 @@ import {
 import { ChartTooltip } from './ChartTooltip';
 import { ChartLegend } from './ChartLegend';
 import { useChartSeries } from './useChartSeries';
+import { DiveType } from '@/types';
 
 interface DiveChartProps {
   profile: DiveProfilePoint[];
   maxDepth: number;
+  diveType?: DiveType;
 }
 
 /**
  * 潜水剖面图表组件
  * 显示深度、温度、气压等多种数据的交互式图表
  */
-export function DiveChart({ profile, maxDepth }: DiveChartProps) {
+export function DiveChart({ profile, maxDepth, diveType }: DiveChartProps) {
   const { containerRef, containerSize } = useContainerSize();
   const { chartData, seriesConfigs, toggleSeriesVisibility, resetToDefault, showAllSeries, hideAllSeries } =
-    useDiveChartData(profile);
+    useDiveChartData(profile, diveType);
   const {
     hoveredSeries,
     handleSeriesMouseEnter,
