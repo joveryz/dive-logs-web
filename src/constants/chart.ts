@@ -27,6 +27,7 @@ export const DEFAULT_CHART_SERIES: ChartSeriesConfig[] = [
   { key: 'ndl', name: fieldLabels.ndl, color: '#ec4899', type: 'line', visible: false, unit: 'min' },
   { key: 'deco', name: fieldLabels.deco, color: '#ef4444', type: 'line', visible: false, unit: 'min' },
   { key: 'tts', name: fieldLabels.tts, color: '#f97316', type: 'line', visible: false, unit: 'min' },
+  { key: 'tts5', name: fieldLabels.tts5, color: '#fb923c', type: 'line', visible: false, unit: 'min' },
   { key: 'gf99', name: fieldLabels.gf99, color: '#f43f5e', type: 'line', visible: false, unit: '%' },
   // 气体相关
   { key: 'ppO2', name: fieldLabels.ppO2, color: '#10b981', type: 'line', visible: false, unit: 'bar' },

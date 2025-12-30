@@ -100,7 +100,7 @@ function parseCSV<T>(csv: string): T[] {
 function parseDateTime(dateTimeStr: string): { date: string; time: string } {
   // 格式: "2024-09-27 11:49:56"
   const [date, timeFull] = dateTimeStr.split(' ');
-  const time = timeFull ? timeFull.substring(0, 5) : '00:00'; // HH:MM
+  const time = timeFull || '00:00:00'; // HH:MM:SS
   return { date, time };
 }
 
@@ -168,6 +168,7 @@ function sampleToProfilePoint(
       ? parseNum(sample.SAC) 
       : undefined,
     tts: parseNum(sample.TimeToSurfaceInMinutes),
+    tts5: parseNum(sample.TimeToSurfaceInMinutesAtPlusFive),
     deco: 0,
     ceiling: 0,
   };
@@ -210,6 +211,39 @@ export function parseDivesFromCSV(): Dive[] {
       return sampleToProfilePoint(sample, ascentRate);
     });
 
+    // 填充 GF99 缺失值：使用之前的已知点，默认值为 0
+    let lastKnownGf99 = 0;
+    for (const point of profile) {
+      if (point.gf99 !== undefined) {
+        lastKnownGf99 = point.gf99;
+      } else {
+        point.gf99 = lastKnownGf99;
+      }
+    }
+
+    // 填充 SAC 缺失值：使用之前的已知点，默认值为 0
+    let lastKnownSac = 0;
+    for (const point of profile) {
+      if (point.sac !== undefined) {
+        lastKnownSac = point.sac;
+      } else {
+        point.sac = lastKnownSac;
+      }
+    }
+
+    // 计算上升/下降速率统计
+    const ascentRates = profile.map(p => p.ascentRate ?? 0).filter(r => r !== 0);
+    const ascentRateStats = ascentRates.length > 0 ? (() => {
+      const ascents = ascentRates.filter(r => r < 0); // 负值 = 上升
+      const descents = ascentRates.filter(r => r > 0); // 正值 = 下降
+      return {
+        maxAscent: ascents.length > 0 ? Math.min(...ascents) : 0,
+        maxDescent: descents.length > 0 ? Math.max(...descents) : 0,
+        avgAscent: ascents.length > 0 ? ascents.reduce((a, b) => a + b, 0) / ascents.length : 0,
+        avgDescent: descents.length > 0 ? descents.reduce((a, b) => a + b, 0) / descents.length : 0,
+      };
+    })() : undefined;
+
     const { date, time: startTime } = parseDateTime(summary.StartDate);
     const { time: endTime } = parseDateTime(summary.EndDate);
 
@@ -242,6 +276,7 @@ export function parseDivesFromCSV(): Dive[] {
       tags: summary.Note ? summary.Note.split(';').map(t => t.trim()).filter(t => t.length > 0) : [],
       rating: 3,
       profile,
+      ascentRateStats,
       
       // 潜水电脑基本信息
       diveComputer: {

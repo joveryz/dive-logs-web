@@ -85,16 +85,17 @@ export const chartSeriesLabels: Record<string, string> = {
   temperature: 'Temperature',
   ndl: 'NDL',
   tts: 'TTS',
+  tts5: 'TTS @+5',
   cns: 'CNS',
   gf99: 'GF99',
   gasDensity: 'Gas Density',
-  ppO2: 'PPO₂',
-  ppN2: 'PPN₂',
-  ppHe: 'PPHe',
+  ppO2: 'ppO₂',
+  ppN2: 'ppN₂',
+  ppHe: 'ppHe',
   tank1Pressure: 'Tank 1',
   tank2Pressure: 'Tank 2',
   sac: 'SAC',
-  ascentRate: 'Ascent Rate',
+  ascentRate: 'Ascent',
   deco: 'Deco',
   ceiling: 'Ceiling',
 };
@@ -105,7 +106,7 @@ export const chartSeriesLabels: Record<string, string> = {
 
 export const uiLabels = {
   // Tab 标签
-  diveSummary: 'Dive Summary',
+  diveSummary: 'Summary',
   computer: 'Computer',
   diveList: 'Dive List',
   diveDetail: 'Dive Detail',
@@ -129,7 +130,6 @@ export const uiLabels = {
   // 列表表头
   diveNumber: 'Dive #',
   date: 'Date',
-  time: 'Time',
   type: 'Type',
   diveType: 'Type',
   diveComputer: 'Computer',
@@ -139,6 +139,10 @@ export const uiLabels = {
   
   // 详情页标签
   avgDepth: 'Avg Depth',
+  maxAscent: 'Max Ascent',
+  maxDescent: 'Max Descent',
+  avgAscent: 'Avg Ascent',
+  avgDescent: 'Avg Descent',
   startTime: 'Start Time',
   endTime: 'End Time',
   buddy: 'Buddy',

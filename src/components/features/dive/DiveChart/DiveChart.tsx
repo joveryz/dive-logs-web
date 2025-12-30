@@ -32,7 +32,7 @@ interface DiveChartProps {
  */
 export function DiveChart({ profile, maxDepth }: DiveChartProps) {
   const { containerRef, containerSize } = useContainerSize();
-  const { chartData, seriesConfigs, toggleSeriesVisibility, resetToDefault, showAllSeries } =
+  const { chartData, seriesConfigs, toggleSeriesVisibility, resetToDefault, showAllSeries, hideAllSeries } =
     useDiveChartData(profile);
   const {
     hoveredSeries,
@@ -209,6 +209,7 @@ export function DiveChart({ profile, maxDepth }: DiveChartProps) {
         onToggleVisibility={toggleSeriesVisibility}
         onResetToDefault={resetToDefault}
         onShowAll={showAllSeries}
+        onHideAll={hideAllSeries}
         onMouseEnter={handleSeriesMouseEnter}
         onMouseLeave={handleSeriesMouseLeave}
       />

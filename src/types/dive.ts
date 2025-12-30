@@ -82,6 +82,8 @@ export interface DiveProfilePoint {
   deco?: number;
   /** 到达水面所需时间（分钟） */
   tts?: number;
+  /** 到达水面所需时间@+5m（分钟） */
+  tts5?: number;
   /** 减压上限深度（米） */
   ceiling?: number;
 }
@@ -366,6 +368,17 @@ export interface Dive {
   problemsInfo?: ProblemsInfo;
   /** 问题列表（旧版） */
   problems?: DiveProblem[];
+  /** 上升/下降速率统计 */
+  ascentRateStats?: {
+    /** 最大上升速率（负值，m/s） */
+    maxAscent: number;
+    /** 最大下降速率（正值，m/s） */
+    maxDescent: number;
+    /** 平均上升速率（负值，m/s） */
+    avgAscent: number;
+    /** 平均下降速率（正值，m/s） */
+    avgDescent: number;
+  };
   /** 备注 */
   notes?: string;
   /** 评分（1-5） */

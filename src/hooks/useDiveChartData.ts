@@ -85,6 +85,17 @@ export function useDiveChartData(profile: DiveProfilePoint[]) {
     });
   }, []);
 
+  // 隐藏所有系列
+  const hideAllSeries = useCallback(() => {
+    setVisibilityOverrides((prev) => {
+      const newOverrides: Record<string, boolean> = { ...prev };
+      DEFAULT_CHART_SERIES.forEach((s) => {
+        newOverrides[s.key] = false; // 所有系列都隐藏
+      });
+      return newOverrides;
+    });
+  }, []);
+
   // 准备图表数据 - 归一化所有非depth数据到0-100范围
   // 注意：只依赖 seriesConfigs (基于 profile 计算的范围)，不依赖 visibilityOverrides
   // 这样切换可见性时不会重新计算数据
@@ -141,6 +152,7 @@ export function useDiveChartData(profile: DiveProfilePoint[]) {
     toggleSeriesVisibility,
     resetToDefault,
     showAllSeries,
+    hideAllSeries,
   };
 }
 

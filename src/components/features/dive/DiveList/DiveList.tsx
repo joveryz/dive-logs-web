@@ -145,7 +145,7 @@ export function DiveList() {
                 scope="col"
                 onClick={() => handleSort('date')}
               >
-                {fieldLabels.date} / {fieldLabels.time}
+                {fieldLabels.date}
                 <SortIcon field="date" />
               </th>
               <th 
@@ -250,7 +250,7 @@ export function DiveList() {
                           key={idx}
                           className="inline-block px-1.5 py-0.5 rounded text-xs bg-purple-900/50 text-purple-300"
                         >
-                          {tag}
+                          #{tag}
                         </span>
                       ))}
                     </div>

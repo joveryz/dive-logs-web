@@ -141,15 +141,48 @@ const DiveTab = memo(function DiveTab({
         <Section title={uiLabels.sectionDiveInfo}>
           <div className="grid grid-cols-2 gap-3">
             <InfoCard label={uiLabels.diveNumber} value={dive.diveNumber} />
-            <InfoCard label={uiLabels.type} value={dive.diveType} />
+            <div className="flex flex-col">
+              <span className="text-xs text-gray-500 uppercase tracking-wider">{uiLabels.type}</span>
+              <span className={`inline-block w-fit px-1.5 py-0.5 rounded text-base font-medium ${
+                dive.diveType === 'CC/BO' ? 'bg-purple-900/50 text-purple-300' :
+                dive.diveType === 'OC Tec' ? 'bg-red-900/50 text-red-300' :
+                dive.diveType.startsWith('OC Rec') ? 'bg-blue-900/50 text-blue-300' :
+                dive.diveType === 'FreeDive' ? 'bg-cyan-900/50 text-cyan-300' :
+                dive.diveType === 'Avelo' ? 'bg-green-900/50 text-green-300' :
+                'bg-gray-700 text-gray-300'
+              }`}>
+                {dive.diveType}
+              </span>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <InfoCard label={uiLabels.avgDepth} value={formatDepth(dive.avgDepth)} />
-            <InfoCard label={uiLabels.date} value={dive.date} />
+            <InfoCard label={uiLabels.date} value={`${dive.date} ${dive.startTime} - ${dive.endTime}`} />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.time} value={`${dive.startTime} - ${dive.endTime}`} />
-          </div>
+          {dive.ascentRateStats && (
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col">
+                  <span className="text-xs text-gray-500 uppercase tracking-wider">{uiLabels.maxAscent}</span>
+                  <span className="text-base font-medium" style={{ color: '#22c55e' }}>{Math.abs(dive.ascentRateStats.maxAscent).toFixed(2)} m/s</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs text-gray-500 uppercase tracking-wider">{uiLabels.maxDescent}</span>
+                  <span className="text-base font-medium" style={{ color: '#ef4444' }}>{Math.abs(dive.ascentRateStats.maxDescent).toFixed(2)} m/s</span>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col">
+                  <span className="text-xs text-gray-500 uppercase tracking-wider">{uiLabels.avgAscent}</span>
+                  <span className="text-base font-medium" style={{ color: '#22c55e' }}>{Math.abs(dive.ascentRateStats.avgAscent).toFixed(2)} m/s</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs text-gray-500 uppercase tracking-wider">{uiLabels.avgDescent}</span>
+                  <span className="text-base font-medium" style={{ color: '#ef4444' }}>{Math.abs(dive.ascentRateStats.avgDescent).toFixed(2)} m/s</span>
+                </div>
+              </div>
+            </>
+          )}
         </Section>
 
         {/* 地点与潜伴 */}
