@@ -46,28 +46,6 @@ export type Severity = 'Low' | 'Medium' | 'High';
 // ============================================================================
 
 /**
- * 潜水剖面数据点的可用字段 key
- */
-export type DiveProfileKey =
-  | 'time'
-  | 'depth'
-  | 'temperature'
-  | 'ascentRate'
-  | 'ndl'
-  | 'gf99'
-  | 'cns'
-  | 'gasDensity'
-  | 'ppO2'
-  | 'ppHe'
-  | 'ppN2'
-  | 'tank1Pressure'
-  | 'tank2Pressure'
-  | 'sac'
-  | 'deco'
-  | 'tts'
-  | 'ceiling';
-
-/**
  * 潜水剖面数据点
  * @description 记录潜水过程中每个时间点的各项数据
  */
@@ -416,30 +394,4 @@ export interface DiveStats {
   favoriteLocations: { name: string; count: number }[];
   /** 按月统计 */
   divesByMonth: { month: string; count: number }[];
-}
-
-// ============================================================================
-// 类型守卫和工具函数
-// ============================================================================
-
-/**
- * 检查值是否为有效的 DiveProfileKey
- */
-export function isDiveProfileKey(key: string): key is DiveProfileKey {
-  const validKeys: DiveProfileKey[] = [
-    'time', 'depth', 'temperature', 'ascentRate', 'ndl', 'gf99',
-    'cns', 'gasDensity', 'ppO2', 'ppHe', 'ppN2', 'tank1Pressure',
-    'tank2Pressure', 'sac', 'deco', 'tts', 'ceiling'
-  ];
-  return validKeys.includes(key as DiveProfileKey);
-}
-
-/**
- * 从 DiveProfilePoint 获取指定 key 的数值
- */
-export function getProfileValue(
-  point: DiveProfilePoint,
-  key: DiveProfileKey
-): number | undefined {
-  return point[key];
 }

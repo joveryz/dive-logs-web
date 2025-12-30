@@ -149,36 +149,4 @@ export const useDiveStore = create<DiveStore>()(
   )
 );
 
-// ============================================================================
-// Selector Hooks（性能优化）
-// ============================================================================
 
-/**
- * 获取所有潜水记录
- */
-export const useDives = () => useDiveStore((state) => state.dives);
-
-/**
- * 获取选中的潜水记录 ID
- */
-export const useSelectedDiveId = () =>
-  useDiveStore((state) => state.selectedDiveId);
-
-/**
- * 获取筛选文本
- */
-export const useFilterText = () => useDiveStore((state) => state.filterText);
-
-/**
- * 获取操作方法
- */
-export const useDiveActions = () =>
-  useDiveStore((state) => ({
-    setSelectedDiveId: state.setSelectedDiveId,
-    setFilterText: state.setFilterText,
-    setDives: state.setDives,
-    addDive: state.addDive,
-    updateDive: state.updateDive,
-    deleteDive: state.deleteDive,
-    clearFilter: state.clearFilter,
-  }));

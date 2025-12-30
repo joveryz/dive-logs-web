@@ -85,13 +85,6 @@ export function useDiveChartData(profile: DiveProfilePoint[]) {
     });
   }, []);
 
-  // 检查是否所有非 depth 系列都被隐藏
-  const allHidden = useMemo(() => {
-    return effectiveSeriesConfigs
-      .filter((s) => s.key !== 'depth')
-      .every((s) => !s.visible);
-  }, [effectiveSeriesConfigs]);
-
   // 准备图表数据 - 归一化所有非depth数据到0-100范围
   // 注意：只依赖 seriesConfigs (基于 profile 计算的范围)，不依赖 visibilityOverrides
   // 这样切换可见性时不会重新计算数据
@@ -148,7 +141,6 @@ export function useDiveChartData(profile: DiveProfilePoint[]) {
     toggleSeriesVisibility,
     resetToDefault,
     showAllSeries,
-    allHidden,
   };
 }
 

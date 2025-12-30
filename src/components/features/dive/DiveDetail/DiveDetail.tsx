@@ -21,21 +21,6 @@ const EmptyState = memo(function EmptyState() {
 });
 
 /**
- * 二级导航按钮
- */
-const SecondaryNavButton = memo(function SecondaryNavButton({
-  label,
-}: {
-  label: string;
-}) {
-  return (
-    <button className="px-4 py-2 text-sm text-gray-400 hover:text-gray-200 hover:bg-gray-800/50 transition-colors">
-      {label}
-    </button>
-  );
-});
-
-/**
  * 主组件 - 潜水详情
  */
 export function DiveDetail() {
@@ -67,13 +52,6 @@ export function DiveDetail() {
         >
           {uiLabels.stats}
         </TabButton>
-
-        {/* Secondary Tabs */}
-        <div className="flex-1 flex justify-center gap-2 px-4">
-          {['Data', 'Analysis', 'Display', 'Settings'].map((label) => (
-            <SecondaryNavButton key={label} label={label} />
-          ))}
-        </div>
       </div>
 
       {/* Chart Area */}
