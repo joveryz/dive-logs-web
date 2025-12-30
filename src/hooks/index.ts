@@ -23,3 +23,4 @@ export {
 // Utility hooks
 export { useIsMobile } from './useIsMobile';
 export { useUrlParams } from './useUrlParams';
+export { useLayoutMode } from './useLayoutMode';

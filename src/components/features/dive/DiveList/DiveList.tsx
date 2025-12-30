@@ -1,6 +1,6 @@
 import { useMemo, useState, useRef, useEffect } from 'react';
 import { useDiveStore } from '@/store';
-import { useFilteredDives, getFreeDivePBId } from '@/hooks';
+import { useFilteredDives, getFreeDivePBId, useLayoutMode } from '@/hooks';
 import { SearchInput, DiveTypeBadge } from '@/components/common';
 import { formatDuration, formatDepth } from '@/utils';
 import { fieldLabels } from '@/constants';
@@ -26,17 +26,28 @@ export function DiveList() {
     setFilterValidDivesOnly 
   } = useDiveStore();
   const filteredDives = useFilteredDives();
+  const isMobileLayout = useLayoutMode();
   const [sortField, setSortField] = useState<SortField>('diveNumber');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   
-  // 列可见性状态 - 移动端默认关闭可选列
-  const isMobileDevice = typeof window !== 'undefined' && window.innerWidth < 768;
+  // 列可见性状态 - 移动端布局默认关闭可选列
   const [columnVisibility, setColumnVisibility] = useState<Record<OptionalColumnKey, boolean>>({
-    diveComputer: !isMobileDevice,
-    location: !isMobileDevice,
-    buddy: !isMobileDevice,
-    tags: !isMobileDevice,
+    diveComputer: false,
+    location: false,
+    buddy: false,
+    tags: false,
   });
+  
+  // 当布局模式变化时，更新列可见性
+  useEffect(() => {
+    setColumnVisibility({
+      diveComputer: !isMobileLayout,
+      location: !isMobileLayout,
+      buddy: !isMobileLayout,
+      tags: !isMobileLayout,
+    });
+  }, [isMobileLayout]);
+  
   const [isColumnMenuOpen, setIsColumnMenuOpen] = useState(false);
   const columnMenuRef = useRef<HTMLDivElement>(null);
   
