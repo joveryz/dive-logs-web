@@ -24,14 +24,3 @@ export const PANEL_CONFIG = {
     bottomDefaultSize: 55,
   },
 } as const;
-
-/**
- * 潜水类型颜色映射
- */
-export const DIVE_TYPE_COLORS = {
-  Air: { bg: 'bg-blue-900/50', text: 'text-blue-300' },
-  Nitrox: { bg: 'bg-green-900/50', text: 'text-green-300' },
-  Gauge: { bg: 'bg-yellow-900/50', text: 'text-yellow-300' },
-  Freedive: { bg: 'bg-purple-900/50', text: 'text-purple-300' },
-  CCR: { bg: 'bg-red-900/50', text: 'text-red-300' },
-} as const;

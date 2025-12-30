@@ -1,7 +1,7 @@
 import { useMemo, useState, useRef, useEffect } from 'react';
 import { useDiveStore } from '@/store';
 import { useFilteredDives, getFreeDivePBId } from '@/hooks';
-import { SearchInput } from '@/components/common';
+import { SearchInput, DiveTypeBadge } from '@/components/common';
 import { formatDuration, formatDepth } from '@/utils';
 import { fieldLabels } from '@/constants';
 import type { SortField, SortDirection } from '@/types';
@@ -320,16 +320,7 @@ export function DiveList() {
                   </td>
                 )}
                 <td className="px-2 py-1.5">
-                  <span className={`inline-block px-1.5 py-0.5 rounded text-xs ${
-                    dive.diveType === 'CC/BO' ? 'bg-purple-900/50 text-purple-300' :
-                    dive.diveType === 'OC Tec' ? 'bg-red-900/50 text-red-300' :
-                    dive.diveType.startsWith('OC Rec') ? 'bg-blue-900/50 text-blue-300' :
-                    dive.diveType === 'FreeDive' ? 'bg-teal-900/50 text-teal-300' :
-                    dive.diveType === 'Avelo' ? 'bg-green-900/50 text-green-300' :
-                    'bg-zinc-700 text-zinc-300'
-                  }`}>
-                    {dive.diveType}
-                  </span>
+                  <DiveTypeBadge diveType={dive.diveType} />
                 </td>
                 {columnVisibility.buddy && (
                   <td className="px-2 py-1.5 text-zinc-400">

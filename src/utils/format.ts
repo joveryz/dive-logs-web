@@ -46,3 +46,14 @@ export function formatTimeForChart(seconds: number): string {
   return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
+/**
+ * 格式化数字，保留1位小数，支持可选单位
+ * @param value - 要格式化的数值
+ * @param unit - 可选的单位后缀
+ * @returns 格式化后的字符串，如果值无效则返回 '-'
+ */
+export function formatNumber(value: number | undefined | null, unit = ''): string {
+  if (value === undefined || value === null) return '-';
+  const formatted = Number.isInteger(value) ? value.toString() : value.toFixed(1);
+  return unit ? `${formatted}${unit}` : formatted;
+}
