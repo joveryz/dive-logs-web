@@ -1,31 +1,41 @@
-# 自动部署到 GitHub Pages
-name: Deploy to GitHub Pages
-
+name: "site-build-and-deploy"
 on:
-  # 推送到 main 分支时触发
   push:
-    branches: ['main']
-  # 允许手动触发
+    branches:
+      - master
+    paths-ignore:
+      - .gitignore
+      - README.md
+      - LICENSE
+
+  repository_dispatch:
+    types: [dispatch-event]
+
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# 设置 GITHUB_TOKEN 权限
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# 只允许一个并发部署
+# Allow one concurrent deployment
 concurrency:
-  group: 'pages'
+  group: ${{ github.workflow }}
   cancel-in-progress: true
 
 jobs:
-  # 构建任务
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # submodules: true
+          # If using the 'assets' git submodule from Chirpy Starter, uncomment above
+          # (See: https://github.com/cotes2020/chirpy-starter/tree/main/assets)
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -40,14 +50,14 @@ jobs:
         run: npm run build
 
       - name: Setup Pages
+        id: pages
         uses: actions/configure-pages@v4
 
-      - name: Upload artifact
+      - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: "_site${{ steps.pages.outputs.base_path }}"
 
-  # 部署任务
   deploy:
     environment:
       name: github-pages
