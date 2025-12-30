@@ -3,6 +3,7 @@ import { useDiveStore } from '@/store';
 import { useFilteredDives } from '@/hooks';
 import { SearchInput } from '@/components/common';
 import { formatDuration, formatDepth } from '@/utils';
+import { fieldLabels } from '@/constants';
 
 type SortField = 'diveNumber' | 'date' | 'diveType' | 'location' | 'maxDepth' | 'duration';
 type SortDirection = 'asc' | 'desc';
@@ -102,43 +103,43 @@ export function DiveList() {
                 scope="col"
                 onClick={() => handleSort('diveNumber')}
               >
-                Dive #<SortIcon field="diveNumber" />
+                {fieldLabels.diveNumber}<SortIcon field="diveNumber" />
               </th>
               <th 
                 className="px-3 py-2 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
                 onClick={() => handleSort('date')}
               >
-                Date / Time<SortIcon field="date" />
+                {fieldLabels.date} / {fieldLabels.time}<SortIcon field="date" />
               </th>
-              <th className="px-3 py-2 font-medium" scope="col">Dive Computer</th>
+              <th className="px-3 py-2 font-medium" scope="col">{fieldLabels.diveComputer}</th>
               <th 
                 className="px-3 py-2 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
                 onClick={() => handleSort('diveType')}
               >
-                Dive Type<SortIcon field="diveType" />
+                {fieldLabels.diveType}<SortIcon field="diveType" />
               </th>
               <th 
                 className="px-3 py-2 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
                 onClick={() => handleSort('location')}
               >
-                Location<SortIcon field="location" />
+                {fieldLabels.location}<SortIcon field="location" />
               </th>
               <th 
                 className="px-3 py-2 font-medium text-right cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
                 onClick={() => handleSort('maxDepth')}
               >
-                Max Depth<SortIcon field="maxDepth" />
+                {fieldLabels.maxDepth}<SortIcon field="maxDepth" />
               </th>
               <th 
                 className="px-3 py-2 font-medium text-right cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
                 onClick={() => handleSort('duration')}
               >
-                Duration<SortIcon field="duration" />
+                {fieldLabels.duration}<SortIcon field="duration" />
               </th>
             </tr>
           </thead>

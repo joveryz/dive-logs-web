@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { Dive } from '@/types';
 import { InfoRowSimple, SectionTitle } from './FormComponents';
+import { fieldLabels } from '@/constants';
 
 interface ComputerTabProps {
   dive: Dive;
@@ -23,28 +24,28 @@ export const ComputerTab = memo(function ComputerTab({
           <SectionTitle>Computer:</SectionTitle>
           <div className="space-y-2 text-sm ml-2">
             <InfoRowSimple
-              label="Model:"
+              label={`${fieldLabels.model}:`}
               value={info?.model || dive.diveComputer.model}
             />
             <InfoRowSimple
-              label="Serial Number:"
+              label={`${fieldLabels.serialNumber}:`}
               value={info?.serial || dive.diveComputer.serial}
             />
-            <InfoRowSimple label="OEM:" value={info?.oem || '-'} />
+            <InfoRowSimple label={`${fieldLabels.oem}:`} value={info?.oem || '-'} />
             <InfoRowSimple
-              label="Firmware Version:"
+              label={`${fieldLabels.firmwareVersion}:`}
               value={info?.firmwareVersion || '-'}
               valueColor="cyan"
             />
-            <InfoRowSimple label="Language:" value={info?.language || '-'} />
-            <InfoRowSimple label="Data Format:" value={info?.dataFormat || '-'} />
+            <InfoRowSimple label={`${fieldLabels.language}:`} value={info?.language || '-'} />
+            <InfoRowSimple label={`${fieldLabels.dataFormat}:`} value={info?.dataFormat || '-'} />
             <InfoRowSimple
-              label="Log Version:"
+              label={`${fieldLabels.logVersion}:`}
               value={info?.logVersion || '-'}
               valueColor="cyan"
             />
             <InfoRowSimple
-              label="DB Version:"
+              label={`${fieldLabels.dbVersion}:`}
               value={info?.dbVersion || '-'}
               valueColor="cyan"
             />
@@ -56,7 +57,7 @@ export const ComputerTab = memo(function ComputerTab({
           <SectionTitle>Battery:</SectionTitle>
           <div className="space-y-2 text-sm ml-2">
             <InfoRowSimple
-              label="Battery Type:"
+              label={`${fieldLabels.batteryType}:`}
               value={info?.battery?.type || '-'}
             />
             <InfoRowSimple
@@ -77,7 +78,7 @@ export const ComputerTab = memo(function ComputerTab({
       <div className="space-y-6">
         {/* Date/Time Section */}
         <div>
-          <SectionTitle>Date / Time:</SectionTitle>
+          <SectionTitle>{fieldLabels.date} / {fieldLabels.time}:</SectionTitle>
           <div className="space-y-2 text-sm ml-2">
             <InfoRowSimple
               label="Timezone Offset:"
@@ -96,7 +97,7 @@ export const ComputerTab = memo(function ComputerTab({
           <SectionTitle>Dive:</SectionTitle>
           <div className="space-y-2 text-sm ml-2">
             <InfoRowSimple
-              label="Mode:"
+              label={`${fieldLabels.diveType}:`}
               value={info?.dive?.mode || dive.diveType}
             />
             <InfoRowSimple
@@ -109,17 +110,17 @@ export const ComputerTab = memo(function ComputerTab({
               value={info?.dive?.recordedUnits || 'Metric'}
             />
             <InfoRowSimple
-              label="Salinity Setting:"
+              label={`${fieldLabels.salinity}:`}
               value={info?.dive?.salinitySetting || '-'}
             />
             <InfoRowSimple
-              label="Surface Pressure:"
+              label={`${fieldLabels.surfacePressure}:`}
               value={`${info?.dive?.surfacePressure || '-'}`}
               valueColor="cyan"
               unit="mBar"
             />
             <InfoRowSimple
-              label="Surface Interval:"
+              label={`${fieldLabels.surfaceInterval}:`}
               value={info?.dive?.surfaceInterval || '-'}
               valueColor="cyan"
             />
@@ -128,18 +129,18 @@ export const ComputerTab = memo(function ComputerTab({
 
         {/* Deco Section */}
         <div>
-          <SectionTitle>Deco:</SectionTitle>
+          <SectionTitle>{fieldLabels.deco}:</SectionTitle>
           <div className="space-y-2 text-sm ml-2">
             <InfoRowSimple
-              label="CNS Start:"
+              label={`${fieldLabels.cns} Start:`}
               value={info?.deco?.cnsStart?.toString() || '0'}
             />
             <InfoRowSimple
-              label="CNS End:"
+              label={`${fieldLabels.cns} End:`}
               value={info?.deco?.cnsEnd?.toString() || '0'}
             />
             <InfoRowSimple
-              label="Deco Model:"
+              label={`${fieldLabels.decoModel}:`}
               value={info?.deco?.decoModel || '-'}
             />
             <InfoRowSimple

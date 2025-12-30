@@ -21,11 +21,34 @@ interface SummaryRow {
   TemperatureInCelsiusMax: string;
   TemperatureInCelsiusMin: string;
   TemperatureInCelsiusAvg: string;
+  Salinity: string;
+  SurfaceIntervalInSeconds: string;
+  SurfacePressureInMillibarPreDive: string;
+  SurfacePressureInMillibarPostDive: string;
+  DecoModel: string;
+  GradientFactorLow: string;
+  GradientFactorHigh: string;
+  GradientFactor99Max: string;
+  CNSPercentPreDive: string;
   CNSPercentPostDive: string;
   ComputerModel: string;
   ComputerSerialNumber: string;
-  GradientFactorLow: string;
-  GradientFactorHigh: string;
+  ComputerFirmwareVersion: string;
+  BatteryType: string;
+  BatteryVoltagePreDive: string;
+  BatteryVoltagePostDive: string;
+  SampleRateInMs: string;
+  DataFormat: string;
+  LogVersion: string;
+  DatabaseVersion: string;
+  O2SensorStatusPreDive: string;
+  O2SensorStatusPostDive: string;
+  SensorDisplay: string;
+  PPO2SetpointLowPreDive: string;
+  PPO2SetpointLowPostDive: string;
+  PPO2SetpointHighPreDive: string;
+  PPO2SetpointHighPostDive: string;
+  Features: string;
 }
 
 interface SampleRow {
@@ -33,6 +56,7 @@ interface SampleRow {
   ElapsedTimeInSeconds: string;
   Depth: string;
   TimeToSurfaceInMinutes: string;
+  TimeToSurfaceInMinutesAtPlusFive: string;
   NoDecoLimit: string;
   CNS: string;
   GasDensity: string;
@@ -43,6 +67,8 @@ interface SampleRow {
   TankPressureInBar: string;
   SAC: string;
   Temperature: string;
+  BatteryVoltage: string;
+  GasTimeRemainingInMinutes: string;
 }
 
 /**
@@ -175,6 +201,16 @@ export function parseDivesFromCSV(): Dive[] {
     samplesByDive.get(diveNum)!.push(sample);
   });
 
+  const parseNum = (val: string): number | undefined => {
+    const num = parseFloat(val);
+    return isNaN(num) ? undefined : num;
+  };
+
+  const parseIntNum = (val: string): number | undefined => {
+    const num = parseInt(val, 10);
+    return isNaN(num) ? undefined : num;
+  };
+
   const dives: Dive[] = summaryRows.map((summary) => {
     const diveNum = summary.Number;
     const samples = samplesByDive.get(diveNum) || [];
@@ -188,6 +224,18 @@ export function parseDivesFromCSV(): Dive[] {
     const { date, time: startTime } = parseDateTime(summary.StartDate);
     const { time: endTime } = parseDateTime(summary.EndDate);
 
+    // 格式化 surface interval
+    const surfaceIntervalSec = parseIntNum(summary.SurfaceIntervalInSeconds);
+    const formatSurfaceInterval = (sec?: number): string | undefined => {
+      if (sec === undefined) return undefined;
+      const hours = Math.floor(sec / 3600);
+      const minutes = Math.floor((sec % 3600) / 60);
+      if (hours > 0) {
+        return `${hours}h ${minutes}m`;
+      }
+      return `${minutes}m`;
+    };
+
     return {
       id: diveNum,
       diveNumber: parseInt(diveNum, 10),
@@ -200,14 +248,55 @@ export function parseDivesFromCSV(): Dive[] {
       diveType: modeToDiveType(summary.Mode),
       location: summary.Location || 'Unknown',
       site: summary.Site || 'Unknown',
+      buddy: summary.Buddy || undefined,
+      notes: summary.Note || undefined,
+      rating: 3,
+      profile,
+      
+      // 潜水电脑基本信息
       diveComputer: {
         model: summary.ComputerModel || 'Unknown',
         serial: summary.ComputerSerialNumber || '',
       },
-      profile,
-      rating: 3,
-      buddy: summary.Buddy || undefined,
-      notes: summary.Note || undefined,
+      
+      // 潜水电脑详细信息
+      computerInfo: {
+        model: summary.ComputerModel || 'Unknown',
+        serial: summary.ComputerSerialNumber || '',
+        firmwareVersion: summary.ComputerFirmwareVersion || undefined,
+        dataFormat: summary.DataFormat || undefined,
+        logVersion: summary.LogVersion || undefined,
+        dbVersion: summary.DatabaseVersion || undefined,
+        battery: {
+          type: summary.BatteryType || undefined,
+          vStart: parseNum(summary.BatteryVoltagePreDive),
+          vEnd: parseNum(summary.BatteryVoltagePostDive),
+        },
+        dive: {
+          mode: summary.Mode,
+          sampleRate: parseIntNum(summary.SampleRateInMs) ? parseIntNum(summary.SampleRateInMs)! / 1000 : 10,
+          salinitySetting: summary.Salinity || undefined,
+          surfacePressure: parseNum(summary.SurfacePressureInMillibarPreDive),
+          surfaceInterval: formatSurfaceInterval(surfaceIntervalSec),
+        },
+        deco: {
+          cnsStart: parseNum(summary.CNSPercentPreDive),
+          cnsEnd: parseNum(summary.CNSPercentPostDive),
+          decoModel: summary.DecoModel || undefined,
+          endSurfaceGF: parseNum(summary.GradientFactor99Max),
+          conservatism: summary.GradientFactorLow && summary.GradientFactorHigh 
+            ? `GF ${summary.GradientFactorLow}/${summary.GradientFactorHigh}`
+            : undefined,
+        },
+      },
+      
+      // 环境信息
+      environment: {
+        minTemp: parseNum(summary.TemperatureInCelsiusMin),
+        maxTemp: parseNum(summary.TemperatureInCelsiusMax),
+        avgTemp: parseNum(summary.TemperatureInCelsiusAvg),
+        surfacePressure: parseNum(summary.SurfacePressureInMillibarPreDive),
+      },
     };
   });
 
