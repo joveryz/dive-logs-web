@@ -106,7 +106,7 @@ export const chartSeriesLabels: Record<string, string> = {
 export const uiLabels = {
   // Tab 标签
   diveSummary: 'Dive Summary',
-  computerSettings: 'Computer & Settings',
+  computer: 'Computer',
   diveList: 'Dive List',
   diveDetail: 'Dive Detail',
   graph: 'Graph',

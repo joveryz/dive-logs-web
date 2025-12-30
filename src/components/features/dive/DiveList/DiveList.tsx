@@ -130,69 +130,68 @@ export function DiveList() {
       
       {/* Table */}
       <div className="flex-1 overflow-auto" role="table" aria-label="Dive records">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm min-w-[800px]">
           <thead className="sticky top-0 bg-gray-900 z-10">
-            <tr className="text-left text-gray-400 border-b border-gray-700">
+            <tr className="text-left text-gray-400 border-b border-gray-700 whitespace-nowrap">
               <th 
-                className="px-1.5 md:px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
+                className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
                 onClick={() => handleSort('diveNumber')}
               >
                 {fieldLabels.diveNumber}<SortIcon field="diveNumber" />
               </th>
               <th 
-                className="px-1.5 md:px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
+                className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
                 onClick={() => handleSort('date')}
               >
-                <span className="hidden sm:inline">{fieldLabels.date} / {fieldLabels.time}</span>
-                <span className="sm:hidden">{fieldLabels.date}</span>
+                {fieldLabels.date} / {fieldLabels.time}
                 <SortIcon field="date" />
               </th>
               <th 
-                className="hidden lg:table-cell px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
+                className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
                 onClick={() => handleSort('diveComputer')}
               >
                 {fieldLabels.diveComputer}<SortIcon field="diveComputer" />
               </th>
               <th 
-                className="px-1.5 md:px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
+                className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
                 onClick={() => handleSort('location')}
               >
                 {fieldLabels.location}<SortIcon field="location" />
               </th>
               <th 
-                className="hidden md:table-cell px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
+                className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
                 onClick={() => handleSort('diveType')}
               >
                 {fieldLabels.diveType}<SortIcon field="diveType" />
               </th>
               <th 
-                className="hidden xl:table-cell px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
+                className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
                 onClick={() => handleSort('buddy')}
               >
                 {fieldLabels.buddy}<SortIcon field="buddy" />
               </th>
               <th 
-                className="hidden xl:table-cell px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
+                className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
                 onClick={() => handleSort('tags')}
               >
                 {fieldLabels.tags}<SortIcon field="tags" />
               </th>
               <th 
-                className="px-1.5 md:px-2 py-1.5 font-medium text-right cursor-pointer hover:text-cyan-400 select-none" 
+                className="px-2 py-1.5 font-medium text-right cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
                 onClick={() => handleSort('maxDepth')}
               >
                 {fieldLabels.maxDepth}<SortIcon field="maxDepth" />
               </th>
               <th 
-                className="hidden sm:table-cell px-2 py-1.5 font-medium text-right cursor-pointer hover:text-cyan-400 select-none" 
+                className="px-2 py-1.5 font-medium text-right cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
                 onClick={() => handleSort('duration')}
               >
@@ -209,29 +208,26 @@ export function DiveList() {
                 tabIndex={0}
                 role="row"
                 aria-selected={selectedDiveId === dive.id}
-                className={`cursor-pointer border-b border-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-inset ${
+                className={`cursor-pointer border-b border-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-inset whitespace-nowrap ${
                   selectedDiveId === dive.id
                     ? 'bg-cyan-900/40 text-cyan-100'
                     : 'text-gray-300 hover:bg-gray-800/50'
                 }`}
               >
-                <td className="px-1.5 md:px-2 py-1.5">{dive.diveNumber}</td>
-                <td className="px-1.5 md:px-2 py-1.5">
-                  <span className="hidden sm:inline">{dive.date} {dive.startTime}</span>
-                  <span className="sm:hidden">{dive.date}</span>
+                <td className="px-2 py-1.5">{dive.diveNumber}</td>
+                <td className="px-2 py-1.5">
+                  {dive.date} {dive.startTime}
                 </td>
-                <td className="hidden lg:table-cell px-2 py-1.5 text-gray-400">
+                <td className="px-2 py-1.5 text-gray-400">
                   {dive.diveComputer.model}
                 </td>
-                <td className="px-1.5 md:px-2 py-1.5">
+                <td className="px-2 py-1.5">
                   <span className="text-cyan-400">{dive.site}</span>
-                  <span className="hidden md:inline">
-                    {dive.site !== dive.location && (
-                      <span className="text-gray-500 ml-1">({dive.location})</span>
-                    )}
-                  </span>
+                  {dive.site !== dive.location && (
+                    <span className="text-gray-500 ml-1">({dive.location})</span>
+                  )}
                 </td>
-                <td className="hidden md:table-cell px-2 py-1.5">
+                <td className="px-2 py-1.5">
                   <span className={`inline-block px-1.5 py-0.5 rounded text-xs ${
                     dive.diveType === 'CC/BO' ? 'bg-purple-900/50 text-purple-300' :
                     dive.diveType === 'OC Tec' ? 'bg-red-900/50 text-red-300' :
@@ -243,12 +239,12 @@ export function DiveList() {
                     {dive.diveType}
                   </span>
                 </td>
-                <td className="hidden xl:table-cell px-2 py-1.5 text-gray-400">
+                <td className="px-2 py-1.5 text-gray-400">
                   {dive.buddy || '-'}
                 </td>
-                <td className="hidden xl:table-cell px-2 py-1.5">
+                <td className="px-2 py-1.5">
                   {dive.tags && dive.tags.length > 0 ? (
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-nowrap gap-1">
                       {dive.tags.map((tag, idx) => (
                         <span
                           key={idx}
@@ -262,7 +258,7 @@ export function DiveList() {
                     <span className="text-gray-600">-</span>
                   )}
                 </td>
-                <td className="px-1.5 md:px-2 py-1.5 text-right font-mono">
+                <td className="px-2 py-1.5 text-right font-mono">
                   <span className="flex items-center justify-end gap-1">
                     {dive.diveType === 'FreeDive' && dive.id === freeDivePBId && (
                       <span className="px-1 py-0.5 rounded text-[10px] font-bold bg-yellow-500/20 text-yellow-400" title="Personal Best FreeDive">
@@ -272,7 +268,7 @@ export function DiveList() {
                     {formatDepth(dive.maxDepth)}
                   </span>
                 </td>
-                <td className="hidden sm:table-cell px-2 py-1.5 text-right font-mono">
+                <td className="px-2 py-1.5 text-right font-mono">
                   {formatDuration(dive.duration)}
                 </td>
               </tr>
