@@ -5,7 +5,7 @@ import { SearchInput } from '@/components/common';
 import { formatDuration, formatDepth } from '@/utils';
 import { fieldLabels } from '@/constants';
 
-type SortField = 'diveNumber' | 'date' | 'diveType' | 'location' | 'maxDepth' | 'duration';
+type SortField = 'diveNumber' | 'date' | 'diveComputer' | 'diveType' | 'location' | 'buddy' | 'tags' | 'maxDepth' | 'duration';
 type SortDirection = 'asc' | 'desc';
 
 export function DiveList() {
@@ -26,11 +26,20 @@ export function DiveList() {
         case 'date':
           comparison = `${a.date} ${a.startTime}`.localeCompare(`${b.date} ${b.startTime}`);
           break;
+        case 'diveComputer':
+          comparison = a.diveComputer.model.localeCompare(b.diveComputer.model);
+          break;
         case 'diveType':
           comparison = a.diveType.localeCompare(b.diveType);
           break;
         case 'location':
           comparison = a.site.localeCompare(b.site);
+          break;
+        case 'buddy':
+          comparison = (a.buddy || '').localeCompare(b.buddy || '');
+          break;
+        case 'tags':
+          comparison = (a.tags?.join(',') || '').localeCompare(b.tags?.join(',') || '');
           break;
         case 'maxDepth':
           comparison = a.maxDepth - b.maxDepth;
@@ -141,7 +150,13 @@ export function DiveList() {
                 <span className="sm:hidden">{fieldLabels.date}</span>
                 <SortIcon field="date" />
               </th>
-              <th className="hidden lg:table-cell px-2 py-1.5 font-medium" scope="col">{fieldLabels.diveComputer}</th>
+              <th 
+                className="hidden lg:table-cell px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
+                scope="col"
+                onClick={() => handleSort('diveComputer')}
+              >
+                {fieldLabels.diveComputer}<SortIcon field="diveComputer" />
+              </th>
               <th 
                 className="px-1.5 md:px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
@@ -156,8 +171,20 @@ export function DiveList() {
               >
                 {fieldLabels.diveType}<SortIcon field="diveType" />
               </th>
-              <th className="hidden xl:table-cell px-2 py-1.5 font-medium" scope="col">{fieldLabels.buddy}</th>
-              <th className="hidden xl:table-cell px-2 py-1.5 font-medium" scope="col">{fieldLabels.tags}</th>
+              <th 
+                className="hidden xl:table-cell px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
+                scope="col"
+                onClick={() => handleSort('buddy')}
+              >
+                {fieldLabels.buddy}<SortIcon field="buddy" />
+              </th>
+              <th 
+                className="hidden xl:table-cell px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
+                scope="col"
+                onClick={() => handleSort('tags')}
+              >
+                {fieldLabels.tags}<SortIcon field="tags" />
+              </th>
               <th 
                 className="px-1.5 md:px-2 py-1.5 font-medium text-right cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
