@@ -208,13 +208,13 @@ export function DiveList() {
                 tabIndex={0}
                 role="row"
                 aria-selected={selectedDiveId === dive.id}
-                className={`cursor-pointer border-b border-zinc-800 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-inset whitespace-nowrap ${
+                className={`cursor-pointer transition-colors focus:outline-none whitespace-nowrap ${
                   selectedDiveId === dive.id
-                    ? 'bg-amber-900/40 text-amber-100'
-                    : 'text-zinc-300 hover:bg-zinc-800/50'
+                    ? 'bg-[#3e2416] text-amber-100 shadow-[inset_0_1px_0_0_#b45309,inset_0_-1px_0_0_#b45309]'
+                    : 'text-zinc-300 hover:bg-zinc-800/50 border-b border-zinc-800'
                 }`}
               >
-                <td className={`px-2 py-1.5 sticky left-0 z-10 ${selectedDiveId === dive.id ? 'bg-zinc-800' : 'bg-zinc-900'}`}>{dive.diveNumber}</td>
+                <td className={`px-2 py-1.5 sticky left-0 z-10 ${selectedDiveId === dive.id ? 'bg-[#3e2416] shadow-[inset_0_1px_0_0_#b45309,inset_0_-1px_0_0_#b45309]' : 'bg-zinc-900'}`}>{dive.diveNumber}</td>
                 <td className="px-2 py-1.5">
                   {dive.date} {dive.startTime}
                 </td>

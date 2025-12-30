@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useDiveStore } from '@/store';
+import { useState } from 'react';
 import { ErrorBoundary, TabButton } from '@/components/common';
 import { DiveList, DiveDetail } from '@/components/features';
 import { uiLabels } from '@/constants';
@@ -8,15 +7,7 @@ import { uiLabels } from '@/constants';
  * 移动端布局 - Tab 切换模式
  */
 export function MobileLayout() {
-  const { selectedDiveId } = useDiveStore();
   const [activeTab, setActiveTab] = useState<'list' | 'detail'>('list');
-
-  // 选择潜水后自动切换到详情页
-  useEffect(() => {
-    if (selectedDiveId) {
-      setActiveTab('detail');
-    }
-  }, [selectedDiveId]);
 
   return (
     <div className="flex flex-col h-full">
