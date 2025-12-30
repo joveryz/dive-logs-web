@@ -7,12 +7,10 @@ import { fieldLabels } from '@/constants';
 import type { SortField, SortDirection } from '@/types';
 
 // 可切换显示的列
-type OptionalColumnKey = 'diveComputer' | 'location' | 'buddy' | 'tags';
+type OptionalColumnKey = 'diveComputer' | 'tags';
 
 const OPTIONAL_COLUMNS: { key: OptionalColumnKey; label: string }[] = [
   { key: 'diveComputer', label: fieldLabels.diveComputer },
-  { key: 'location', label: fieldLabels.location },
-  { key: 'buddy', label: fieldLabels.buddy },
   { key: 'tags', label: fieldLabels.tags },
 ];
 
@@ -33,8 +31,6 @@ export function DiveList() {
   // 列可见性状态 - 移动端布局默认关闭可选列
   const [columnVisibility, setColumnVisibility] = useState<Record<OptionalColumnKey, boolean>>({
     diveComputer: false,
-    location: false,
-    buddy: false,
     tags: false,
   });
   
@@ -42,8 +38,6 @@ export function DiveList() {
   useEffect(() => {
     setColumnVisibility({
       diveComputer: !isMobileLayout,
-      location: !isMobileLayout,
-      buddy: !isMobileLayout,
       tags: !isMobileLayout,
     });
   }, [isMobileLayout]);
@@ -255,15 +249,13 @@ export function DiveList() {
                   {fieldLabels.diveComputer}<SortIcon field="diveComputer" />
                 </th>
               )}
-              {columnVisibility.location && (
-                <th 
-                  className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
-                  scope="col"
-                  onClick={() => handleSort('location')}
-                >
-                  {fieldLabels.location}<SortIcon field="location" />
-                </th>
-              )}
+              <th 
+                className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
+                scope="col"
+                onClick={() => handleSort('location')}
+              >
+                {fieldLabels.location}<SortIcon field="location" />
+              </th>
               <th 
                 className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
@@ -271,15 +263,13 @@ export function DiveList() {
               >
                 {fieldLabels.diveType}<SortIcon field="diveType" />
               </th>
-              {columnVisibility.buddy && (
-                <th 
-                  className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
-                  scope="col"
-                  onClick={() => handleSort('buddy')}
-                >
-                  {fieldLabels.buddy}<SortIcon field="buddy" />
-                </th>
-              )}
+              <th 
+                className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
+                scope="col"
+                onClick={() => handleSort('buddy')}
+              >
+                {fieldLabels.buddy}<SortIcon field="buddy" />
+              </th>
               {columnVisibility.tags && (
                 <th 
                   className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
@@ -329,22 +319,18 @@ export function DiveList() {
                     {dive.diveComputer.model}
                   </td>
                 )}
-                {columnVisibility.location && (
-                  <td className="px-2 py-1.5">
-                    <span className="text-cyan-400">{dive.site}</span>
-                    {dive.site !== dive.location && (
-                      <span className="text-dive-text-muted ml-1">({dive.location})</span>
-                    )}
-                  </td>
-                )}
+                <td className="px-2 py-1.5">
+                  <span className="text-cyan-400">{dive.site}</span>
+                  {dive.site !== dive.location && (
+                    <span className="text-dive-text-muted ml-1">({dive.location})</span>
+                  )}
+                </td>
                 <td className="px-2 py-1.5">
                   <DiveTypeBadge diveType={dive.diveType} />
                 </td>
-                {columnVisibility.buddy && (
-                  <td className="px-2 py-1.5 text-dive-text-secondary">
-                    {dive.buddy}
-                  </td>
-                )}
+                <td className="px-2 py-1.5 text-dive-text-secondary">
+                  {dive.buddy}
+                </td>
                 {columnVisibility.tags && (
                   <td className="px-2 py-1.5">
                     {dive.tags && dive.tags.length > 0 ? (
