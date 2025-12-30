@@ -169,9 +169,48 @@ export const useFilteredDives = () => {
 
 ---
 
+### 2024年12月30日 - 项目重构与优化
+
+**重构内容**:
+
+1. **修复项目配置**
+   - `package.json` 名称从 `online-dive-logs` 改为 `dive-logs`
+   - 版本升级到 `0.1.0`
+   - `vite.config.ts` base 路径修复为 `/dive-logs/`
+
+2. **添加 SEO 优化**
+   - `index.html` 添加 meta description、keywords
+   - 添加 Open Graph 标签
+   - 添加 theme-color
+
+3. **添加代码质量工具**
+   - 添加 `.prettierrc` 配置文件
+   - 添加 `.gitignore` 文件
+
+4. **新增组件**
+   - `ErrorBoundary` - 错误边界组件，防止整个应用崩溃
+   - `Loading` - 加载指示器组件
+   - `Skeleton` - 骨架屏组件
+   - `ListSkeleton` / `ChartSkeleton` - 特定场景骨架屏
+
+5. **可访问性改进**
+   - App 组件添加语义化标签 (`role="banner"`, `role="main"`, `role="contentinfo"`)
+   - DiveList 添加键盘导航支持 (Enter/Space 选择)
+   - 表格添加 ARIA 属性 (`aria-selected`, `scope`)
+   - SearchInput 添加 `<label>` 和 `aria-label`
+   - 图标添加 `aria-hidden="true"`
+
+6. **其他优化**
+   - Footer 年份动态显示 (`new Date().getFullYear()`)
+   - 移除未使用的 `EmptyState` 组件（修复构建错误）
+
+---
+
 ## 待办事项 / 未来改进
 
-- [ ] 重命名项目文件夹：`online-dive-logs` → `dive-logs`
+- [x] 重命名项目文件夹：`online-dive-logs` → `dive-logs`
+- [x] 添加错误边界和加载状态组件
+- [x] 改进可访问性 (a11y)
 - [ ] 真实潜水数据导入（Subsurface XML、UDDF 格式）
 - [ ] 数据库持久化
 - [ ] 用户认证
@@ -180,6 +219,7 @@ export const useFilteredDives = () => {
 - [ ] 更多图表类型（气体消耗分析、潜水统计等）
 - [ ] 移动端响应式适配
 - [ ] 多语言支持
+- [ ] 代码分割优化（当前 bundle > 500KB）
 
 ---
 

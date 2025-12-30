@@ -6,12 +6,20 @@ export function DiveList() {
   const { selectedDiveId, setSelectedDiveId, filterText, setFilterText } = useDiveStore();
   const filteredDives = useFilteredDives();
   
+  // 键盘导航处理
+  const handleKeyDown = (e: React.KeyboardEvent, diveId: string) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setSelectedDiveId(diveId);
+    }
+  };
+  
   return (
-    <div className="flex flex-col h-full bg-gray-900">
+    <div className="flex flex-col h-full bg-gray-900" role="region" aria-label="Dive List">
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-gray-700">
         <h2 className="text-cyan-400 font-semibold text-lg">Dive List</h2>
-        <span className="text-gray-400 text-sm">
+        <span className="text-gray-400 text-sm" aria-live="polite">
           Visible: {filteredDives.length} of {useDiveStore.getState().dives.length}
         </span>
       </div>
@@ -26,17 +34,17 @@ export function DiveList() {
       </div>
       
       {/* Table */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto" role="table" aria-label="Dive records">
         <table className="w-full text-sm">
           <thead className="sticky top-0 bg-gray-900 z-10">
             <tr className="text-left text-gray-400 border-b border-gray-700">
-              <th className="px-3 py-2 font-medium">Dive #</th>
-              <th className="px-3 py-2 font-medium">Date / Time</th>
-              <th className="px-3 py-2 font-medium">Dive Computer</th>
-              <th className="px-3 py-2 font-medium">Dive Type</th>
-              <th className="px-3 py-2 font-medium">Location</th>
-              <th className="px-3 py-2 font-medium text-right">Max Depth</th>
-              <th className="px-3 py-2 font-medium text-right">Duration</th>
+              <th className="px-3 py-2 font-medium" scope="col">Dive #</th>
+              <th className="px-3 py-2 font-medium" scope="col">Date / Time</th>
+              <th className="px-3 py-2 font-medium" scope="col">Dive Computer</th>
+              <th className="px-3 py-2 font-medium" scope="col">Dive Type</th>
+              <th className="px-3 py-2 font-medium" scope="col">Location</th>
+              <th className="px-3 py-2 font-medium text-right" scope="col">Max Depth</th>
+              <th className="px-3 py-2 font-medium text-right" scope="col">Duration</th>
             </tr>
           </thead>
           <tbody>
@@ -44,7 +52,11 @@ export function DiveList() {
               <tr
                 key={dive.id}
                 onClick={() => setSelectedDiveId(dive.id)}
-                className={`cursor-pointer border-b border-gray-800 transition-colors ${
+                onKeyDown={(e) => handleKeyDown(e, dive.id)}
+                tabIndex={0}
+                role="row"
+                aria-selected={selectedDiveId === dive.id}
+                className={`cursor-pointer border-b border-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-inset ${
                   selectedDiveId === dive.id
                     ? 'bg-cyan-900/40 text-cyan-100'
                     : 'text-gray-300 hover:bg-gray-800/50'
@@ -85,7 +97,7 @@ export function DiveList() {
         </table>
         
         {filteredDives.length === 0 && (
-          <div className="text-center text-gray-500 py-10">
+          <div className="text-center text-gray-500 py-10" role="status">
             No dives found matching "{filterText}"
           </div>
         )}
