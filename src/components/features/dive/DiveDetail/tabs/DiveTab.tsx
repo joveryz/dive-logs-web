@@ -65,24 +65,24 @@ export const DiveTab = memo(function DiveTab({ dive, isPersonalBest }: DiveTabPr
               <div className="grid grid-cols-2 gap-3">
                 <InfoCard 
                   label={uiLabels.maxAscent} 
-                  value={`${Math.abs(dive.ascentRateStats.maxAscent).toFixed(2)} m/s`}
+                  value={formatNumber(Math.abs(dive.ascentRateStats.maxAscent), ' m/s', 'ascentRate')}
                   style={{ color: '#22c55e' }}
                 />
                 <InfoCard 
                   label={uiLabels.maxDescent} 
-                  value={`${Math.abs(dive.ascentRateStats.maxDescent).toFixed(2)} m/s`}
+                  value={formatNumber(Math.abs(dive.ascentRateStats.maxDescent), ' m/s', 'ascentRate')}
                   style={{ color: '#ef4444' }}
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <InfoCard 
                   label={uiLabels.avgAscent} 
-                  value={`${Math.abs(dive.ascentRateStats.avgAscent).toFixed(2)} m/s`}
+                  value={formatNumber(Math.abs(dive.ascentRateStats.avgAscent), ' m/s', 'ascentRate')}
                   style={{ color: '#22c55e' }}
                 />
                 <InfoCard 
                   label={uiLabels.avgDescent} 
-                  value={`${Math.abs(dive.ascentRateStats.avgDescent).toFixed(2)} m/s`}
+                  value={formatNumber(Math.abs(dive.ascentRateStats.avgDescent), ' m/s', 'ascentRate')}
                   style={{ color: '#ef4444' }}
                 />
               </div>
@@ -105,11 +105,11 @@ export const DiveTab = memo(function DiveTab({ dive, isPersonalBest }: DiveTabPr
         {/* 环境 */}
         <Section title={uiLabels.sectionEnvironment}>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.minTemp} value={formatNumber(environment?.minTemp, '°C')} />
-            <InfoCard label={uiLabels.maxTemp} value={formatNumber(environment?.maxTemp, '°C')} />
+            <InfoCard label={uiLabels.minTemp} value={formatNumber(environment?.minTemp, '°C', 'temperature')} />
+            <InfoCard label={uiLabels.maxTemp} value={formatNumber(environment?.maxTemp, '°C', 'temperature')} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.avgTemp} value={formatNumber(environment?.avgTemp, '°C')} />
+            <InfoCard label={uiLabels.avgTemp} value={formatNumber(environment?.avgTemp, '°C', 'temperature')} />
             <InfoCard label={uiLabels.surfacePressure} value={formatNumber(environment?.surfacePressure, ' mBar')} />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -125,12 +125,12 @@ export const DiveTab = memo(function DiveTab({ dive, isPersonalBest }: DiveTabPr
             <InfoCard label={uiLabels.gfSetting} value={decoSettings?.conservatism || '-'} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.cnsStart} value={formatNumber(decoSettings?.cnsStart, '%')} />
-            <InfoCard label={uiLabels.cnsEnd} value={formatNumber(decoSettings?.cnsEnd, '%')} />
+            <InfoCard label={uiLabels.cnsStart} value={formatNumber(decoSettings?.cnsStart, '%', 'cns')} />
+            <InfoCard label={uiLabels.cnsEnd} value={formatNumber(decoSettings?.cnsEnd, '%', 'cns')} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.gf99Max} value={formatNumber(decoSettings?.endSurfaceGF, '%')} />
-            <InfoCard label={uiLabels.surfaceGFEnd} value={formatNumber(decoSettings?.endSurfaceGF, '%')} />
+            <InfoCard label={uiLabels.gf99Max} value={formatNumber(decoSettings?.endSurfaceGF, '%', 'gf99')} />
+            <InfoCard label={uiLabels.surfaceGFEnd} value={formatNumber(decoSettings?.endSurfaceGF, '%', 'gf99')} />
           </div>
         </Section>
 
@@ -148,7 +148,7 @@ export const DiveTab = memo(function DiveTab({ dive, isPersonalBest }: DiveTabPr
                   </span>
                   {gas.startPressure && (
                     <span className="text-zinc-500">
-                      {formatNumber(gas.startPressure)} → {formatNumber(gas.endPressure) || '?'} bar
+                      {formatNumber(gas.startPressure, '', 'tank1Pressure')} → {formatNumber(gas.endPressure, '', 'tank1Pressure') || '?'} bar
                     </span>
                   )}
                 </div>

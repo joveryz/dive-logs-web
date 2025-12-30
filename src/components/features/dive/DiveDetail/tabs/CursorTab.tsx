@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Section } from '@/components/common';
-import { formatTimeForChart } from '@/utils';
+import { formatTimeForChart, formatNumber } from '@/utils';
 import type { DiveProfilePoint } from '@/types';
 
 /**
@@ -9,25 +9,24 @@ import type { DiveProfilePoint } from '@/types';
 const CURSOR_DATA_DISPLAY_CONFIG: Record<string, { 
   label: string; 
   color: string; 
-  unit: string; 
-  decimals: number;
+  unit: string;
   group: 'environment' | 'decompression' | 'gas' | 'tank';
 }> = {
-  depth: { label: 'Depth', color: '#f59e0b', unit: 'm', decimals: 2, group: 'environment' },
-  temperature: { label: 'Temperature', color: '#06b6d4', unit: '°C', decimals: 2, group: 'environment' },
-  ascentRate: { label: 'Ascent Rate', color: '#22c55e', unit: 'm/s', decimals: 2, group: 'environment' },
-  ndl: { label: 'NDL', color: '#10b981', unit: 'min', decimals: 0, group: 'decompression' },
-  gf99: { label: 'GF99', color: '#8b5cf6', unit: '%', decimals: 0, group: 'decompression' },
-  cns: { label: 'CNS', color: '#ec4899', unit: '%', decimals: 0, group: 'decompression' },
-  deco: { label: 'Deco', color: '#f43f5e', unit: 'min', decimals: 0, group: 'decompression' },
-  tts: { label: 'TTS', color: '#fb923c', unit: 'min', decimals: 0, group: 'decompression' },
-  gasDensity: { label: 'Gas Density', color: '#14b8a6', unit: 'g/L', decimals: 2, group: 'gas' },
-  ppO2: { label: 'ppO₂', color: '#3b82f6', unit: 'ATA', decimals: 2, group: 'gas' },
-  ppHe: { label: 'ppHe', color: '#a855f7', unit: 'ATA', decimals: 2, group: 'gas' },
-  ppN2: { label: 'ppN₂', color: '#6366f1', unit: 'ATA', decimals: 2, group: 'gas' },
-  tank1Pressure: { label: 'Tank 1', color: '#ef4444', unit: 'Bar', decimals: 2, group: 'tank' },
-  tank2Pressure: { label: 'Tank 2', color: '#f97316', unit: 'Bar', decimals: 2, group: 'tank' },
-  sac: { label: 'SAC', color: '#84cc16', unit: 'bar/min', decimals: 2, group: 'tank' },
+  depth: { label: 'Depth', color: '#f59e0b', unit: 'm', group: 'environment' },
+  temperature: { label: 'Temperature', color: '#06b6d4', unit: '°C', group: 'environment' },
+  ascentRate: { label: 'Ascent Rate', color: '#22c55e', unit: 'm/s', group: 'environment' },
+  ndl: { label: 'NDL', color: '#10b981', unit: 'min', group: 'decompression' },
+  gf99: { label: 'GF99', color: '#8b5cf6', unit: '%', group: 'decompression' },
+  cns: { label: 'CNS', color: '#ec4899', unit: '%', group: 'decompression' },
+  deco: { label: 'Deco', color: '#f43f5e', unit: 'min', group: 'decompression' },
+  tts: { label: 'TTS', color: '#fb923c', unit: 'min', group: 'decompression' },
+  gasDensity: { label: 'Gas Density', color: '#14b8a6', unit: 'g/L', group: 'gas' },
+  ppO2: { label: 'ppO₂', color: '#3b82f6', unit: 'ATA', group: 'gas' },
+  ppHe: { label: 'ppHe', color: '#a855f7', unit: 'ATA', group: 'gas' },
+  ppN2: { label: 'ppN₂', color: '#6366f1', unit: 'ATA', group: 'gas' },
+  tank1Pressure: { label: 'Tank 1', color: '#ef4444', unit: 'Bar', group: 'tank' },
+  tank2Pressure: { label: 'Tank 2', color: '#f97316', unit: 'Bar', group: 'tank' },
+  sac: { label: 'SAC', color: '#84cc16', unit: 'bar/min', group: 'tank' },
 };
 
 interface DataItem {
@@ -50,7 +49,7 @@ function extractDisplayableDataItems(cursorData: DiveProfilePoint): DataItem[] {
       items.push({
         key,
         label: config.label,
-        value: value.toFixed(config.decimals),
+        value: formatNumber(value, '', key),
         color: config.color,
         unit: config.unit,
       });

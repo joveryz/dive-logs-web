@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { DiveProfilePoint } from '@/types';
 import { ChartSeriesConfig } from '@/constants';
-import { formatTimeForChart } from '@/utils';
+import { formatTimeForChart, formatNumber } from '@/utils';
 
 interface ChartTooltipProps {
   active?: boolean;
@@ -41,7 +41,7 @@ function ChartTooltipComponent({
 
             const formattedValue =
               typeof value === 'number'
-                ? value.toFixed(getDecimalPlaces(series.key))
+                ? formatNumber(value, '', series.key)
                 : value;
 
             return (
@@ -61,16 +61,6 @@ function ChartTooltipComponent({
       </div>
     </div>
   );
-}
-
-/**
- * 获取数值的小数位数
- */
-function getDecimalPlaces(key: string): number {
-  if (key === 'temperature') return 2;
-  if (key === 'depth' || key === 'ppO2' || key === 'ppN2' || key === 'ascentRate' || key === 'sac') return 2;
-  if (key === 'tank1Pressure' || key === 'tank2Pressure' || key === 'tank3Pressure' || key === 'tank4Pressure') return 2;
-  return 0;
 }
 
 export const ChartTooltip = memo(ChartTooltipComponent);

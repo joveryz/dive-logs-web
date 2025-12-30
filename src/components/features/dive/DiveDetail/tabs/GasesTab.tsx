@@ -49,7 +49,7 @@ const TankCard = memo(function TankCard({ tank }: { tank: TankInfo }) {
         <div className="grid grid-cols-2 gap-3">
           <InfoCard 
             label={uiLabels.sacCalculated} 
-            value={`${tank.sacCalculated.toFixed(2)} bar/min`} 
+            value={formatNumber(tank.sacCalculated, ' bar/min', 'sac')} 
           />
         </div>
       )}
@@ -128,7 +128,7 @@ export const GasesTab = memo(function GasesTab({ dive }: GasesTabProps) {
             {airIntegration?.sacRecorded !== undefined && (
               <InfoCard 
                 label={uiLabels.sacRecorded} 
-                value={`${airIntegration.sacRecorded.toFixed(2)} bar/min`} 
+                value={formatNumber(airIntegration.sacRecorded, ' bar/min', 'sac')} 
               />
             )}
           </div>

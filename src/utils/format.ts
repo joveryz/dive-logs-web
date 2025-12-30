@@ -1,4 +1,49 @@
 /**
+ * 格式化工具函数
+ */
+
+/**
+ * 各字段的小数位数配置
+ */
+export const FIELD_DECIMAL_PLACES: Record<string, number> = {
+  // 环境数据
+  depth: 2,
+  temperature: 2,
+  ascentRate: 2,
+  
+  // 减压相关
+  ndl: 0,
+  gf99: 0,
+  cns: 0,
+  deco: 0,
+  tts: 0,
+  tts5: 0,
+  ceiling: 0,
+  
+  // 气体相关
+  gasDensity: 2,
+  ppO2: 2,
+  ppN2: 2,
+  ppHe: 2,
+  
+  // 气瓶与消耗
+  tank1Pressure: 2,
+  tank2Pressure: 2,
+  tank3Pressure: 2,
+  tank4Pressure: 2,
+  sac: 2,
+};
+
+/**
+ * 获取字段的小数位数
+ * @param key - 字段名
+ * @returns 小数位数，默认为 0
+ */
+export function getDecimalPlaces(key: string): number {
+  return FIELD_DECIMAL_PLACES[key] ?? 0;
+}
+
+/**
  * 格式化持续时间（秒 -> mm:ss 或 HH:mm:ss）
  */
 export function formatDuration(seconds: number): string {
@@ -34,7 +79,7 @@ export function formatDurationReadable(seconds: number): string {
  * 格式化深度（米）
  */
 export function formatDepth(meters: number): string {
-  return `${meters.toFixed(1)} m`;
+  return `${meters.toFixed(getDecimalPlaces('depth'))} m`;
 }
 
 /**
@@ -47,13 +92,15 @@ export function formatTimeForChart(seconds: number): string {
 }
 
 /**
- * 格式化数字，保留1位小数，支持可选单位
+ * 格式化数字，根据字段类型自动确定小数位数，支持可选单位
  * @param value - 要格式化的数值
  * @param unit - 可选的单位后缀
+ * @param fieldKey - 可选的字段名，用于从统一配置获取小数位数
  * @returns 格式化后的字符串，如果值无效则返回 '-'
  */
-export function formatNumber(value: number | undefined | null, unit = ''): string {
+export function formatNumber(value: number | undefined | null, unit = '', fieldKey?: string): string {
   if (value === undefined || value === null) return '-';
-  const formatted = Number.isInteger(value) ? value.toString() : value.toFixed(1);
+  const decimals = fieldKey ? getDecimalPlaces(fieldKey) : 2;
+  const formatted = Number.isInteger(value) ? value.toString() : value.toFixed(decimals);
   return unit ? `${formatted}${unit}` : formatted;
 }
