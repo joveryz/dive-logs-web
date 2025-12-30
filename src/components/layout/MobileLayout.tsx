@@ -2,12 +2,15 @@ import { useState } from 'react';
 import { ErrorBoundary, TabButton } from '@/components/common';
 import { DiveList, DiveDetail } from '@/components/features';
 import { uiLabels } from '@/constants';
+import { useUrlParams } from '@/hooks';
 
 /**
  * 移动端布局 - Tab 切换模式
  */
 export function MobileLayout() {
-  const [activeTab, setActiveTab] = useState<'list' | 'detail'>('list');
+  // 如果 URL 有 diveNumber 参数，默认显示 detail
+  const hasDiveNumberParam = useUrlParams();
+  const [activeTab, setActiveTab] = useState<'list' | 'detail'>(hasDiveNumberParam ? 'detail' : 'list');
 
   return (
     <div className="flex flex-col h-full">
