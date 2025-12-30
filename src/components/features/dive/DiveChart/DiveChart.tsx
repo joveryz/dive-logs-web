@@ -52,8 +52,8 @@ export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveC
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // 处理鼠标移动事件
-  const handleMouseMove = useCallback((state: { activePayload?: Array<{ payload: DiveProfilePoint }> }) => {
+  // 处理鼠标/触摸移动事件
+  const handleChartEvent = useCallback((state: { activePayload?: Array<{ payload: DiveProfilePoint }> }) => {
     if (state?.activePayload?.[0]?.payload && onCursorChange) {
       onCursorChange(state.activePayload[0].payload);
     }
@@ -99,14 +99,21 @@ export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveC
 
   return (
     <div className="h-full flex flex-col">
-      {/* 图表区域 */}
-      <div ref={containerRef} className="flex-1 relative min-h-0" onMouseLeave={handleMouseLeave}>
+      {/* 图表区域 - 触屏设备使用 touch-action: none 防止滚动干扰 */}
+      <div 
+        ref={containerRef} 
+        className="flex-1 relative min-h-0" 
+        onMouseLeave={handleMouseLeave}
+        style={{ touchAction: 'none' }}
+      >
         {containerSize.width > 0 && containerSize.height > 0 && (
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
               data={chartData}
               margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
-              onMouseMove={handleMouseMove}
+              onMouseMove={handleChartEvent}
+              onMouseDown={handleChartEvent}
+              onClick={handleChartEvent}
             >
               {/* 网格 */}
               <CartesianGrid
@@ -213,18 +220,16 @@ export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveC
               {/* 渲染所有数据系列 */}
               {chartSeriesElements}
 
-              {/* Tooltip - 移动端隐藏 */}
-              {!isMobile && (
-                <Tooltip
-                  content={<ChartTooltip seriesConfigs={seriesConfigs} />}
-                  cursor={{
-                    stroke: CHART_COLORS.tooltip.cursor,
-                    strokeWidth: 1,
-                    strokeDasharray: '5 5',
-                  }}
-                  isAnimationActive={false}
-                />
-              )}
+              {/* Tooltip - 移动端只显示 cursor 竖线，不显示内容 */}
+              <Tooltip
+                content={isMobile ? () => null : <ChartTooltip seriesConfigs={seriesConfigs} />}
+                cursor={{
+                  stroke: CHART_COLORS.tooltip.cursor,
+                  strokeWidth: 1,
+                  strokeDasharray: '5 5',
+                }}
+                isAnimationActive={false}
+              />
             </ComposedChart>
           </ResponsiveContainer>
         )}

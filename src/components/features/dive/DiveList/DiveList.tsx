@@ -302,7 +302,7 @@ export function DiveList() {
                     : 'text-zinc-300 hover:bg-zinc-800/50 border-b border-zinc-800'
                 }`}
               >
-                <td className={`px-2 py-1.5 sticky left-0 z-10 ${selectedDiveId === dive.id ? 'bg-[#3e2416] shadow-[inset_0_1px_0_0_#b45309,inset_0_-1px_0_0_#b45309]' : 'bg-zinc-900'}`}>{dive.diveNumber}</td>
+                <td className={`px-2 py-1.5 sticky left-0 z-10 ${selectedDiveId === dive.id ? 'bg-[#3e2416]' : 'bg-zinc-900'}`}>{dive.diveNumber}</td>
                 <td className="px-2 py-1.5">
                   {dive.date} {dive.startTime}
                 </td>
