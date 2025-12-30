@@ -108,7 +108,7 @@ export function formatYAxisTick(
   }
 
   const actualValue = denormalizeValue(value, minValue, maxValue);
-  return actualValue.toFixed(key.includes('pp') ? 2 : 0);
+  return actualValue.toFixed(2);
 }
 
 /**
