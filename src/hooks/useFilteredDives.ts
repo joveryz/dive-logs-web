@@ -9,7 +9,7 @@ import { Dive } from '@/types';
  * - 非 FreeDive 深度 < 10m 的无效
  * - 非 FreeDive 时长 < 15min 的无效
  */
-export function isValidDive(dive: Dive): boolean {
+function isValidDive(dive: Dive): boolean {
   if (dive.diveNumber > 1000) return false;
   if (dive.diveType === 'FreeDive' && dive.maxDepth < 5) return false;
   if (dive.diveType !== 'FreeDive' && dive.maxDepth < 10) return false;

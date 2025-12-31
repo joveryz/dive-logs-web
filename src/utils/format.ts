@@ -5,7 +5,7 @@
 /**
  * 各字段的小数位数配置
  */
-export const FIELD_DECIMAL_PLACES: Record<string, number> = {
+const FIELD_DECIMAL_PLACES: Record<string, number> = {
   // 环境数据
   depth: 2,
   temperature: 2,
@@ -39,7 +39,7 @@ export const FIELD_DECIMAL_PLACES: Record<string, number> = {
  * @param key - 字段名
  * @returns 小数位数，默认为 0
  */
-export function getDecimalPlaces(key: string): number {
+function getDecimalPlaces(key: string): number {
   return FIELD_DECIMAL_PLACES[key] ?? 0;
 }
 

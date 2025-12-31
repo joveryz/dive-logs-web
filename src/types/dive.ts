@@ -394,21 +394,3 @@ export interface Dive {
 // ============================================================================
 // 统计类型
 // ============================================================================
-
-/**
- * 潜水统计
- */
-export interface DiveStats {
-  /** 总潜水次数 */
-  totalDives: number;
-  /** 总潜水时间（秒） */
-  totalDiveTime: number;
-  /** 最大深度（米） */
-  maxDepth: number;
-  /** 平均深度（米） */
-  avgDepth: number;
-  /** 常去地点 */
-  favoriteLocations: { name: string; count: number }[];
-  /** 按月统计 */
-  divesByMonth: { month: string; count: number }[];
-}
