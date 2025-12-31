@@ -144,16 +144,11 @@ export function ResizablePanels({ panels, direction = 'horizontal', className = 
                 isVertical 
                   ? 'h-2 w-full cursor-row-resize' 
                   : 'w-2 h-full cursor-col-resize'
-              } bg-dive-hover hover:bg-cyan-400 active:bg-cyan-400 transition-colors flex-shrink-0 group relative touch-none`}
+              } bg-dive-hover hover:bg-cyan-400 active:bg-cyan-400 transition-colors flex-shrink-0 group relative touch-none z-10`}
               onMouseDown={(e) => handleMouseDown(index, e)}
               onTouchStart={(e) => handleTouchStart(index, e)}
             >
-              {/* 拖拽手柄视觉提示 */}
-              <div className={`absolute ${
-                isVertical 
-                  ? 'inset-x-0 -top-2 -bottom-2 group-hover:bg-cyan-400/20' 
-                  : 'inset-y-0 -left-2 -right-2 group-hover:bg-cyan-400/20'
-              }`} />
+              {/* 拖拽手柄视觉指示条 */}
               <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${
                 isVertical 
                   ? 'h-1 w-8' 
