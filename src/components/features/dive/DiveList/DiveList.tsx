@@ -1,18 +1,10 @@
-import { useMemo, useState, useRef, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { useDiveStore } from '@/store';
 import { useFilteredDives, getFreeDivePBId, useLayoutMode } from '@/hooks';
 import { SearchInput, DiveTypeBadge } from '@/components/common';
 import { formatDuration, formatDepth } from '@/utils';
 import { fieldLabels } from '@/constants';
 import type { SortField, SortDirection, Dive } from '@/types';
-
-// 可切换显示的列
-type OptionalColumnKey = 'diveComputer' | 'tags';
-
-const OPTIONAL_COLUMNS: { key: OptionalColumnKey; label: string }[] = [
-  { key: 'diveComputer', label: fieldLabels.diveComputer },
-  { key: 'tags', label: fieldLabels.tags },
-];
 
 export function DiveList() {
   const { 
@@ -27,40 +19,6 @@ export function DiveList() {
   const isMobileLayout = useLayoutMode();
   const [sortField, setSortField] = useState<SortField>('diveNumber');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
-  
-  // 列可见性状态 - 移动端布局默认关闭可选列
-  const [columnVisibility, setColumnVisibility] = useState<Record<OptionalColumnKey, boolean>>({
-    diveComputer: false,
-    tags: false,
-  });
-  
-  // 当布局模式变化时，更新列可见性
-  useEffect(() => {
-    setColumnVisibility({
-      diveComputer: !isMobileLayout,
-      tags: !isMobileLayout,
-    });
-  }, [isMobileLayout]);
-  
-  const [isColumnMenuOpen, setIsColumnMenuOpen] = useState(false);
-  const columnMenuRef = useRef<HTMLDivElement>(null);
-  
-  // 点击外部关闭菜单
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (columnMenuRef.current && !columnMenuRef.current.contains(e.target as Node)) {
-        setIsColumnMenuOpen(false);
-      }
-    };
-    if (isColumnMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isColumnMenuOpen]);
-  
-  const toggleColumnVisibility = (columnKey: OptionalColumnKey) => {
-    setColumnVisibility(prev => ({ ...prev, [columnKey]: !prev[columnKey] }));
-  };
 
   // 排序后的潜水列表
   const sortedDives = useMemo(() => {
@@ -151,43 +109,49 @@ export function DiveList() {
           : 'bg-dive-card border-dive-border hover:bg-dive-hover hover:border-dive-text-muted'
       }`}
     >
-      {/* 顶部：编号、类型、日期 */}
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <span className={`font-bold text-lg ${isSelected ? 'text-cyan-400' : 'text-dive-text'}`}>
+      {/* Row 1: Number + Location | Type + Date */}
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <span className={`font-bold text-base shrink-0 ${isSelected ? 'text-cyan-400' : 'text-dive-text'}`}>
             #{dive.diveNumber}
           </span>
+          <span className="text-cyan-400 truncate font-medium">{dive.site}</span>
+        </div>
+        <div className="flex items-center gap-2 shrink-0 ml-2">
           <DiveTypeBadge diveType={dive.diveType} />
           {isPB && (
             <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-500/20 text-yellow-400">
               PB
             </span>
           )}
+          <span className="text-dive-text-muted text-sm">{dive.date}</span>
         </div>
-        <span className="text-dive-text-muted text-sm">{dive.date}</span>
       </div>
       
-      {/* 中部：地点 */}
-      <div className="mb-2">
-        <span className="text-cyan-400 font-medium">{dive.site}</span>
-        {dive.site !== dive.location && (
-          <span className="text-dive-text-muted text-sm ml-1">({dive.location})</span>
+      {/* Row 2: Stats with separators */}
+      <div className="flex items-center text-sm text-dive-text-secondary">
+        <span className="font-mono text-dive-text">{formatDepth(dive.maxDepth)}</span>
+        <span className="mx-2 text-dive-border">·</span>
+        <span className="font-mono text-dive-text">{formatDuration(dive.duration)}</span>
+        <span className="mx-2 text-dive-border">·</span>
+        <span>{dive.buddy}</span>
+        <span className="mx-2 text-dive-border">·</span>
+        <span className="text-dive-text-muted truncate">{dive.diveComputer.model}</span>
+        {dive.tags && dive.tags.length > 0 && (
+          <>
+            <span className="mx-2 text-dive-border">·</span>
+            <div className="flex gap-1">
+              {dive.tags.map((tag, idx) => (
+                <span
+                  key={idx}
+                  className="px-1.5 py-0.5 rounded text-[10px] bg-purple-900/50 text-purple-300"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          </>
         )}
-      </div>
-      
-      {/* 底部：深度、时长、潜伴 */}
-      <div className="flex items-center justify-between text-sm">
-        <div className="flex items-center gap-4">
-          <span className="text-dive-text">
-            <span className="text-dive-text-muted mr-1">深度</span>
-            <span className="font-mono font-medium">{formatDepth(dive.maxDepth)}</span>
-          </span>
-          <span className="text-dive-text">
-            <span className="text-dive-text-muted mr-1">时长</span>
-            <span className="font-mono font-medium">{formatDuration(dive.duration)}</span>
-          </span>
-        </div>
-        <span className="text-dive-text-secondary text-xs">{dive.buddy}</span>
       </div>
     </div>
   );
@@ -244,59 +208,15 @@ export function DiveList() {
               }}
               className="px-2 py-1.5 rounded-md text-xs bg-dive-card text-dive-text-muted border border-dive-border focus:border-cyan-500 focus:outline-none"
             >
-              <option value="diveNumber-desc">最新优先</option>
-              <option value="diveNumber-asc">最旧优先</option>
-              <option value="maxDepth-desc">深度 ↓</option>
-              <option value="maxDepth-asc">深度 ↑</option>
-              <option value="duration-desc">时长 ↓</option>
-              <option value="duration-asc">时长 ↑</option>
-              <option value="date-desc">日期 ↓</option>
-              <option value="date-asc">日期 ↑</option>
+              <option value="diveNumber-desc">Newest First</option>
+              <option value="diveNumber-asc">Oldest First</option>
+              <option value="maxDepth-desc">Depth ↓</option>
+              <option value="maxDepth-asc">Depth ↑</option>
+              <option value="duration-desc">Duration ↓</option>
+              <option value="duration-asc">Duration ↑</option>
+              <option value="date-desc">Date ↓</option>
+              <option value="date-asc">Date ↑</option>
             </select>
-          )}
-          
-          {/* Column Selector - 桌面端显示 */}
-          {!isMobileLayout && (
-            <div className="relative" ref={columnMenuRef}>
-              <button
-                type="button"
-                aria-label="Select columns"
-                aria-expanded={isColumnMenuOpen}
-                onClick={() => setIsColumnMenuOpen(!isColumnMenuOpen)}
-                title="Select visible columns"
-                className={`group flex items-center gap-1.5 px-2 py-1 rounded-md text-xs transition-all duration-200 ${
-                  isColumnMenuOpen
-                    ? 'bg-cyan-900/40 text-cyan-400'
-                    : 'bg-dive-card text-dive-text-muted hover:bg-dive-hover hover:text-dive-text-secondary'
-                }`}
-              >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
-                </svg>
-                <span className="transition-colors">Columns</span>
-              </button>
-              
-              {isColumnMenuOpen && (
-                <div className="absolute right-0 top-full mt-1 bg-dive-card border border-dive-border rounded-lg shadow-lg z-50 min-w-[140px] py-1">
-                  {OPTIONAL_COLUMNS.map(({ key, label }) => (
-                    <label
-                      key={key}
-                      className="flex items-center gap-2 px-3 py-1.5 hover:bg-dive-hover cursor-pointer text-sm"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={columnVisibility[key]}
-                        onChange={() => toggleColumnVisibility(key)}
-                        className="w-3.5 h-3.5 rounded border-dive-border bg-dive-hover text-cyan-400 focus:ring-cyan-400 focus:ring-offset-0"
-                      />
-                      <span className={columnVisibility[key] ? 'text-dive-text' : 'text-dive-text-muted'}>
-                        {label}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
           )}
         </div>
       </div>
@@ -314,12 +234,12 @@ export function DiveList() {
           ))}
           {sortedDives.length === 0 && (
             <div className="text-center text-dive-text-muted py-10" role="status">
-              未找到匹配 "{searchQuery}" 的潜水记录
+              No dives found matching "{searchQuery}"
             </div>
           )}
         </div>
       ) : (
-      /* 桌面端表格 */
+      /* Desktop table */
       <div className="flex-1 overflow-auto" role="table" aria-label="Dive records">
         <table className="w-full text-sm">
           <thead className="sticky top-0 bg-dive-surface z-10">
@@ -339,15 +259,13 @@ export function DiveList() {
                 {fieldLabels.date}
                 <SortIcon field="date" />
               </th>
-              {columnVisibility.diveComputer && (
-                <th 
-                  className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
-                  scope="col"
-                  onClick={() => handleSort('diveComputer')}
-                >
-                  {fieldLabels.diveComputer}<SortIcon field="diveComputer" />
-                </th>
-              )}
+              <th 
+                className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
+                scope="col"
+                onClick={() => handleSort('diveComputer')}
+              >
+                {fieldLabels.diveComputer}<SortIcon field="diveComputer" />
+              </th>
               <th 
                 className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
@@ -369,15 +287,13 @@ export function DiveList() {
               >
                 {fieldLabels.buddy}<SortIcon field="buddy" />
               </th>
-              {columnVisibility.tags && (
-                <th 
-                  className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
-                  scope="col"
-                  onClick={() => handleSort('tags')}
-                >
-                  {fieldLabels.tags}<SortIcon field="tags" />
-                </th>
-              )}
+              <th 
+                className="px-2 py-1.5 font-medium cursor-pointer hover:text-cyan-400 select-none" 
+                scope="col"
+                onClick={() => handleSort('tags')}
+              >
+                {fieldLabels.tags}<SortIcon field="tags" />
+              </th>
               <th 
                 className="px-2 py-1.5 font-medium text-right cursor-pointer hover:text-cyan-400 select-none" 
                 scope="col"
@@ -413,11 +329,9 @@ export function DiveList() {
                 <td className="px-2 py-1.5">
                   {dive.date} {dive.startTime}
                 </td>
-                {columnVisibility.diveComputer && (
-                  <td className="px-2 py-1.5 text-dive-text-secondary">
-                    {dive.diveComputer.model}
-                  </td>
-                )}
+                <td className="px-2 py-1.5 text-dive-text-secondary">
+                  {dive.diveComputer.model}
+                </td>
                 <td className="px-2 py-1.5">
                   <span className="text-cyan-400">{dive.site}</span>
                   {dive.site !== dive.location && (
@@ -430,24 +344,22 @@ export function DiveList() {
                 <td className="px-2 py-1.5 text-dive-text-secondary">
                   {dive.buddy}
                 </td>
-                {columnVisibility.tags && (
-                  <td className="px-2 py-1.5">
-                    {dive.tags && dive.tags.length > 0 ? (
-                      <div className="flex flex-nowrap gap-1">
-                        {dive.tags.map((tag, idx) => (
-                          <span
-                            key={idx}
-                            className="inline-block px-1.5 py-0.5 rounded text-xs bg-purple-900/50 text-purple-300"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <span className="text-dive-text-muted">-</span>
-                    )}
-                  </td>
-                )}
+                <td className="px-2 py-1.5">
+                  {dive.tags && dive.tags.length > 0 ? (
+                    <div className="flex flex-nowrap gap-1">
+                      {dive.tags.map((tag, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-block px-1.5 py-0.5 rounded text-xs bg-purple-900/50 text-purple-300"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-dive-text-muted">-</span>
+                  )}
+                </td>
                 <td className="px-2 py-1.5 text-right font-mono">
                   <span className="flex items-center justify-end gap-1">
                     {dive.diveType === 'FreeDive' && dive.id === freeDivePBId && (
