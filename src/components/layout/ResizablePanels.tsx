@@ -37,15 +37,24 @@ export function ResizablePanels({ panels, direction = 'horizontal', className = 
     document.body.style.userSelect = 'none';
   }, [panelSizes, isVertical]);
   
+  // 处理触摸拖拽开始
+  const handleTouchStart = useCallback((index: number, e: React.TouchEvent) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    dragIndexRef.current = index;
+    startPosRef.current = isVertical ? touch.clientY : touch.clientX;
+    startSizesRef.current = [...panelSizes];
+  }, [panelSizes, isVertical]);
+  
   // 处理拖拽中
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMove = (clientX: number, clientY: number) => {
       if (dragIndexRef.current === null || !containerRef.current) return;
       
       const containerSize = isVertical 
         ? containerRef.current.offsetHeight 
         : containerRef.current.offsetWidth;
-      const currentPos = isVertical ? e.clientY : e.clientX;
+      const currentPos = isVertical ? clientY : clientX;
       const deltaPos = currentPos - startPosRef.current;
       const deltaPercent = (deltaPos / containerSize) * 100;
       
@@ -75,8 +84,20 @@ export function ResizablePanels({ panels, direction = 'horizontal', className = 
       
       setPanelSizes(newSizes);
     };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      handleMove(e.clientX, e.clientY);
+    };
     
-    const handleMouseUp = () => {
+    const handleTouchMove = (e: TouchEvent) => {
+      if (dragIndexRef.current !== null) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        handleMove(touch.clientX, touch.clientY);
+      }
+    };
+    
+    const handleEnd = () => {
       if (dragIndexRef.current !== null) {
         dragIndexRef.current = null;
         document.body.style.cursor = '';
@@ -85,11 +106,15 @@ export function ResizablePanels({ panels, direction = 'horizontal', className = 
     };
     
     document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mouseup', handleEnd);
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleEnd);
     
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mouseup', handleEnd);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleEnd);
     };
   }, [panels, isVertical]);
   
@@ -117,22 +142,23 @@ export function ResizablePanels({ panels, direction = 'horizontal', className = 
             <div
               className={`${
                 isVertical 
-                  ? 'h-1 w-full cursor-row-resize' 
-                  : 'w-1 h-full cursor-col-resize'
-              } bg-dive-hover hover:bg-cyan-400 transition-colors flex-shrink-0 group relative`}
+                  ? 'h-2 w-full cursor-row-resize' 
+                  : 'w-2 h-full cursor-col-resize'
+              } bg-dive-hover hover:bg-cyan-400 active:bg-cyan-400 transition-colors flex-shrink-0 group relative touch-none`}
               onMouseDown={(e) => handleMouseDown(index, e)}
+              onTouchStart={(e) => handleTouchStart(index, e)}
             >
               {/* 拖拽手柄视觉提示 */}
               <div className={`absolute ${
                 isVertical 
-                  ? 'inset-x-0 -top-1 -bottom-1 group-hover:bg-cyan-400/20' 
-                  : 'inset-y-0 -left-1 -right-1 group-hover:bg-cyan-400/20'
+                  ? 'inset-x-0 -top-2 -bottom-2 group-hover:bg-cyan-400/20' 
+                  : 'inset-y-0 -left-2 -right-2 group-hover:bg-cyan-400/20'
               }`} />
               <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${
                 isVertical 
                   ? 'h-1 w-8' 
                   : 'w-1 h-8'
-              } rounded-full bg-dive-text-muted group-hover:bg-cyan-300 transition-colors`} />
+              } rounded-full bg-dive-text-muted group-hover:bg-cyan-300 group-active:bg-cyan-300 transition-colors`} />
             </div>
           )}
         </div>

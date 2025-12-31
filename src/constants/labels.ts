@@ -130,13 +130,13 @@ export const uiLabels = {
   sectionDecoSettings: 'Decompression Settings',
   
   // 列表表头
-  diveNumber: 'Dive #',
+  diveNumber: '#',
   date: 'Date',
   type: 'Type',
   diveType: 'Type',
   diveComputer: 'Computer',
   location: 'Location',
-  maxDepth: 'Max Depth',
+  maxDepth: 'Depth',
   duration: 'Duration',
   
   // 详情页标签
