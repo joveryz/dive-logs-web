@@ -1,8 +1,8 @@
-import { memo } from 'react';
+import { memo, ReactNode } from 'react';
 
 interface InfoCardProps {
   label: string;
-  value: string | number;
+  value: string | number | ReactNode;
   highlight?: boolean;
   className?: string;
   style?: React.CSSProperties;
