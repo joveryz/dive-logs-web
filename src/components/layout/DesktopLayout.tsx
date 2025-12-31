@@ -17,7 +17,7 @@ export function DesktopLayout() {
             </ErrorBoundary>
           ),
           minSize: 400,
-          defaultSize: 40,
+          defaultSize: 50,
         },
         {
           content: (
@@ -26,7 +26,7 @@ export function DesktopLayout() {
             </ErrorBoundary>
           ),
           minSize: 400,
-          defaultSize: 60,
+          defaultSize: 50,
         },
       ]}
     />
