@@ -56,7 +56,15 @@ export const DiveTab = memo(function DiveTab({ dive, isPersonalBest }: DiveTabPr
           </div>
           <div className="grid grid-cols-2 gap-3">
             <InfoCard label={uiLabels.avgDepth} value={formatDepth(dive.avgDepth)} />
-            <InfoCard label={uiLabels.date} value={`${dive.date} ${dive.startTime} - ${dive.endTime}`} />
+            <InfoCard 
+              label={uiLabels.date} 
+              value={
+                <div>
+                  <div>{dive.date}</div>
+                  <div className="text-dive-text-secondary">{dive.startTime} - {dive.endTime}</div>
+                </div>
+              } 
+            />
           </div>
           
           {/* 升降速率统计 */}

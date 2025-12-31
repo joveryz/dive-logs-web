@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import { useDiveStore } from '@/store';
 import { useFilteredDives, getFreeDivePBId, useLayoutMode } from '@/hooks';
 import { SearchInput, DiveTypeBadge } from '@/components/common';
@@ -19,6 +19,28 @@ export function DiveList() {
   const isMobileLayout = useLayoutMode();
   const [sortField, setSortField] = useState<SortField>('diveNumber');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  
+  // 检测容器宽度，决定是否使用 card 模式
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [useCardMode, setUseCardMode] = useState(false);
+  const TABLE_MIN_WIDTH = 920; // 表格最小宽度阈值
+  
+  useEffect(() => {
+    if (isMobileLayout) return; // 移动端始终使用 card 模式
+    
+    const container = containerRef.current;
+    if (!container) return;
+    
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const width = entry.contentRect.width;
+        setUseCardMode(width < TABLE_MIN_WIDTH);
+      }
+    });
+    
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [isMobileLayout]);
 
   // 排序后的潜水列表
   const sortedDives = useMemo(() => {
@@ -103,55 +125,52 @@ export function DiveList() {
       tabIndex={0}
       role="button"
       aria-selected={isSelected}
-      className={`p-3 rounded-lg border transition-all cursor-pointer ${
+      className={`px-4 py-3 border-b transition-all cursor-pointer ${
         isSelected
-          ? 'bg-cyan-900/30 border-cyan-500 ring-1 ring-cyan-500/50'
-          : 'bg-dive-card border-dive-border hover:bg-dive-hover hover:border-dive-text-muted'
+          ? 'bg-cyan-900/30 border-cyan-500'
+          : 'border-dive-border hover:bg-dive-card/50'
       }`}
     >
-      {/* Row 1: Number + Location | Type + Date */}
-      <div className="flex items-center justify-between mb-1.5">
-        <div className="flex items-center gap-2 min-w-0 flex-1">
-          <span className={`font-bold text-base shrink-0 ${isSelected ? 'text-cyan-400' : 'text-dive-text'}`}>
-            #{dive.diveNumber}
-          </span>
-          <span className="text-cyan-400 truncate font-medium">{dive.site}</span>
-        </div>
-        <div className="flex items-center gap-2 shrink-0 ml-2">
+      {/* Row 1: Number | Location | Type | Date */}
+      <div className="flex items-center mb-1.5">
+        <span className={`w-14 shrink-0 font-bold text-base ${isSelected ? 'text-cyan-400' : 'text-dive-text'}`}>
+          #{dive.diveNumber}
+        </span>
+        <span className="flex-1 min-w-0 truncate text-base">
+          <span className="text-cyan-400">{dive.site}</span>
+          {dive.site !== dive.location && (
+            <span className="text-dive-text-muted ml-1">({dive.location})</span>
+          )}
+        </span>
+        <span className="w-16 shrink-0 text-center">
           <DiveTypeBadge diveType={dive.diveType} />
+        </span>
+        <span className="w-24 shrink-0 text-right">{dive.date}</span>
+      </div>
+      
+      {/* Row 2: Tags | Computer | Buddy | Depth (with PB) | Duration */}
+      <div className="flex items-center text-sm">
+        <div className="flex-1 min-w-0 flex gap-1.5 items-center">
+          {dive.tags && dive.tags.length > 0 && dive.tags.map((tag, idx) => (
+            <span
+              key={idx}
+              className="px-2 py-0.5 rounded text-xs bg-purple-900/50 text-purple-300"
+            >
+              #{tag}
+            </span>
+          ))}
+        </div>
+        <span className="w-20 shrink-0 truncate text-dive-text-secondary text-center">{dive.diveComputer.model}</span>
+        <span className="w-20 shrink-0 truncate text-center text-dive-text-secondary">{dive.buddy}</span>
+        <span className="w-24 shrink-0 font-mono text-right flex items-center justify-end gap-1">
           {isPB && (
-            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-500/20 text-yellow-400">
+            <span className="px-1 py-0.5 rounded text-[10px] font-bold bg-yellow-500/20 text-yellow-400" title="Personal Best FreeDive">
               PB
             </span>
           )}
-          <span className="text-dive-text-muted text-sm">{dive.date}</span>
-        </div>
-      </div>
-      
-      {/* Row 2: Stats with separators */}
-      <div className="flex items-center text-sm text-dive-text-secondary">
-        <span className="font-mono text-dive-text">{formatDepth(dive.maxDepth)}</span>
-        <span className="mx-2 text-dive-border">·</span>
-        <span className="font-mono text-dive-text">{formatDuration(dive.duration)}</span>
-        <span className="mx-2 text-dive-border">·</span>
-        <span>{dive.buddy}</span>
-        <span className="mx-2 text-dive-border">·</span>
-        <span className="text-dive-text-muted truncate">{dive.diveComputer.model}</span>
-        {dive.tags && dive.tags.length > 0 && (
-          <>
-            <span className="mx-2 text-dive-border">·</span>
-            <div className="flex gap-1">
-              {dive.tags.map((tag, idx) => (
-                <span
-                  key={idx}
-                  className="px-1.5 py-0.5 rounded text-[10px] bg-purple-900/50 text-purple-300"
-                >
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          </>
-        )}
+          {formatDepth(dive.maxDepth)}
+        </span>
+        <span className="w-20 shrink-0 font-mono text-right">{formatDuration(dive.duration)}</span>
       </div>
     </div>
   );
@@ -197,8 +216,8 @@ export function DiveList() {
             </span>
           </button>
           
-          {/* 移动端排序选择器 */}
-          {isMobileLayout && (
+          {/* 卡片模式排序选择器 */}
+          {(isMobileLayout || useCardMode) && (
             <select
               value={`${sortField}-${sortDirection}`}
               onChange={(e) => {
@@ -221,9 +240,9 @@ export function DiveList() {
         </div>
       </div>
       
-      {/* 移动端卡片列表 */}
-      {isMobileLayout ? (
-        <div className="flex-1 overflow-auto p-3 space-y-2">
+      {/* 卡片列表 (移动端或宽度不足时) */}
+      {(isMobileLayout || useCardMode) ? (
+        <div ref={containerRef} className="flex-1 overflow-auto">
           {sortedDives.map((dive) => (
             <MobileCard
               key={dive.id}
@@ -240,7 +259,7 @@ export function DiveList() {
         </div>
       ) : (
       /* Desktop table */
-      <div className="flex-1 overflow-auto" role="table" aria-label="Dive records">
+      <div ref={containerRef} className="flex-1 overflow-auto" role="table" aria-label="Dive records">
         <table className="w-full text-sm">
           <thead className="sticky top-0 bg-dive-surface z-10">
             <tr className="text-left text-dive-text-secondary border-b border-dive-border whitespace-nowrap">
@@ -322,10 +341,10 @@ export function DiveList() {
                 className={`cursor-pointer transition-colors focus:outline-none whitespace-nowrap border-b ${
                   selectedDiveId === dive.id
                     ? 'bg-cyan-900/30 text-cyan-100 border-cyan-500'
-                    : 'text-dive-text hover:bg-dive-card/50 border-dive-card'
+                    : 'hover:bg-dive-card/50 border-dive-card'
                 }`}
               >
-                <td className="px-2 py-1.5">{dive.diveNumber}</td>
+                <td className={`px-2 py-1.5 font-bold ${selectedDiveId === dive.id ? 'text-cyan-400' : ''}`}>#{dive.diveNumber}</td>
                 <td className="px-2 py-1.5">
                   {dive.date} {dive.startTime}
                 </td>
