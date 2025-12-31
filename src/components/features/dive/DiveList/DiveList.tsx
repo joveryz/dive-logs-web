@@ -149,20 +149,20 @@ export function DiveList() {
       </div>
       
       {/* Row 2: Tags | Computer | Buddy | Depth (with PB) | Duration */}
-      <div className="flex items-center text-sm">
+      <div className="flex items-center text-base">
         <div className="flex-1 min-w-0 flex gap-1.5 items-center">
           {dive.tags && dive.tags.length > 0 && dive.tags.map((tag, idx) => (
             <span
               key={idx}
-              className="px-2 py-0.5 rounded text-xs bg-purple-900/50 text-purple-300"
+              className="px-2 py-0.5 rounded text-sm bg-purple-900/50 text-purple-300"
             >
               #{tag}
             </span>
           ))}
         </div>
-        <span className="w-16 shrink-0 truncate text-dive-text-secondary text-center text-xs">{dive.diveComputer.model}</span>
-        <span className="w-14 shrink-0 truncate text-center text-dive-text-secondary text-xs">{dive.buddy}</span>
-        <span className="w-20 shrink-0 font-mono text-right flex items-center justify-end gap-1">
+        <span className="w-10 shrink-0 truncate text-dive-text-secondary text-center text-sm">{dive.diveComputer.model}</span>
+        <span className="w-16 shrink-0 truncate text-center text-dive-text-secondary text-sm">{dive.buddy}</span>
+        <span className="w-24 shrink-0 font-mono text-right inline-flex items-center justify-end gap-1 whitespace-nowrap">
           {isPB && (
             <span className="px-1 py-0.5 rounded text-[10px] font-bold bg-yellow-500/20 text-yellow-400" title="Personal Best FreeDive">
               PB
@@ -170,7 +170,7 @@ export function DiveList() {
           )}
           {formatDepth(dive.maxDepth)}
         </span>
-        <span className="w-14 shrink-0 font-mono text-right">{formatDuration(dive.duration)}</span>
+        <span className="w-16 shrink-0 font-mono text-right">{formatDuration(dive.duration)}</span>
       </div>
     </div>
   );
@@ -348,22 +348,22 @@ export function DiveList() {
               >
                 <td className={`px-3 py-2.5 font-bold text-base ${selectedDiveId === dive.id ? 'text-cyan-400' : ''}`}>#{dive.diveNumber}</td>
                 <td className="px-3 py-2.5 whitespace-nowrap">
-                  <div className="text-sm">{dive.date}</div>
-                  <div className="text-xs text-dive-text-muted">{dive.startTime}</div>
+                  <div className="text-base">{dive.date}</div>
+                  <div className="text-sm text-dive-text-muted">{dive.startTime}</div>
                 </td>
-                <td className="px-3 py-2.5">
-                  <span className="text-cyan-400 font-medium">{dive.site}</span>
+                <td className="px-3 py-2.5 text-base">
+                  <span className="text-cyan-400">{dive.site}</span>
                   {dive.site !== dive.location && (
-                    <span className="text-dive-text-muted text-xs ml-1.5">({dive.location})</span>
+                    <span className="text-dive-text-muted text-sm ml-1.5">({dive.location})</span>
                   )}
                 </td>
                 <td className="px-3 py-2.5">
                   <DiveTypeBadge diveType={dive.diveType} />
                 </td>
-                <td className="px-3 py-2.5 text-dive-text-secondary text-sm truncate max-w-24">
+                <td className="px-3 py-2.5 text-dive-text-secondary text-base truncate max-w-24">
                   {dive.diveComputer.model}
                 </td>
-                <td className="px-3 py-2.5 text-dive-text-secondary text-sm truncate max-w-24">
+                <td className="px-3 py-2.5 text-dive-text-secondary text-base truncate max-w-24">
                   {dive.buddy || <span className="text-dive-text-muted">-</span>}
                 </td>
                 <td className="px-3 py-2.5">
@@ -382,17 +382,17 @@ export function DiveList() {
                     <span className="text-dive-text-muted">-</span>
                   )}
                 </td>
-                <td className="px-3 py-2.5 text-right font-mono text-sm whitespace-nowrap">
+                <td className="px-3 py-2.5 text-right font-mono text-base whitespace-nowrap">
                   <span className="inline-flex items-center justify-end gap-1.5">
                     {dive.diveType === 'FreeDive' && dive.id === freeDivePBId && (
                       <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-500/20 text-yellow-400" title="Personal Best FreeDive">
                         PB
                       </span>
                     )}
-                    <span className="font-medium">{formatDepth(dive.maxDepth)}</span>
+                    {formatDepth(dive.maxDepth)}
                   </span>
                 </td>
-                <td className="px-3 py-2.5 text-right font-mono text-sm font-medium">
+                <td className="px-3 py-2.5 text-right font-mono text-base">
                   {formatDuration(dive.duration)}
                 </td>
               </tr>
