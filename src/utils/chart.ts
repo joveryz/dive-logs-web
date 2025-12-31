@@ -100,10 +100,11 @@ export function formatYAxisTick(
   maxValue: number
 ): string {
   // ascentRate 特殊处理：0 在中点(50)，使用 scale=45
+  // 正值（上升）在上方，负值（下降）在下方
   if (key === 'ascentRate') {
     const maxAbs = Math.max(Math.abs(minValue), Math.abs(maxValue));
     const scale = 45;
-    const actualValue = ((50 - value) / scale) * maxAbs;
+    const actualValue = ((value - 50) / scale) * maxAbs;
     return actualValue.toFixed(2);
   }
 

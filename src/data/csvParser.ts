@@ -142,7 +142,7 @@ function parseDateTime(dateTimeStr: string): { date: string; time: string } {
 
 /**
  * 计算上升速率 (m/s)
- * 正值 = 下降, 负值 = 上升
+ * 正值 = 上升, 负值 = 下降
  */
 function calculateAscentRate(
   samples: SampleRow[],
@@ -158,8 +158,8 @@ function calculateAscentRate(
   
   if (timeDiffSec <= 0) return 0;
   
-  // 深度变化（米），正值=下降，负值=上升
-  const depthChange = currentDepth - prevDepth;
+  // 深度变化（米），取反使得：正值=上升，负值=下降
+  const depthChange = prevDepth - currentDepth;
   // m/s
   return depthChange / timeDiffSec;
 }
@@ -465,11 +465,11 @@ export function parseDivesFromCSV(): Dive[] {
     // 计算上升/下降速率统计
     const ascentRates = profile.map(p => p.ascentRate ?? 0).filter(r => r !== 0);
     const ascentRateStats = ascentRates.length > 0 ? (() => {
-      const ascents = ascentRates.filter(r => r < 0); // 负值 = 上升
-      const descents = ascentRates.filter(r => r > 0); // 正值 = 下降
+      const ascents = ascentRates.filter(r => r > 0); // 正值 = 上升
+      const descents = ascentRates.filter(r => r < 0); // 负值 = 下降
       return {
-        maxAscent: ascents.length > 0 ? Math.min(...ascents) : 0,
-        maxDescent: descents.length > 0 ? Math.max(...descents) : 0,
+        maxAscent: ascents.length > 0 ? Math.max(...ascents) : 0,
+        maxDescent: descents.length > 0 ? Math.min(...descents) : 0,
         avgAscent: ascents.length > 0 ? ascents.reduce((a, b) => a + b, 0) / ascents.length : 0,
         avgDescent: descents.length > 0 ? descents.reduce((a, b) => a + b, 0) / descents.length : 0,
       };
