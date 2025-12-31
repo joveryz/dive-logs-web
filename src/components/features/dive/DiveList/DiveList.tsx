@@ -4,7 +4,7 @@ import { useFilteredDives, getFreeDivePBId, useLayoutMode } from '@/hooks';
 import { SearchInput, DiveTypeBadge } from '@/components/common';
 import { formatDuration, formatDepth } from '@/utils';
 import { fieldLabels } from '@/constants';
-import type { SortField, SortDirection } from '@/types';
+import type { SortField, SortDirection, Dive } from '@/types';
 
 // 可切换显示的列
 type OptionalColumnKey = 'diveComputer' | 'tags';
@@ -136,6 +136,61 @@ export function DiveList() {
       setSelectedDiveId(diveId);
     }
   };
+
+  // 移动端卡片组件
+  const MobileCard = ({ dive, isSelected, isPB }: { dive: Dive; isSelected: boolean; isPB: boolean }) => (
+    <div
+      onClick={() => setSelectedDiveId(dive.id)}
+      onKeyDown={(e) => handleKeyDown(e, dive.id)}
+      tabIndex={0}
+      role="button"
+      aria-selected={isSelected}
+      className={`p-3 rounded-lg border transition-all cursor-pointer ${
+        isSelected
+          ? 'bg-cyan-900/30 border-cyan-500 ring-1 ring-cyan-500/50'
+          : 'bg-dive-card border-dive-border hover:bg-dive-hover hover:border-dive-text-muted'
+      }`}
+    >
+      {/* 顶部：编号、类型、日期 */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <span className={`font-bold text-lg ${isSelected ? 'text-cyan-400' : 'text-dive-text'}`}>
+            #{dive.diveNumber}
+          </span>
+          <DiveTypeBadge diveType={dive.diveType} />
+          {isPB && (
+            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-500/20 text-yellow-400">
+              PB
+            </span>
+          )}
+        </div>
+        <span className="text-dive-text-muted text-sm">{dive.date}</span>
+      </div>
+      
+      {/* 中部：地点 */}
+      <div className="mb-2">
+        <span className="text-cyan-400 font-medium">{dive.site}</span>
+        {dive.site !== dive.location && (
+          <span className="text-dive-text-muted text-sm ml-1">({dive.location})</span>
+        )}
+      </div>
+      
+      {/* 底部：深度、时长、潜伴 */}
+      <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center gap-4">
+          <span className="text-dive-text">
+            <span className="text-dive-text-muted mr-1">深度</span>
+            <span className="font-mono font-medium">{formatDepth(dive.maxDepth)}</span>
+          </span>
+          <span className="text-dive-text">
+            <span className="text-dive-text-muted mr-1">时长</span>
+            <span className="font-mono font-medium">{formatDuration(dive.duration)}</span>
+          </span>
+        </div>
+        <span className="text-dive-text-secondary text-xs">{dive.buddy}</span>
+      </div>
+    </div>
+  );
   
   return (
     <div className="flex flex-col h-full bg-dive-surface" role="region" aria-label="Dive List">
@@ -148,79 +203,123 @@ export function DiveList() {
       </div>
       
       {/* Search & Filter */}
-      <div className="p-3 border-b border-dive-border flex items-center gap-3">
-        <div className="flex-1">
+      <div className={`p-3 border-b border-dive-border ${isMobileLayout ? 'flex flex-col gap-2' : 'flex items-center gap-3'}`}>
+        <div className={isMobileLayout ? 'w-full' : 'flex-1'}>
           <SearchInput
             value={searchQuery}
             onChange={setSearchQuery}
             placeholder="Filter Dives"
           />
         </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={filterValidDivesOnly}
-          aria-label="Filter valid dives only"
-          onClick={() => setFilterValidDivesOnly(!filterValidDivesOnly)}
-          title={filterValidDivesOnly ? "Showing valid dives only" : "Showing all dives"}
-          className={`group flex items-center gap-1.5 px-2 py-1 rounded-md text-xs transition-all duration-200 ${
-            filterValidDivesOnly 
-              ? 'bg-cyan-900/40 text-cyan-400 hover:bg-cyan-900/60' 
-              : 'bg-dive-card text-dive-text-muted hover:bg-dive-hover hover:text-dive-text-secondary'
-          }`}
-        >
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-          </svg>
-          <span className={`transition-colors ${filterValidDivesOnly ? 'text-cyan-400' : 'text-dive-text-muted group-hover:text-dive-text-secondary'}`}>
-            {filterValidDivesOnly ? 'Valid' : 'All'}
-          </span>
-        </button>
-        
-        {/* Column Selector */}
-        <div className="relative" ref={columnMenuRef}>
+        <div className="flex items-center gap-2">
           <button
             type="button"
-            aria-label="Select columns"
-            aria-expanded={isColumnMenuOpen}
-            onClick={() => setIsColumnMenuOpen(!isColumnMenuOpen)}
-            title="Select visible columns"
-            className={`group flex items-center gap-1.5 px-2 py-1 rounded-md text-xs transition-all duration-200 ${
-              isColumnMenuOpen
-                ? 'bg-cyan-900/40 text-cyan-400'
+            role="switch"
+            aria-checked={filterValidDivesOnly}
+            aria-label="Filter valid dives only"
+            onClick={() => setFilterValidDivesOnly(!filterValidDivesOnly)}
+            title={filterValidDivesOnly ? "Showing valid dives only" : "Showing all dives"}
+            className={`group flex items-center gap-1.5 px-2 py-1.5 rounded-md text-xs transition-all duration-200 ${
+              filterValidDivesOnly 
+                ? 'bg-cyan-900/40 text-cyan-400 hover:bg-cyan-900/60' 
                 : 'bg-dive-card text-dive-text-muted hover:bg-dive-hover hover:text-dive-text-secondary'
             }`}
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
             </svg>
-            <span className="transition-colors">Columns</span>
+            <span className={`transition-colors ${filterValidDivesOnly ? 'text-cyan-400' : 'text-dive-text-muted group-hover:text-dive-text-secondary'}`}>
+              {filterValidDivesOnly ? 'Valid' : 'All'}
+            </span>
           </button>
           
-          {isColumnMenuOpen && (
-            <div className="absolute right-0 top-full mt-1 bg-dive-card border border-dive-border rounded-lg shadow-lg z-50 min-w-[140px] py-1">
-              {OPTIONAL_COLUMNS.map(({ key, label }) => (
-                <label
-                  key={key}
-                  className="flex items-center gap-2 px-3 py-1.5 hover:bg-dive-hover cursor-pointer text-sm"
-                >
-                  <input
-                    type="checkbox"
-                    checked={columnVisibility[key]}
-                    onChange={() => toggleColumnVisibility(key)}
-                    className="w-3.5 h-3.5 rounded border-dive-border bg-dive-hover text-cyan-400 focus:ring-cyan-400 focus:ring-offset-0"
-                  />
-                  <span className={columnVisibility[key] ? 'text-dive-text' : 'text-dive-text-muted'}>
-                    {label}
-                  </span>
-                </label>
-              ))}
+          {/* 移动端排序选择器 */}
+          {isMobileLayout && (
+            <select
+              value={`${sortField}-${sortDirection}`}
+              onChange={(e) => {
+                const [field, direction] = e.target.value.split('-') as [SortField, SortDirection];
+                setSortField(field);
+                setSortDirection(direction);
+              }}
+              className="px-2 py-1.5 rounded-md text-xs bg-dive-card text-dive-text-muted border border-dive-border focus:border-cyan-500 focus:outline-none"
+            >
+              <option value="diveNumber-desc">最新优先</option>
+              <option value="diveNumber-asc">最旧优先</option>
+              <option value="maxDepth-desc">深度 ↓</option>
+              <option value="maxDepth-asc">深度 ↑</option>
+              <option value="duration-desc">时长 ↓</option>
+              <option value="duration-asc">时长 ↑</option>
+              <option value="date-desc">日期 ↓</option>
+              <option value="date-asc">日期 ↑</option>
+            </select>
+          )}
+          
+          {/* Column Selector - 桌面端显示 */}
+          {!isMobileLayout && (
+            <div className="relative" ref={columnMenuRef}>
+              <button
+                type="button"
+                aria-label="Select columns"
+                aria-expanded={isColumnMenuOpen}
+                onClick={() => setIsColumnMenuOpen(!isColumnMenuOpen)}
+                title="Select visible columns"
+                className={`group flex items-center gap-1.5 px-2 py-1 rounded-md text-xs transition-all duration-200 ${
+                  isColumnMenuOpen
+                    ? 'bg-cyan-900/40 text-cyan-400'
+                    : 'bg-dive-card text-dive-text-muted hover:bg-dive-hover hover:text-dive-text-secondary'
+                }`}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                </svg>
+                <span className="transition-colors">Columns</span>
+              </button>
+              
+              {isColumnMenuOpen && (
+                <div className="absolute right-0 top-full mt-1 bg-dive-card border border-dive-border rounded-lg shadow-lg z-50 min-w-[140px] py-1">
+                  {OPTIONAL_COLUMNS.map(({ key, label }) => (
+                    <label
+                      key={key}
+                      className="flex items-center gap-2 px-3 py-1.5 hover:bg-dive-hover cursor-pointer text-sm"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={columnVisibility[key]}
+                        onChange={() => toggleColumnVisibility(key)}
+                        className="w-3.5 h-3.5 rounded border-dive-border bg-dive-hover text-cyan-400 focus:ring-cyan-400 focus:ring-offset-0"
+                      />
+                      <span className={columnVisibility[key] ? 'text-dive-text' : 'text-dive-text-muted'}>
+                        {label}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
       </div>
       
-      {/* Table */}
+      {/* 移动端卡片列表 */}
+      {isMobileLayout ? (
+        <div className="flex-1 overflow-auto p-3 space-y-2">
+          {sortedDives.map((dive) => (
+            <MobileCard
+              key={dive.id}
+              dive={dive}
+              isSelected={selectedDiveId === dive.id}
+              isPB={dive.diveType === 'FreeDive' && dive.id === freeDivePBId}
+            />
+          ))}
+          {sortedDives.length === 0 && (
+            <div className="text-center text-dive-text-muted py-10" role="status">
+              未找到匹配 "{searchQuery}" 的潜水记录
+            </div>
+          )}
+        </div>
+      ) : (
+      /* 桌面端表格 */
       <div className="flex-1 overflow-auto" role="table" aria-label="Dive records">
         <table className="w-full text-sm">
           <thead className="sticky top-0 bg-dive-surface z-10">
@@ -373,6 +472,7 @@ export function DiveList() {
           </div>
         )}
       </div>
+      )}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
+import { devtools } from 'zustand/middleware';
 import { Dive } from '@/types';
 import { dives as initialDives } from '@/data';
 
@@ -68,80 +68,70 @@ const initialState: DiveState = {
  */
 export const useDiveStore = create<DiveStore>()(
   devtools(
-    persist(
-      (set, get) => ({
-        // 初始状态
-        ...initialState,
+    (set, get) => ({
+      // 初始状态
+      ...initialState,
 
-        // 操作方法
-        setSelectedDiveId: (id) => {
-          set({ selectedDiveId: id }, false, 'setSelectedDiveId');
-        },
+      // 操作方法
+      setSelectedDiveId: (id) => {
+        set({ selectedDiveId: id }, false, 'setSelectedDiveId');
+      },
 
-        setSearchQuery: (query) => {
-          set({ searchQuery: query }, false, 'setSearchQuery');
-        },
+      setSearchQuery: (query) => {
+        set({ searchQuery: query }, false, 'setSearchQuery');
+      },
 
-        setFilterValidDivesOnly: (filter) => {
-          set({ filterValidDivesOnly: filter }, false, 'setFilterValidDivesOnly');
-        },
+      setFilterValidDivesOnly: (filter) => {
+        set({ filterValidDivesOnly: filter }, false, 'setFilterValidDivesOnly');
+      },
 
-        setDives: (dives) => {
-          set({ dives }, false, 'setDives');
-        },
+      setDives: (dives) => {
+        set({ dives }, false, 'setDives');
+      },
 
-        addDive: (dive) => {
-          set(
-            (state) => ({ dives: [...state.dives, dive] }),
-            false,
-            'addDive'
-          );
-        },
+      addDive: (dive) => {
+        set(
+          (state) => ({ dives: [...state.dives, dive] }),
+          false,
+          'addDive'
+        );
+      },
 
-        updateDive: (id, updates) => {
-          set(
-            (state) => ({
-              dives: state.dives.map((dive) =>
-                dive.id === id ? { ...dive, ...updates } : dive
-              ),
-            }),
-            false,
-            'updateDive'
-          );
-        },
+      updateDive: (id, updates) => {
+        set(
+          (state) => ({
+            dives: state.dives.map((dive) =>
+              dive.id === id ? { ...dive, ...updates } : dive
+            ),
+          }),
+          false,
+          'updateDive'
+        );
+      },
 
-        deleteDive: (id) => {
-          const { selectedDiveId } = get();
-          set(
-            (state) => {
-              const newDives = state.dives.filter((dive) => dive.id !== id);
-              return {
-                dives: newDives,
-                // 如果删除的是当前选中的，选中第一个
-                selectedDiveId:
-                  selectedDiveId === id
-                    ? newDives[0]?.id || null
-                    : selectedDiveId,
-              };
-            },
-            false,
-            'deleteDive'
-          );
-        },
+      deleteDive: (id) => {
+        const { selectedDiveId } = get();
+        set(
+          (state) => {
+            const newDives = state.dives.filter((dive) => dive.id !== id);
+            return {
+              dives: newDives,
+              // 如果删除的是当前选中的，选中第一个
+              selectedDiveId:
+                selectedDiveId === id
+                  ? newDives[0]?.id || null
+                  : selectedDiveId,
+            };
+          },
+          false,
+          'deleteDive'
+        );
+      },
 
-        clearSearch: () => {
-          set({ searchQuery: '' }, false, 'clearSearch');
-        },
-      }),
-      {
-        name: 'dive-logs-storage',
-        // 只持久化用户选择相关的状态，不持久化数据
-        partialize: (state) => ({
-          selectedDiveId: state.selectedDiveId,
-          searchQuery: state.searchQuery,
-        }),
-      }
-    ),
+      clearSearch: () => {
+        set({ searchQuery: '' }, false, 'clearSearch');
+      },
+    }),
     {
       name: 'DiveStore',
       enabled: import.meta.env.DEV,

@@ -5,23 +5,21 @@ import { useDiveStore } from '@/store';
  * 处理 URL 参数
  * 支持 ?diveNumber=1 来自动选中指定的潜水记录
  * 支持 ?layout=mobile 或 ?layout=desktop 来强制指定布局
- * @returns { hasDiveNumberParam, forceLayout }
+ * @returns { forceLayout }
  */
-export function useUrlParams(): { hasDiveNumberParam: boolean; forceLayout: 'mobile' | 'desktop' | null } {
+export function useUrlParams(): { forceLayout: 'mobile' | 'desktop' | null } {
   const { dives, setSelectedDiveId } = useDiveStore();
   
   // 检查 URL 参数
   const params = new URLSearchParams(window.location.search);
   const diveNumberParam = params.get('diveNumber');
   const layoutParam = params.get('layout');
-  const hasDiveNumberParam = !!diveNumberParam;
   const forceLayout = layoutParam === 'mobile' || layoutParam === 'desktop' ? layoutParam : null;
 
   useEffect(() => {
     if (diveNumberParam) {
       const diveNumber = parseInt(diveNumberParam, 10);
       if (!isNaN(diveNumber)) {
-        // 查找匹配的 dive
         const dive = dives.find((d) => d.diveNumber === diveNumber);
         if (dive) {
           setSelectedDiveId(dive.id);
@@ -30,5 +28,5 @@ export function useUrlParams(): { hasDiveNumberParam: boolean; forceLayout: 'mob
     }
   }, [dives, setSelectedDiveId, diveNumberParam]);
   
-  return { hasDiveNumberParam, forceLayout };
+  return { forceLayout };
 }

@@ -1,16 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ErrorBoundary, TabButton } from '@/components/common';
 import { DiveList, DiveDetail } from '@/components/features';
 import { uiLabels } from '@/constants';
-import { useUrlParams } from '@/hooks';
+import { useDiveStore } from '@/store';
 
 /**
  * 移动端布局 - Tab 切换模式
  */
 export function MobileLayout() {
-  // 如果 URL 有 diveNumber 参数，默认显示 detail
-  const { hasDiveNumberParam } = useUrlParams();
-  const [activeTab, setActiveTab] = useState<'list' | 'detail'>(hasDiveNumberParam ? 'detail' : 'list');
+  const [activeTab, setActiveTab] = useState<'list' | 'detail'>('list');
+  const selectedDiveId = useDiveStore((state) => state.selectedDiveId);
+  const prevSelectedDiveId = useRef(selectedDiveId);
+  
+  // 用户选中新的潜水时切换到详情 Tab
+  useEffect(() => {
+    if (selectedDiveId && selectedDiveId !== prevSelectedDiveId.current && activeTab === 'list') {
+      setActiveTab('detail');
+    }
+    prevSelectedDiveId.current = selectedDiveId;
+  }, [selectedDiveId, activeTab]);
 
   return (
     <div className="flex flex-col h-full">
