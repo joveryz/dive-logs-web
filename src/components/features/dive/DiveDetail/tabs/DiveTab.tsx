@@ -22,6 +22,10 @@ export const DiveTab = memo(function DiveTab({ dive, isPersonalBest }: DiveTabPr
   
   // 检查是否有心率数据
   const hasHeartRateData = environment?.minHeartRate || environment?.maxHeartRate || environment?.avgHeartRate;
+  
+  // 检查是否有减压数据
+  const hasDecoData = decoSettings?.decoModel || decoSettings?.conservatism || decoSettings?.gf99Max || 
+                      decoSettings?.cnsStart || decoSettings?.cnsEnd || decoSettings?.endSurfaceGF;
 
   return (
     <div className="space-y-4">
@@ -124,18 +128,20 @@ export const DiveTab = memo(function DiveTab({ dive, isPersonalBest }: DiveTabPr
           </Section>
 
           {/* 减压/安全信息 */}
-          <Section title={uiLabels.sectionDecompression}>
-            <div className="grid grid-cols-3 gap-3">
-              <InfoCard label={uiLabels.model} value={decoSettings?.decoModel || '-'} />
-              <InfoCard label={uiLabels.gfSetting} value={decoSettings?.conservatism || '-'} />
-              <InfoCard label={uiLabels.gf99Max} value={formatNumber(decoSettings?.gf99Max, '%', 'gf99')} />
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              <InfoCard label={uiLabels.cnsStart} value={formatNumber(decoSettings?.cnsStart, '%', 'cns')} />
-              <InfoCard label={uiLabels.cnsEnd} value={formatNumber(decoSettings?.cnsEnd, '%', 'cns')} />
-              <InfoCard label={uiLabels.surfaceGFEnd} value={formatNumber(decoSettings?.endSurfaceGF, '%', 'gf99')} />
-            </div>
-          </Section>
+          {hasDecoData && (
+            <Section title={uiLabels.sectionDecompression}>
+              <div className="grid grid-cols-3 gap-3">
+                <InfoCard label={uiLabels.model} value={decoSettings?.decoModel || '-'} />
+                <InfoCard label={uiLabels.gfSetting} value={decoSettings?.conservatism || '-'} />
+                <InfoCard label={uiLabels.gf99Max} value={formatNumber(decoSettings?.gf99Max, '%', 'gf99')} />
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <InfoCard label={uiLabels.cnsStart} value={formatNumber(decoSettings?.cnsStart, '%', 'cns')} />
+                <InfoCard label={uiLabels.cnsEnd} value={formatNumber(decoSettings?.cnsEnd, '%', 'cns')} />
+                <InfoCard label={uiLabels.surfaceGFEnd} value={formatNumber(decoSettings?.endSurfaceGF, '%', 'gf99')} />
+              </div>
+            </Section>
+          )}
 
           {/* 地点信息 */}
           <Section title={uiLabels.sectionLocationBuddy}>

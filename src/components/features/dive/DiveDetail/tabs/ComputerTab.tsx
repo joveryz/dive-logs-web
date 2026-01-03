@@ -16,6 +16,10 @@ export const ComputerTab = memo(function ComputerTab({ dive }: ComputerTabProps)
   const battery = computerInfo?.battery;
   const diveSettings = computerInfo?.dive;
   const deco = computerInfo?.deco;
+  
+  // 检查是否有减压数据
+  const hasDecoData = deco?.decoModel || deco?.conservatism || deco?.gf99Max || 
+                      deco?.cnsStart || deco?.cnsEnd || deco?.endSurfaceGF;
 
   return (
     <div className="space-y-4">
@@ -37,16 +41,8 @@ export const ComputerTab = memo(function ComputerTab({ dive }: ComputerTabProps)
 
       {/* 主要内容区域 */}
       <div className="grid grid-cols-12 gap-4">
-        {/* 左侧：电池信息 */}
-        <div className="col-span-6 space-y-4">
-          <Section title={uiLabels.sectionBattery}>
-            <div className="grid grid-cols-3 gap-3">
-              <InfoCard label={uiLabels.type} value={battery?.type || '-'} />
-              <InfoCard label={uiLabels.voltageStart} value={formatNumber(battery?.vStart, ' V')} />
-              <InfoCard label={uiLabels.voltageEnd} value={formatNumber(battery?.vEnd, ' V')} />
-            </div>
-          </Section>
-
+        {/* 第一行左侧：潜水设置 */}
+        <div className="col-span-6">
           <Section title={uiLabels.sectionDiveSettings}>
             <div className="grid grid-cols-3 gap-3">
               <InfoCard label={uiLabels.mode} value={diveSettings?.mode || '-'} />
@@ -61,21 +57,34 @@ export const ComputerTab = memo(function ComputerTab({ dive }: ComputerTabProps)
           </Section>
         </div>
 
-        {/* 右侧：减压设置 */}
-        <div className="col-span-6 space-y-4">
-          <Section title={uiLabels.sectionDecoSettings}>
+        {/* 第一行右侧：电池信息 */}
+        <div className="col-span-6">
+          <Section title={uiLabels.sectionBattery}>
             <div className="grid grid-cols-3 gap-3">
-              <InfoCard label={uiLabels.decoModel} value={deco?.decoModel || '-'} />
-              <InfoCard label={uiLabels.gfSetting} value={deco?.conservatism || '-'} />
-              <InfoCard label={uiLabels.gf99Max} value={formatNumber(deco?.gf99Max, '%')} />
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              <InfoCard label={uiLabels.cnsStart} value={formatNumber(deco?.cnsStart, '%')} />
-              <InfoCard label={uiLabels.cnsEnd} value={formatNumber(deco?.cnsEnd, '%')} />
-              <InfoCard label={uiLabels.surfaceGFEnd} value={formatNumber(deco?.endSurfaceGF, '%')} />
+              <InfoCard label={uiLabels.type} value={battery?.type || '-'} />
+              <InfoCard label={uiLabels.voltageStart} value={formatNumber(battery?.vStart, ' V')} />
+              <InfoCard label={uiLabels.voltageEnd} value={formatNumber(battery?.vEnd, ' V')} />
             </div>
           </Section>
         </div>
+
+        {/* 第二行：减压设置 */}
+        {hasDecoData && (
+          <div className="col-span-6">
+            <Section title={uiLabels.sectionDecoSettings}>
+              <div className="grid grid-cols-3 gap-3">
+                <InfoCard label={uiLabels.decoModel} value={deco?.decoModel || '-'} />
+                <InfoCard label={uiLabels.gfSetting} value={deco?.conservatism || '-'} />
+                <InfoCard label={uiLabels.gf99Max} value={formatNumber(deco?.gf99Max, '%')} />
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <InfoCard label={uiLabels.cnsStart} value={formatNumber(deco?.cnsStart, '%')} />
+                <InfoCard label={uiLabels.cnsEnd} value={formatNumber(deco?.cnsEnd, '%')} />
+                <InfoCard label={uiLabels.surfaceGFEnd} value={formatNumber(deco?.endSurfaceGF, '%')} />
+              </div>
+            </Section>
+          </div>
+        )}
       </div>
     </div>
   );
