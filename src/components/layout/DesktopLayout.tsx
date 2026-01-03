@@ -17,7 +17,7 @@ export function DesktopLayout() {
             </ErrorBoundary>
           ),
           minSize: 400,
-          defaultSize: 50,
+          defaultSize: 25,
         },
         {
           content: (
@@ -25,8 +25,8 @@ export function DesktopLayout() {
               <DiveDetail />
             </ErrorBoundary>
           ),
-          minSize: 400,
-          defaultSize: 50,
+          minSize: 0,
+          defaultSize: 75,
         },
       ]}
     />

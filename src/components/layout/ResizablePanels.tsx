@@ -23,8 +23,30 @@ export function ResizablePanels({ panels, direction = 'horizontal', className = 
   const dragIndexRef = useRef<number | null>(null);
   const startPosRef = useRef<number>(0);
   const startSizesRef = useRef<number[]>([]);
+  const initializedRef = useRef(false);
   
   const isVertical = direction === 'vertical';
+  
+  // 初始化时检查最小宽度限制
+  useEffect(() => {
+    if (initializedRef.current || !containerRef.current) return;
+    initializedRef.current = true;
+    
+    const containerSize = isVertical 
+      ? containerRef.current.offsetHeight 
+      : containerRef.current.offsetWidth;
+    
+    // 检查第一个面板的默认百分比是否小于最小宽度
+    const firstPanelMinPercent = (panels[0].minSize / containerSize) * 100;
+    const currentFirstPercent = panelSizes[0];
+    
+    if (currentFirstPercent < firstPanelMinPercent && panels[0].minSize > 0) {
+      const newSizes = [...panelSizes];
+      newSizes[0] = firstPanelMinPercent;
+      newSizes[1] = 100 - firstPanelMinPercent;
+      setPanelSizes(newSizes);
+    }
+  }, [panels, panelSizes, isVertical]);
   
   // 处理拖拽开始
   const handleMouseDown = useCallback((index: number, e: React.MouseEvent) => {

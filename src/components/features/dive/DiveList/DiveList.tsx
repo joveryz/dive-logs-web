@@ -25,16 +25,16 @@ const DiveCard = ({
     tabIndex={0}
     role="button"
     aria-selected={isSelected}
-    className={`group relative p-4 rounded-lg border transition-all duration-200 cursor-pointer ${
+    className={`group relative p-3 rounded-lg border transition-all duration-200 cursor-pointer ${
       isSelected
         ? 'bg-gradient-to-br from-cyan-900/40 to-cyan-800/20 border-cyan-500/60 shadow-lg shadow-cyan-900/20'
         : 'bg-dive-card/40 border-dive-border/50 hover:bg-dive-card/70 hover:border-dive-border'
     }`}
   >
     {/* 顶部：编号、日期、类型 */}
-    <div className="flex items-start justify-between mb-3">
-      <div className="flex items-center gap-3">
-        <span className={`text-2xl font-bold tabular-nums ${isSelected ? 'text-cyan-400' : 'text-dive-text group-hover:text-cyan-400'}`}>
+    <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center gap-2">
+        <span className={`text-xl font-bold tabular-nums ${isSelected ? 'text-cyan-400' : 'text-dive-text group-hover:text-cyan-400'}`}>
           #{dive.diveNumber}
         </span>
         <DiveTypeBadge diveType={dive.diveType} />
@@ -51,35 +51,35 @@ const DiveCard = ({
     </div>
 
     {/* 中间：地点 */}
-    <div className="mb-3">
+    <div className="mb-2">
       <div className="flex items-center gap-1.5">
-        <svg className="w-4 h-4 text-cyan-500/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <svg className="w-3.5 h-3.5 text-cyan-500/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
           <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
         </svg>
-        <span className="text-cyan-400 font-medium truncate">{dive.site}</span>
+        <span className="text-cyan-400 font-medium text-sm truncate">{dive.site}</span>
         {dive.site !== dive.location && (
-          <span className="text-dive-text-muted text-sm">• {dive.location}</span>
+          <span className="text-dive-text-muted text-xs">• {dive.location}</span>
         )}
       </div>
     </div>
 
     {/* 底部：核心数据 */}
-    <div className="flex items-center justify-between pt-3 border-t border-dive-border/30">
-      <div className="flex items-center gap-4">
+    <div className="flex items-center justify-between pt-2 border-t border-dive-border/30">
+      <div className="flex items-center gap-3">
         {/* 深度 */}
-        <div className="flex items-center gap-1.5">
-          <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <div className="flex items-center gap-1">
+          <svg className="w-3.5 h-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
           </svg>
-          <span className="font-mono font-semibold text-blue-400">{formatDepth(dive.maxDepth)}</span>
+          <span className="font-mono font-semibold text-sm text-blue-400">{formatDepth(dive.maxDepth)}</span>
         </div>
         {/* 时长 */}
-        <div className="flex items-center gap-1.5">
-          <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <div className="flex items-center gap-1">
+          <svg className="w-3.5 h-3.5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span className="font-mono font-semibold text-green-400">{formatDuration(dive.duration)}</span>
+          <span className="font-mono font-semibold text-sm text-green-400">{formatDuration(dive.duration)}</span>
         </div>
       </div>
       
