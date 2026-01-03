@@ -4,16 +4,16 @@ import { uiLabels } from '@/constants';
 import { formatDepth, formatDurationReadable, formatNumber } from '@/utils';
 import type { Dive } from '@/types';
 
-interface DiveTabProps {
+interface SummaryTabProps {
   dive: Dive;
   /** 是否为个人最佳记录 (FreeDive) */
   isPersonalBest: boolean;
 }
 
 /**
- * Dive Tab - 潜水核心信息展示
+ * Summary Tab - 潜水核心信息展示
  */
-export const DiveTab = memo(function DiveTab({ dive, isPersonalBest }: DiveTabProps) {
+export const SummaryTab = memo(function SummaryTab({ dive, isPersonalBest }: SummaryTabProps) {
   const environment = dive.environment;
   const decoSettings = dive.computerInfo?.deco;
   const gearInfo = dive.gear;

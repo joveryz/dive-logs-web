@@ -6,14 +6,14 @@ import { DiveStats } from '../DiveStats';
 import { ResizablePanels } from '@/components/layout';
 import { TabButton, EmptyState } from '@/components/common';
 import { uiLabels } from '@/constants';
-import { DiveTab, ComputerTab, CursorTab, GasesTab } from './tabs';
+import { SummaryTab, ComputerTab, CursorTab, GasesTab } from './tabs';
 import type { ViewMode, Dive, DiveProfilePoint } from '@/types';
 
 // ============================================================================
 // Tab 类型定义
 // ============================================================================
 
-type TabId = 'dive' | 'computer' | 'gases' | 'cursor';
+type TabId = 'summary' | 'computer' | 'gases' | 'cursor';
 
 // ============================================================================
 // 内部组件
@@ -29,7 +29,7 @@ const DetailContent = memo(function DetailContent({
   dive: Dive; 
   cursorData: DiveProfilePoint | null;
 }) {
-  const [activeTab, setActiveTab] = useState<TabId>('dive');
+  const [activeTab, setActiveTab] = useState<TabId>('summary');
   
   // 检查是否是 FreeDive 个人最佳记录
   const freeDivePersonalBestId = getFreeDivePBId(useDiveStore.getState().dives);
@@ -39,7 +39,7 @@ const DetailContent = memo(function DetailContent({
     <div className="h-full flex flex-col bg-dive-surface">
       {/* Tab 导航 */}
       <div className="flex border-b border-dive-border flex-shrink-0">
-        <TabButton active={activeTab === 'dive'} onClick={() => setActiveTab('dive')}>
+        <TabButton active={activeTab === 'summary'} onClick={() => setActiveTab('summary')}>
           {uiLabels.diveSummary}
         </TabButton>
         <TabButton active={activeTab === 'computer'} onClick={() => setActiveTab('computer')}>
@@ -55,7 +55,7 @@ const DetailContent = memo(function DetailContent({
 
       {/* Tab 内容 */}
       <div className="flex-1 overflow-auto p-4">
-        {activeTab === 'dive' && <DiveTab dive={dive} isPersonalBest={isPersonalBest} />}
+        {activeTab === 'summary' && <SummaryTab dive={dive} isPersonalBest={isPersonalBest} />}
         {activeTab === 'computer' && <ComputerTab dive={dive} />}
         {activeTab === 'gases' && <GasesTab dive={dive} />}
         {activeTab === 'cursor' && <CursorTab cursorData={cursorData} />}
