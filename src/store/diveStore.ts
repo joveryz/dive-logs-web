@@ -19,6 +19,8 @@ interface DiveState {
   searchQuery: string;
   /** 是否只显示有效潜水 */
   filterValidDivesOnly: boolean;
+  /** 筛选的潜水类型 */
+  filterDiveType: string | null;
 }
 
 /**
@@ -31,6 +33,8 @@ interface DiveActions {
   setSearchQuery: (query: string) => void;
   /** 设置是否只显示有效潜水 */
   setFilterValidDivesOnly: (filter: boolean) => void;
+  /** 设置筛选的潜水类型 */
+  setFilterDiveType: (type: string | null) => void;
   /** 设置潜水记录列表 */
   setDives: (dives: Dive[]) => void;
   /** 添加潜水记录 */
@@ -60,6 +64,7 @@ const initialState: DiveState = {
   selectedDiveId: initialDives[0]?.id || null,
   searchQuery: '',
   filterValidDivesOnly: true,
+  filterDiveType: null,
 };
 
 /**
@@ -83,6 +88,10 @@ export const useDiveStore = create<DiveStore>()(
 
       setFilterValidDivesOnly: (filter) => {
         set({ filterValidDivesOnly: filter }, false, 'setFilterValidDivesOnly');
+      },
+
+      setFilterDiveType: (type) => {
+        set({ filterDiveType: type }, false, 'setFilterDiveType');
       },
 
       setDives: (dives) => {

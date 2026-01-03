@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useDiveStore, selectDives, selectSearchQuery, selectFilterValidDivesOnly } from '@/store';
+import { useDiveStore, selectDives, selectSearchQuery, selectFilterValidDivesOnly, selectFilterDiveType } from '@/store';
 import { Dive } from '@/types';
 
 /**
@@ -38,6 +38,7 @@ export function useFilteredDives() {
   const dives = useDiveStore(selectDives);
   const searchQuery = useDiveStore(selectSearchQuery);
   const filterValidDivesOnly = useDiveStore(selectFilterValidDivesOnly);
+  const filterDiveType = useDiveStore(selectFilterDiveType);
   
   return useMemo(() => {
     let result = dives;
@@ -45,6 +46,11 @@ export function useFilteredDives() {
     // 过滤无效潜水
     if (filterValidDivesOnly) {
       result = result.filter(isValidDive);
+    }
+    
+    // 按潜水类型过滤
+    if (filterDiveType) {
+      result = result.filter(dive => dive.diveType === filterDiveType);
     }
     
     // 文本搜索过滤
@@ -73,5 +79,5 @@ export function useFilteredDives() {
     }
     
     return result;
-  }, [dives, searchQuery, filterValidDivesOnly]);
+  }, [dives, searchQuery, filterValidDivesOnly, filterDiveType]);
 }

@@ -117,9 +117,18 @@ export function DiveList() {
     searchQuery, 
     setSearchQuery, 
     filterValidDivesOnly, 
-    setFilterValidDivesOnly 
+    setFilterValidDivesOnly,
+    filterDiveType,
+    setFilterDiveType 
   } = useDiveStore();
   const filteredDives = useFilteredDives();
+  const allDivesForTypes = useDiveStore(selectDives);
+  
+  // 获取所有可用的潜水类型（去重）
+  const availableDiveTypes = useMemo(() => {
+    const types = new Set(allDivesForTypes.map(d => d.diveType));
+    return Array.from(types).sort();
+  }, [allDivesForTypes]);
   const [sortField, setSortField] = useState<SortField>('diveNumber');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const containerRef = useRef<HTMLDivElement>(null);
@@ -189,7 +198,7 @@ export function DiveList() {
           onChange={setSearchQuery}
           placeholder="Search dives..."
         />
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -208,6 +217,23 @@ export function DiveList() {
               </svg>
               {filterValidDivesOnly ? 'Valid Only' : 'All Dives'}
             </button>
+            
+            {/* 潜水类型筛选器 */}
+            <select
+              value={filterDiveType || ''}
+              onChange={(e) => setFilterDiveType(e.target.value || null)}
+              className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer focus:outline-none [&>option]:bg-dive-card [&>option]:text-dive-text ${
+                filterDiveType 
+                  ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' 
+                  : 'bg-dive-card/50 text-dive-text-muted border border-transparent hover:bg-dive-card hover:text-dive-text-secondary'
+              }`}
+              aria-label="Filter by dive type"
+            >
+              <option value="">All Types</option>
+              {availableDiveTypes.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
           </div>
           
           {/* 排序选择器 */}
