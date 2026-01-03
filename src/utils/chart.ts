@@ -67,19 +67,6 @@ export function calculateDynamicRange(
 }
 
 /**
- * 将值归一化到 0-100 范围
- */
-export function normalizeValue(
-  value: number,
-  min: number,
-  max: number
-): number {
-  const range = max - min;
-  if (range === 0) return 50;
-  return ((value - min) / range) * 100;
-}
-
-/**
  * 将归一化值转换回实际值
  */
 export function denormalizeValue(

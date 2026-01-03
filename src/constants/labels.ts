@@ -258,41 +258,4 @@ export function mapDiveMode(mode: string): DiveType {
   return diveModeMapping[mode] || 'OC Rec';
 }
 
-// ============================================================================
-// 辅助函数
-// ============================================================================
 
-/**
- * 获取 Summary Header 的显示名称
- */
-export function getSummaryHeaderLabel(header: string): string {
-  return summaryHeaderLabels[header] || header;
-}
-
-/**
- * 获取 Sample Header 的显示名称
- */
-export function getSampleHeaderLabel(header: string): string {
-  return sampleHeaderLabels[header] || header;
-}
-
-/**
- * 获取字段的 UI 显示标签
- */
-export function getFieldLabel(field: string): string {
-  return fieldLabels[field] || field;
-}
-
-/**
- * 获取所有 Summary Headers
- */
-export function getSummaryHeaders(): string[] {
-  return Object.keys(summaryHeaderLabels);
-}
-
-/**
- * 获取所有 Sample Headers
- */
-export function getSampleHeaders(): string[] {
-  return Object.keys(sampleHeaderLabels);
-}
