@@ -35,8 +35,8 @@ interface SummaryRow {
   GradientFactorLow: string;
   GradientFactorHigh: string;
   GradientFactorSurfaceEnd: string;
-  CNSPercentPreDive: string;
-  CNSPercentPostDive: string;
+  CentralNervousSystemPercentPreDive: string;
+  CentralNervousSystemPercentPostDive: string;
   ComputerModel: string;
   ComputerSerialNumber: string;
   ComputerFirmwareVersion: string;
@@ -57,7 +57,7 @@ interface SampleRow {
   TimeToSurfaceInMinutes: string;
   TimeToSurfaceInMinutesAtPlusFive: string;
   NoDecoLimit: string;
-  CNS: string;
+  CentralNervousSystemPercent: string;
   GasDensity: string;
   GradientFactor99: string;
   PPO2: string;
@@ -319,7 +319,7 @@ function sampleToProfilePoint(
     ascentRate: Math.round(ascentRate * 100) / 100,
     ndl: ndl !== undefined && ndl < 100 ? ndl : 99,
     gf99,
-    cns: parseNum(sample.CNS),
+    cns: parseNum(sample.CentralNervousSystemPercent),
     gasDensity: parseNum(sample.GasDensity),
     ppO2: parseNum(sample.PPO2),
     ppN2: parseNum(sample.PPN2),
@@ -528,8 +528,8 @@ export function parseDivesFromCSV(): Dive[] {
           surfaceInterval: formatSurfaceInterval(surfaceIntervalSec),
         },
         deco: {
-          cnsStart: parseNum(summary.CNSPercentPreDive),
-          cnsEnd: parseNum(summary.CNSPercentPostDive),
+          cnsStart: parseNum(summary.CentralNervousSystemPercentPreDive),
+          cnsEnd: parseNum(summary.CentralNervousSystemPercentPostDive),
           decoModel: summary.DecoModel || undefined,
           endSurfaceGF: parseNum(summary.GradientFactorSurfaceEnd),
           gf99Max: (() => {
