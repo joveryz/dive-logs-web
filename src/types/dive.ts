@@ -217,6 +217,12 @@ export interface EnvironmentInfo {
   avgTemp?: number;
   /** 水面气压（mBar） */
   surfacePressure?: number;
+  /** 最大心率（bpm） */
+  maxHeartRate?: number;
+  /** 最小心率（bpm） */
+  minHeartRate?: number;
+  /** 平均心率（bpm） */
+  avgHeartRate?: number;
   /** 气温（摄氏度） */
   airTemp?: number;
   /** 能见度（米） */
@@ -300,6 +306,7 @@ export interface ComputerInfo {
     sampleRate?: number;
     recordedUnits?: string;
     salinitySetting?: string;
+    salinityType?: string;
     surfacePressure?: number;
     surfaceInterval?: string;
   };

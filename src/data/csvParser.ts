@@ -525,6 +525,7 @@ export function parseDivesFromCSV(): Dive[] {
           mode: summary.Mode,
           sampleRate: parseIntNum(summary.SampleRateInMs) ? parseIntNum(summary.SampleRateInMs)! / 1000 : 10,
           salinitySetting: summary.Salinity || undefined,
+          salinityType: summary.SalinityType || undefined,
           surfacePressure: parseNum(summary.SurfacePressureInMillibarPreDive),
           surfaceInterval: formatSurfaceInterval(surfaceIntervalSec),
         },
@@ -549,6 +550,9 @@ export function parseDivesFromCSV(): Dive[] {
         maxTemp: parseNum(summary.TemperatureInCelsiusMax),
         avgTemp: parseNum(summary.TemperatureInCelsiusAvg),
         surfacePressure: parseNum(summary.SurfacePressureInMillibarPreDive),
+        maxHeartRate: parseNum(summary.HeartRateMax),
+        minHeartRate: parseNum(summary.HeartRateMin),
+        avgHeartRate: parseNum(summary.HeartRateAvg),
       },
       
       // 气体信息

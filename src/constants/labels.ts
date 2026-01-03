@@ -152,6 +152,9 @@ export const uiLabels = {
   maxTemp: 'Max Temp',
   avgTemp: 'Avg Temp',
   surfacePressure: 'Surface Pressure',
+  maxHeartRate: 'Max HR',
+  minHeartRate: 'Min HR',
+  avgHeartRate: 'Avg HR',
   airTemp: 'Air Temp',
   visibility: 'Visibility',
   weather: 'Weather',
@@ -159,6 +162,7 @@ export const uiLabels = {
   environment: 'Environment',
   conditions: 'Conditions',
   salinity: 'Salinity',
+  salinityType: 'Water Type',
   surfaceInterval: 'Surface Interval',
   
   // 电脑标签

@@ -129,6 +129,14 @@ export const DiveTab = memo(function DiveTab({ dive, isPersonalBest }: DiveTabPr
             <InfoCard label={uiLabels.surfacePressure} value={formatNumber(environment?.surfacePressure, ' mBar')} />
           </div>
           <div className="grid grid-cols-2 gap-3">
+            <InfoCard label={uiLabels.minHeartRate} value={formatNumber(environment?.minHeartRate, ' bpm')} />
+            <InfoCard label={uiLabels.maxHeartRate} value={formatNumber(environment?.maxHeartRate, ' bpm')} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <InfoCard label={uiLabels.avgHeartRate} value={formatNumber(environment?.avgHeartRate, ' bpm')} />
+            <InfoCard label={uiLabels.salinityType} value={computerDiveSettings?.salinityType || '-'} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
             <InfoCard label={uiLabels.salinity} value={computerDiveSettings?.salinitySetting || '-'} />
             <InfoCard label={uiLabels.surfaceInterval} value={computerDiveSettings?.surfaceInterval || '-'} />
           </div>
