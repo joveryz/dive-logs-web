@@ -168,7 +168,7 @@ export interface GasesInfo {
   airIntegration?: {
     aiEnabled: boolean;
     transmitters?: string[];
-    gtrMode?: string;
+
     sacRecorded?: number;
   };
   /** 气瓶列表 */

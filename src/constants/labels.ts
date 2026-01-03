@@ -207,7 +207,6 @@ export const uiLabels = {
   aiEnabled: 'AI Enabled',
   transmitters: 'Transmitters',
   transmitter: 'Transmitter',
-  gtrMode: 'GTR Mode',
   sacRecorded: 'SAC (Recorded)',
   sacCalculated: 'SAC (Calculated)',
   startPressure: 'Start Pressure',

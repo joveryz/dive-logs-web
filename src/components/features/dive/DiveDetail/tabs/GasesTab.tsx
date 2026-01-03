@@ -42,17 +42,13 @@ const TankCard = memo(function TankCard({ tank }: { tank: TankInfo }) {
             value={`${formatNumber(tank.avgDepth)} m`} 
           />
         )}
-      </div>
-      
-      {/* SAC */}
-      {tank.sacCalculated !== undefined && (
-        <div className="grid grid-cols-2 gap-3">
+        {tank.sacCalculated !== undefined && (
           <InfoCard 
             label={uiLabels.sacCalculated} 
             value={formatNumber(tank.sacCalculated, ' bar/min', 'sac')} 
           />
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 });
@@ -75,75 +71,73 @@ export const GasesTab = memo(function GasesTab({ dive }: GasesTabProps) {
   const { ocGases, ccGases, airIntegration, tanks } = gasesInfo;
 
   return (
-    <div className="grid grid-cols-2 gap-4">
-      {/* 左侧：气体配置 */}
-      <div className="space-y-4">
-        {/* OC Gases */}
-        <Section title={uiLabels.ocGases}>
-          <div className="grid grid-cols-2 gap-3">
-            <InfoCard 
-              label={uiLabels.programmed} 
-              value={ocGases?.programmed || '-'} 
-            />
-            <InfoCard 
-              label={uiLabels.used} 
-              value={ocGases?.used || '-'} 
-            />
-          </div>
-        </Section>
-
-        {/* CC Gases */}
-        <Section title={uiLabels.ccGases}>
-          <div className="grid grid-cols-2 gap-3">
-            <InfoCard 
-              label={uiLabels.programmed} 
-              value={ccGases?.programmed || '-'} 
-            />
-            <InfoCard 
-              label={uiLabels.used} 
-              value={ccGases?.used || '-'} 
-            />
-          </div>
-        </Section>
-
-        {/* Air Integration */}
-        <Section title={uiLabels.airIntegration}>
-          <div className="grid grid-cols-2 gap-3">
-            <InfoCard 
-              label={uiLabels.aiEnabled} 
-              value={airIntegration?.aiEnabled ? 'On' : 'Off'} 
-            />
-            {airIntegration?.transmitters && airIntegration.transmitters.length > 0 && (
+    <div className="space-y-4">
+      {/* 主要内容区域 */}
+      <div className="grid grid-cols-12 gap-4">
+        {/* 左侧：气体配置 */}
+        <div className="col-span-6 space-y-4">
+          {/* OC Gases */}
+          <Section title={uiLabels.ocGases}>
+            <div className="grid grid-cols-2 gap-3">
               <InfoCard 
-                label={uiLabels.transmitters} 
-                value={airIntegration.transmitters.join('\n')} 
+                label={uiLabels.programmed} 
+                value={ocGases?.programmed || '-'} 
               />
-            )}
-            {airIntegration?.gtrMode && (
               <InfoCard 
-                label={uiLabels.gtrMode} 
-                value={airIntegration.gtrMode} 
+                label={uiLabels.used} 
+                value={ocGases?.used || '-'} 
               />
-            )}
-            {airIntegration?.sacRecorded !== undefined && (
-              <InfoCard 
-                label={uiLabels.sacRecorded} 
-                value={formatNumber(airIntegration.sacRecorded, ' bar/min', 'sac')} 
-              />
-            )}
-          </div>
-        </Section>
-      </div>
+            </div>
+          </Section>
 
-      {/* 右侧：气瓶详情 */}
-      <div className="space-y-4">
-        {tanks && tanks.length > 0 ? (
-          tanks.map((tank, index) => (
-            <TankCard key={tank.name || index} tank={tank} />
-          ))
-        ) : (
-          <div className="text-dive-text-muted text-sm">{uiLabels.noTankData}</div>
-        )}
+          {/* CC Gases */}
+          <Section title={uiLabels.ccGases}>
+            <div className="grid grid-cols-2 gap-3">
+              <InfoCard 
+                label={uiLabels.programmed} 
+                value={ccGases?.programmed || '-'} 
+              />
+              <InfoCard 
+                label={uiLabels.used} 
+                value={ccGases?.used || '-'} 
+              />
+            </div>
+          </Section>
+
+          {/* Air Integration */}
+          <Section title={uiLabels.airIntegration}>
+            <div className="grid grid-cols-2 gap-3">
+              <InfoCard 
+                label={uiLabels.aiEnabled} 
+                value={airIntegration?.aiEnabled ? 'On' : 'Off'} 
+              />
+              {airIntegration?.sacRecorded !== undefined && (
+                <InfoCard 
+                  label={uiLabels.sacRecorded} 
+                  value={formatNumber(airIntegration.sacRecorded, ' bar/min', 'sac')} 
+                />
+              )}
+              {airIntegration?.transmitters && airIntegration.transmitters.length > 0 && (
+                <InfoCard 
+                  label={uiLabels.transmitters} 
+                  value={airIntegration.transmitters.join(', ')} 
+                  className="col-span-2"
+                />
+              )}
+            </div>
+          </Section>
+        </div>
+
+        {/* 右侧：气瓶详情 */}
+        <div className="col-span-6 space-y-4">
+          {tanks && tanks.length > 0 ? (
+            tanks.map((tank, index) => (
+              <TankCard key={tank.name || index} tank={tank} />
+            ))
+          ) : (
+            <div className="text-dive-text-muted text-sm">{uiLabels.noTankData}</div>
+          )}
+        </div>
       </div>
     </div>
   );

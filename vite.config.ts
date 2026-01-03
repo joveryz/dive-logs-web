@@ -5,7 +5,10 @@ import { resolve } from 'path'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // divelogs.me 部署配置
+  //server:{
+  //  host:'172.16.68.151',
+  //  port:8000
+  //},
   base: '/',
   resolve: {
     alias: {

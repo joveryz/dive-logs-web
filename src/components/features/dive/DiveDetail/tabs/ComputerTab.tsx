@@ -18,57 +18,64 @@ export const ComputerTab = memo(function ComputerTab({ dive }: ComputerTabProps)
   const deco = computerInfo?.deco;
 
   return (
-    <div className="grid grid-cols-12 gap-4">
-      {/* 左侧：电脑与电池 */}
-      <div className="col-span-6 space-y-4">
-        <Section title={uiLabels.sectionComputer}>
-          <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.model} value={dive.diveComputer.model} />
-            <InfoCard label={uiLabels.serial} value={dive.diveComputer.serial || '-'} />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.firmware} value={computerInfo?.firmwareVersion || '-'} />
-            <InfoCard label={uiLabels.dataFormat} value={computerInfo?.dataFormat || '-'} />
-          </div>
-        </Section>
-
-        <Section title={uiLabels.sectionBattery}>
-          <InfoCard label={uiLabels.type} value={battery?.type || '-'} />
-          <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.voltageStart} value={formatNumber(battery?.vStart, 'V')} />
-            <InfoCard label={uiLabels.voltageEnd} value={formatNumber(battery?.vEnd, 'V')} />
-          </div>
-        </Section>
+    <div className="space-y-4">
+      {/* 顶部：核心指标卡片 */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="bg-dive-card/60 rounded-lg p-3 text-center">
+          <div className="text-xs text-dive-text-muted uppercase">{uiLabels.model}</div>
+          <div className="text-xl font-bold text-cyan-400">{dive.diveComputer.model}</div>
+        </div>
+        <div className="bg-dive-card/60 rounded-lg p-3 text-center">
+          <div className="text-xs text-dive-text-muted uppercase">{uiLabels.serial}</div>
+          <div className="text-xl font-bold text-green-400">{dive.diveComputer.serial || '-'}</div>
+        </div>
+        <div className="bg-dive-card/60 rounded-lg p-3 text-center">
+          <div className="text-xs text-dive-text-muted uppercase">{uiLabels.firmware}</div>
+          <div className="text-xl font-bold text-purple-400">{computerInfo?.firmwareVersion || '-'}</div>
+        </div>
       </div>
 
-      {/* 右侧：潜水设置与减压 */}
-      <div className="col-span-6 space-y-4">
-        <Section title={uiLabels.sectionDiveSettings}>
-          <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.mode} value={diveSettings?.mode || '-'} />
-            <InfoCard label={uiLabels.sampleRate} value={diveSettings?.sampleRate ? `${diveSettings.sampleRate}s` : '-'} />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.salinity} value={diveSettings?.salinitySetting || '-'} />
-            <InfoCard label={uiLabels.surfaceInterval} value={diveSettings?.surfaceInterval || '-'} />
-          </div>
-          <InfoCard label={uiLabels.surfacePressure} value={formatNumber(diveSettings?.surfacePressure, ' mBar')} />
-        </Section>
+      {/* 主要内容区域 */}
+      <div className="grid grid-cols-12 gap-4">
+        {/* 左侧：电池信息 */}
+        <div className="col-span-6 space-y-4">
+          <Section title={uiLabels.sectionBattery}>
+            <div className="grid grid-cols-3 gap-3">
+              <InfoCard label={uiLabels.type} value={battery?.type || '-'} />
+              <InfoCard label={uiLabels.voltageStart} value={formatNumber(battery?.vStart, ' V')} />
+              <InfoCard label={uiLabels.voltageEnd} value={formatNumber(battery?.vEnd, ' V')} />
+            </div>
+          </Section>
 
-        <Section title={uiLabels.sectionDecoSettings}>
-          <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.decoModel} value={deco?.decoModel || '-'} />
-            <InfoCard label={uiLabels.gfSetting} value={deco?.conservatism || '-'} />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.cnsStart} value={formatNumber(deco?.cnsStart, '%')} />
-            <InfoCard label={uiLabels.cnsEnd} value={formatNumber(deco?.cnsEnd, '%')} />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.gf99Max} value={formatNumber(deco?.gf99Max, '%')} />
-            <InfoCard label={uiLabels.surfaceGFEnd} value={formatNumber(deco?.endSurfaceGF, '%')} />
-          </div>
-        </Section>
+          <Section title={uiLabels.sectionDiveSettings}>
+            <div className="grid grid-cols-3 gap-3">
+              <InfoCard label={uiLabels.mode} value={diveSettings?.mode || '-'} />
+              <InfoCard label={uiLabels.sampleRate} value={diveSettings?.sampleRate ? `${diveSettings.sampleRate}s` : '-'} />
+              <InfoCard label={uiLabels.dataFormat} value={computerInfo?.dataFormat || '-'} />
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <InfoCard label={uiLabels.salinityType} value={diveSettings?.salinityType || '-'} />
+              <InfoCard label={uiLabels.salinity} value={diveSettings?.salinitySetting || '-'} />
+              <InfoCard label={uiLabels.surfacePressure} value={formatNumber(diveSettings?.surfacePressure, ' mBar')} />
+            </div>
+          </Section>
+        </div>
+
+        {/* 右侧：减压设置 */}
+        <div className="col-span-6 space-y-4">
+          <Section title={uiLabels.sectionDecoSettings}>
+            <div className="grid grid-cols-3 gap-3">
+              <InfoCard label={uiLabels.decoModel} value={deco?.decoModel || '-'} />
+              <InfoCard label={uiLabels.gfSetting} value={deco?.conservatism || '-'} />
+              <InfoCard label={uiLabels.gf99Max} value={formatNumber(deco?.gf99Max, '%')} />
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <InfoCard label={uiLabels.cnsStart} value={formatNumber(deco?.cnsStart, '%')} />
+              <InfoCard label={uiLabels.cnsEnd} value={formatNumber(deco?.cnsEnd, '%')} />
+              <InfoCard label={uiLabels.surfaceGFEnd} value={formatNumber(deco?.endSurfaceGF, '%')} />
+            </div>
+          </Section>
+        </div>
       </div>
     </div>
   );

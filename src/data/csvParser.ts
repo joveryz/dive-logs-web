@@ -243,7 +243,29 @@ function extractGasesInfo(samples: SampleRow[], mode: string, avgDepth: number, 
 
   // 根据模式判断 OC/CC gases
   const isCC = mode.toLowerCase().includes('cc') || mode.toLowerCase().includes('closed');
-  const gasString = mode === 'Air' ? '21/0' : mode;
+  
+  // 从 tankRows 中提取气体组成（统一使用三混气格式 O2/He）
+  const formatGasComposition = () => {
+    if (tankRows.length === 0) {
+      return mode === 'Air' ? '21/0' : mode;
+    }
+    
+    // 获取唯一的气体组成（去重）
+    const uniqueGases = new Map<string, { o2: number; he: number; name: string }>();
+    tankRows.forEach(row => {
+      const o2 = parseInt(row.GasO2Percent, 10) || 21;
+      const he = parseInt(row.GasHePercent, 10) || 0;
+      const key = `${o2}/${he}`;
+      if (!uniqueGases.has(key)) {
+        uniqueGases.set(key, { o2, he, name: row.TransmitterName || 'Gas' });
+      }
+    });
+    
+    // 格式化输出（统一使用 O2/He 格式）
+    return Array.from(uniqueGases.values()).map(gas => `${gas.o2}/${gas.he}`).join(', ');
+  };
+
+  const gasString = formatGasComposition();
 
   return {
     ocGases: !isCC ? {
@@ -260,7 +282,7 @@ function extractGasesInfo(samples: SampleRow[], mode: string, avgDepth: number, 
     airIntegration: {
       aiEnabled: hasAI,
       transmitters: transmitters.length > 0 ? transmitters : undefined,
-      gtrMode: tanks.length === 1 ? 'T1 (Single Tank)' : tanks.length > 1 ? 'Average' : undefined,
+
     },
     tanks: tanks.length > 0 ? tanks : undefined,
   };

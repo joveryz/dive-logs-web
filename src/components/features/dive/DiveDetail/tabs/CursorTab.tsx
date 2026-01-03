@@ -14,18 +14,22 @@ const CURSOR_DATA_DISPLAY_CONFIG: Record<string, {
 }> = {
   depth: { label: 'Depth', color: '#f59e0b', unit: 'm', group: 'environment' },
   temperature: { label: 'Temperature', color: '#06b6d4', unit: '°C', group: 'environment' },
+  heartRate: { label: 'Heart Rate', color: '#f472b6', unit: 'bpm', group: 'environment' },
   ascentRate: { label: 'Ascent Rate', color: '#22c55e', unit: 'm/s', group: 'environment' },
   ndl: { label: 'NDL', color: '#10b981', unit: 'min', group: 'decompression' },
   gf99: { label: 'GF99', color: '#8b5cf6', unit: '%', group: 'decompression' },
   cns: { label: 'CNS', color: '#ec4899', unit: '%', group: 'decompression' },
   deco: { label: 'Deco', color: '#f43f5e', unit: 'min', group: 'decompression' },
   tts: { label: 'TTS', color: '#fb923c', unit: 'min', group: 'decompression' },
+  ceiling: { label: 'Ceiling', color: '#f97316', unit: 'm', group: 'decompression' },
   gasDensity: { label: 'Gas Density', color: '#14b8a6', unit: 'g/L', group: 'gas' },
   ppO2: { label: 'ppO₂', color: '#3b82f6', unit: 'ATA', group: 'gas' },
   ppHe: { label: 'ppHe', color: '#a855f7', unit: 'ATA', group: 'gas' },
   ppN2: { label: 'ppN₂', color: '#6366f1', unit: 'ATA', group: 'gas' },
   tank1Pressure: { label: 'Tank 1', color: '#ef4444', unit: 'Bar', group: 'tank' },
   tank2Pressure: { label: 'Tank 2', color: '#f97316', unit: 'Bar', group: 'tank' },
+  tank3Pressure: { label: 'Tank 3', color: '#eab308', unit: 'Bar', group: 'tank' },
+  tank4Pressure: { label: 'Tank 4', color: '#84cc16', unit: 'Bar', group: 'tank' },
   sac: { label: 'SAC', color: '#84cc16', unit: 'bar/min', group: 'tank' },
 };
 
@@ -96,55 +100,72 @@ export const CursorTab = memo(function CursorTab({ cursorData }: CursorTabProps)
     dataItems.filter(item => keys.includes(item.key));
 
   return (
-    <div className="grid grid-cols-12 gap-4">
+    <div className="space-y-4">
       {/* 时间显示 - 横跨整行 */}
-      <div className="col-span-12">
-        <Section>
-          <div className="bg-dive-card/60 rounded-lg p-3 text-center">
-            <div className="text-xs text-dive-text-muted uppercase">Time</div>
-            <div className="text-xl font-bold text-cyan-400">
-              {formatTimeForChart(cursorData.time)}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="bg-dive-card/60 rounded-lg p-3 text-center">
+          <div className="text-xs text-dive-text-muted uppercase">Time</div>
+          <div className="text-xl font-bold text-cyan-400">
+            {formatTimeForChart(cursorData.time)}
+          </div>
+        </div>
+        {filterItemsByKeys(['depth']).map(item => (
+          <div key={item.key} className="bg-dive-card/60 rounded-lg p-3 text-center">
+            <div className="text-xs text-dive-text-muted uppercase">{item.label}</div>
+            <div className="text-xl font-bold" style={{ color: item.color }}>
+              {item.value} {item.unit}
             </div>
           </div>
-        </Section>
+        ))}
+        {filterItemsByKeys(['temperature']).map(item => (
+          <div key={item.key} className="bg-dive-card/60 rounded-lg p-3 text-center">
+            <div className="text-xs text-dive-text-muted uppercase">{item.label}</div>
+            <div className="text-xl font-bold" style={{ color: item.color }}>
+              {item.value} {item.unit}
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* 左侧数据 */}
-      <div className="col-span-6 space-y-4">
-        <Section title="Depth & Environment">
-          <div className="grid grid-cols-2 gap-3">
-            {filterItemsByKeys(['depth', 'temperature', 'ascentRate']).map(item => (
-              <DataValue key={item.key} item={item} />
-            ))}
-          </div>
-        </Section>
+      {/* 主要内容区域 */}
+      <div className="grid grid-cols-12 gap-4">
+        {/* 左侧数据 */}
+        <div className="col-span-6 space-y-4">
+          <Section title="Environment">
+            <div className="grid grid-cols-3 gap-3">
+              {filterItemsByKeys(['ascentRate', 'heartRate']).map(item => (
+                <DataValue key={item.key} item={item} />
+              ))}
+            </div>
+          </Section>
 
-        <Section title="Decompression">
-          <div className="grid grid-cols-2 gap-3">
-            {filterItemsByKeys(['ndl', 'gf99', 'cns', 'deco', 'tts']).map(item => (
-              <DataValue key={item.key} item={item} />
-            ))}
-          </div>
-        </Section>
-      </div>
+          <Section title="Decompression">
+            <div className="grid grid-cols-3 gap-3">
+              {filterItemsByKeys(['ndl', 'gf99', 'cns', 'deco', 'tts', 'ceiling']).map(item => (
+                <DataValue key={item.key} item={item} />
+              ))}
+            </div>
+          </Section>
+        </div>
 
-      {/* 右侧数据 */}
-      <div className="col-span-6 space-y-4">
-        <Section title="Gas & Pressure">
-          <div className="grid grid-cols-2 gap-3">
-            {filterItemsByKeys(['ppO2', 'ppN2', 'ppHe', 'gasDensity']).map(item => (
-              <DataValue key={item.key} item={item} />
-            ))}
-          </div>
-        </Section>
+        {/* 右侧数据 */}
+        <div className="col-span-6 space-y-4">
+          <Section title="Gas & Pressure">
+            <div className="grid grid-cols-3 gap-3">
+              {filterItemsByKeys(['ppO2', 'ppN2', 'ppHe', 'gasDensity']).map(item => (
+                <DataValue key={item.key} item={item} />
+              ))}
+            </div>
+          </Section>
 
-        <Section title="Tank & Consumption">
-          <div className="grid grid-cols-2 gap-3">
-            {filterItemsByKeys(['tank1Pressure', 'tank2Pressure', 'sac']).map(item => (
-              <DataValue key={item.key} item={item} />
-            ))}
-          </div>
-        </Section>
+          <Section title="Tank & Consumption">
+            <div className="grid grid-cols-3 gap-3">
+              {filterItemsByKeys(['tank1Pressure', 'tank2Pressure', 'tank3Pressure', 'tank4Pressure', 'sac']).map(item => (
+                <DataValue key={item.key} item={item} />
+              ))}
+            </div>
+          </Section>
+        </div>
       </div>
     </div>
   );
