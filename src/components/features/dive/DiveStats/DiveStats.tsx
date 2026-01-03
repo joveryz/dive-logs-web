@@ -20,11 +20,11 @@ const StatsRow = memo(function StatsRow({
 }) {
   return (
     <tr className={isHighlight ? 'bg-dive-card/30' : ''}>
-      <td className="px-4 py-2 text-dive-text-secondary font-medium">{label}</td>
+      <td className="px-4 py-2 text-dive-text-secondary font-medium whitespace-nowrap">{label}</td>
       {values.map((value, idx) => (
         <td 
           key={idx} 
-          className={`px-4 py-2 text-center ${idx === 0 ? 'text-cyan-400 font-medium' : 'text-dive-text'}`}
+          className={`px-4 py-2 text-center whitespace-nowrap ${idx === 0 ? 'text-cyan-400 font-medium' : 'text-dive-text'}`}
         >
           {value}
         </td>
@@ -71,11 +71,11 @@ export const DiveStats = memo(function DiveStats({ dives }: DiveStatsProps) {
         <table className="w-full text-sm">
           <thead className="sticky top-0 bg-dive-card">
             <tr>
-              <th className="px-4 py-2 text-left text-dive-text-secondary font-medium">Statistic</th>
+              <th className="px-4 py-2 text-left text-dive-text-secondary font-medium whitespace-nowrap">Statistic</th>
               {categories.map((cat, idx) => (
                 <th 
                   key={idx} 
-                  className={`px-4 py-2 text-center font-medium ${idx === 0 ? 'text-cyan-400' : 'text-dive-text'}`}
+                  className={`px-4 py-2 text-center font-medium whitespace-nowrap ${idx === 0 ? 'text-cyan-400' : 'text-dive-text'}`}
                 >
                   {idx === 0 ? 'All' : cat.name}
                 </th>
