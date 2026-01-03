@@ -307,6 +307,7 @@ export interface ComputerInfo {
     cnsEnd?: number;
     decoModel?: string;
     endSurfaceGF?: number;
+    gf99Max?: number;
     conservatism?: string;
   };
 }

@@ -19,22 +19,17 @@ export const ComputerTab = memo(function ComputerTab({ dive }: ComputerTabProps)
 
   return (
     <div className="grid grid-cols-12 gap-4">
-      {/* 左侧：电脑与数据格式 */}
+      {/* 左侧：电脑与电池 */}
       <div className="col-span-6 space-y-4">
         <Section title={uiLabels.sectionComputer}>
           <div className="grid grid-cols-2 gap-3">
             <InfoCard label={uiLabels.model} value={dive.diveComputer.model} />
             <InfoCard label={uiLabels.serial} value={dive.diveComputer.serial || '-'} />
           </div>
-          <InfoCard label={uiLabels.firmware} value={computerInfo?.firmwareVersion || '-'} />
-        </Section>
-
-        <Section title={uiLabels.sectionDataFormat}>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.format} value={computerInfo?.dataFormat || '-'} />
-            <InfoCard label={uiLabels.logVersion} value={computerInfo?.logVersion || '-'} />
+            <InfoCard label={uiLabels.firmware} value={computerInfo?.firmwareVersion || '-'} />
+            <InfoCard label={uiLabels.dataFormat} value={computerInfo?.dataFormat || '-'} />
           </div>
-          <InfoCard label={uiLabels.dbVersion} value={computerInfo?.dbVersion || '-'} />
         </Section>
 
         <Section title={uiLabels.sectionBattery}>
@@ -70,7 +65,7 @@ export const ComputerTab = memo(function ComputerTab({ dive }: ComputerTabProps)
             <InfoCard label={uiLabels.cnsEnd} value={formatNumber(deco?.cnsEnd, '%')} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.gf99Max} value={formatNumber(deco?.endSurfaceGF, '%')} />
+            <InfoCard label={uiLabels.gf99Max} value={formatNumber(deco?.gf99Max, '%')} />
             <InfoCard label={uiLabels.surfaceGFEnd} value={formatNumber(deco?.endSurfaceGF, '%')} />
           </div>
         </Section>

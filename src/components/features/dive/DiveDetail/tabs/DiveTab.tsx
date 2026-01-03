@@ -145,7 +145,7 @@ export const DiveTab = memo(function DiveTab({ dive, isPersonalBest }: DiveTabPr
             <InfoCard label={uiLabels.cnsEnd} value={formatNumber(decoSettings?.cnsEnd, '%', 'cns')} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <InfoCard label={uiLabels.gf99Max} value={formatNumber(decoSettings?.endSurfaceGF, '%', 'gf99')} />
+            <InfoCard label={uiLabels.gf99Max} value={formatNumber(decoSettings?.gf99Max, '%', 'gf99')} />
             <InfoCard label={uiLabels.surfaceGFEnd} value={formatNumber(decoSettings?.endSurfaceGF, '%', 'gf99')} />
           </div>
         </Section>

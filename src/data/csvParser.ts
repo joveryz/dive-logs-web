@@ -34,7 +34,7 @@ interface SummaryRow {
   DecoModel: string;
   GradientFactorLow: string;
   GradientFactorHigh: string;
-  GradientFactor99Max: string;
+  GradientFactorSurfaceEnd: string;
   CNSPercentPreDive: string;
   CNSPercentPostDive: string;
   ComputerModel: string;
@@ -530,7 +530,8 @@ export function parseDivesFromCSV(): Dive[] {
           cnsStart: parseNum(summary.CNSPercentPreDive),
           cnsEnd: parseNum(summary.CNSPercentPostDive),
           decoModel: summary.DecoModel || undefined,
-          endSurfaceGF: parseNum(summary.GradientFactor99Max),
+          endSurfaceGF: parseNum(summary.GradientFactorSurfaceEnd),
+          gf99Max: profile.reduce((max, p) => p.gf99 !== undefined && p.gf99 > max ? p.gf99 : max, 0) || undefined,
           conservatism: summary.GradientFactorLow && summary.GradientFactorHigh 
             ? `GF ${summary.GradientFactorLow}/${summary.GradientFactorHigh}`
             : undefined,
