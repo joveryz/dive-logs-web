@@ -1,6 +1,6 @@
 import { useMemo, useState, useCallback, useRef, useEffect } from 'react';
 import { DiveProfilePoint, DiveType } from '@/types';
-import { ChartSeriesConfig, DEFAULT_CHART_SERIES } from '@/constants';
+import { ChartSeriesConfig, DEFAULT_CHART_SERIES} from '@/constants';
 import { calculateDynamicRange } from '@/utils/chart';
 
 /**
@@ -14,8 +14,8 @@ export interface EffectiveSeriesConfig extends ChartSeriesConfig {
 }
 
 // 默认系列 keys - 根据潜水类型
-const FREEDIVE_DEFAULT_KEYS = ['depth', 'ascentRate', 'temperature'];
-const OCREC_DEFAULT_KEYS = ['depth', 'ascentRate', 'temperature', 'ndl', 'gf99', 'tank1Pressure', 'sac'];
+const FREEDIVE_DEFAULT_KEYS = ['depth', 'ascentRate', 'heartRate', 'temperature'];
+const OCREC_DEFAULT_KEYS = ['depth', 'ascentRate', 'heartRate', 'temperature', 'ndl', 'gf99', 'tank1Pressure', 'sac'];
 
 function getDefaultVisibleKeys(diveType?: DiveType): string[] {
   if (diveType === 'FreeDive') {
@@ -35,9 +35,20 @@ export function useDiveChartData(profile: DiveProfilePoint[], diveType?: DiveTyp
     Record<string, boolean>
   >({});
 
+  // 判断是否为 FreeDive 模式
+  const isFreeDive = diveType === 'FreeDive';
+
+  // 根据潜水类型获取可用的系列配置
+  const availableSeries = useMemo(() => {
+    if (isFreeDive) {
+      return DEFAULT_CHART_SERIES.filter(s => FREEDIVE_DEFAULT_KEYS.includes(s.key));
+    }
+    return DEFAULT_CHART_SERIES;
+  }, [isFreeDive]);
+
   // 根据数据动态计算每个系列的范围
   const seriesConfigs = useMemo<EffectiveSeriesConfig[]>(() => {
-    return DEFAULT_CHART_SERIES.map((config) => {
+    return availableSeries.map((config) => {
       if (config.key === 'depth') return { ...config, hasData: true };
 
       // 提取该系列的所有值
@@ -55,7 +66,7 @@ export function useDiveChartData(profile: DiveProfilePoint[], diveType?: DiveTyp
         hasData,
       };
     });
-  }, [profile]);
+  }, [profile, availableSeries]);
 
   // 合并动态配置和可见性覆盖
   const effectiveSeriesConfigs = useMemo<EffectiveSeriesConfig[]>(() => {
@@ -70,11 +81,11 @@ export function useDiveChartData(profile: DiveProfilePoint[], diveType?: DiveTyp
     setVisibilityOverrides((prev) => {
       const currentVisible =
         prev[key] ??
-        DEFAULT_CHART_SERIES.find((s) => s.key === key)?.visible ??
+        availableSeries.find((s) => s.key === key)?.visible ??
         true;
       return { ...prev, [key]: !currentVisible };
     });
-  }, []);
+  }, [availableSeries]);
 
   // 获取当前潜水类型的默认系列
   const defaultVisibleKeys = useMemo(() => getDefaultVisibleKeys(diveType), [diveType]);
@@ -83,34 +94,34 @@ export function useDiveChartData(profile: DiveProfilePoint[], diveType?: DiveTyp
   const resetToDefault = useCallback(() => {
     setVisibilityOverrides((prev) => {
       const newOverrides: Record<string, boolean> = { ...prev };
-      DEFAULT_CHART_SERIES.forEach((s) => {
+      availableSeries.forEach((s) => {
         newOverrides[s.key] = defaultVisibleKeys.includes(s.key);
       });
       return newOverrides;
     });
-  }, [defaultVisibleKeys]);
+  }, [defaultVisibleKeys, availableSeries]);
 
   // 显示所有系列
   const showAllSeries = useCallback(() => {
     setVisibilityOverrides((prev) => {
       const newOverrides: Record<string, boolean> = { ...prev };
-      DEFAULT_CHART_SERIES.forEach((s) => {
+      availableSeries.forEach((s) => {
         newOverrides[s.key] = true; // 所有系列都可见
       });
       return newOverrides;
     });
-  }, []);
+  }, [availableSeries]);
 
   // 隐藏所有系列
   const hideAllSeries = useCallback(() => {
     setVisibilityOverrides((prev) => {
       const newOverrides: Record<string, boolean> = { ...prev };
-      DEFAULT_CHART_SERIES.forEach((s) => {
+      availableSeries.forEach((s) => {
         newOverrides[s.key] = false; // 所有系列都隐藏
       });
       return newOverrides;
     });
-  }, []);
+  }, [availableSeries]);
 
   // 准备图表数据 - 归一化所有非depth数据到0-100范围
   // 注意：只依赖 seriesConfigs (基于 profile 计算的范围)，不依赖 visibilityOverrides

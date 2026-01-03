@@ -22,8 +22,8 @@ export const DEFAULT_CHART_SERIES: ChartSeriesConfig[] = [
   // 基础数据
   { key: 'depth', name: fieldLabels.depth, color: '#ffffff', type: 'line', visible: true, unit: 'm' },
   { key: 'ascentRate', name: fieldLabels.ascentRate, color: '#22c55e', type: 'bar', visible: true, unit: 'm/s' },
+  { key: 'heartRate', name: fieldLabels.heartRate, color: '#f472b6', type: 'line', visible: true, unit: 'bpm' },
   { key: 'temperature', name: fieldLabels.temperature, color: '#06b6d4', type: 'line', visible: true, unit: '°C' },
-  { key: 'heartRate', name: fieldLabels.heartRate, color: '#f472b6', type: 'line', visible: false, unit: 'bpm' },
   // 减压相关
   { key: 'ndl', name: fieldLabels.ndl, color: '#ec4899', type: 'line', visible: false, unit: 'min' },
   { key: 'gf99', name: fieldLabels.gf99, color: '#f43f5e', type: 'line', visible: false, unit: '%' },
