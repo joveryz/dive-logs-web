@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Line, Area } from 'recharts';
-import { EffectiveSeriesConfig } from '@/hooks/useDiveChartData';
+import type { EffectiveSeriesConfig } from '@/hooks';
 import { CHART_COLORS, CHART_CONFIG } from '@/constants';
 
 interface UseChartSeriesProps {

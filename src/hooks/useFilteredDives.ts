@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useDiveStore } from '@/store';
+import { useDiveStore, selectDives, selectSearchQuery, selectFilterValidDivesOnly } from '@/store';
 import { Dive } from '@/types';
 
 /**
@@ -35,9 +35,9 @@ export function getFreeDivePBId(dives: Dive[]): string | null {
  * 可选过滤无效潜水
  */
 export function useFilteredDives() {
-  const dives = useDiveStore((state) => state.dives);
-  const searchQuery = useDiveStore((state) => state.searchQuery);
-  const filterValidDivesOnly = useDiveStore((state) => state.filterValidDivesOnly);
+  const dives = useDiveStore(selectDives);
+  const searchQuery = useDiveStore(selectSearchQuery);
+  const filterValidDivesOnly = useDiveStore(selectFilterValidDivesOnly);
   
   return useMemo(() => {
     let result = dives;

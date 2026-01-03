@@ -2,14 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { ErrorBoundary, TabButton } from '@/components/common';
 import { DiveList, DiveDetail } from '@/components/features';
 import { uiLabels } from '@/constants';
-import { useDiveStore } from '@/store';
+import { useDiveStore, selectSelectedDiveId } from '@/store';
 
 /**
  * 移动端布局 - Tab 切换模式
  */
 export function MobileLayout() {
   const [activeTab, setActiveTab] = useState<'list' | 'detail'>('list');
-  const selectedDiveId = useDiveStore((state) => state.selectedDiveId);
+  const selectedDiveId = useDiveStore(selectSelectedDiveId);
   const prevSelectedDiveId = useRef(selectedDiveId);
   
   // 用户选中新的潜水时切换到详情 Tab

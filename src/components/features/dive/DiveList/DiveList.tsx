@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef } from 'react';
-import { useDiveStore } from '@/store';
+import { useDiveStore, selectDives } from '@/store';
 import { useFilteredDives, getFreeDivePBId } from '@/hooks';
 import { SearchInput, DiveTypeBadge } from '@/components/common';
 import { formatDuration, formatDepth } from '@/utils';
@@ -154,7 +154,7 @@ export function DiveList() {
   }, [filteredDives, sortField, sortDirection]);
 
   // FreeDive PB (Personal Best) - 深度最深的 FreeDive
-  const allDives = useDiveStore((state) => state.dives);
+  const allDives = useDiveStore(selectDives);
   const freeDivePBId = useMemo(() => {
     return getFreeDivePBId(allDives);
   }, [allDives]);

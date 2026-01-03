@@ -13,10 +13,10 @@ import { formatTimeForChart } from '@/utils';
 import { calculateNiceYMax, formatYAxisTick } from '@/utils/chart';
 import { CHART_COLORS, CHART_CONFIG } from '@/constants';
 import {
-  useDiveChartData,
+  useChartData,
   useContainerSize,
   useSeriesHover,
-} from '@/hooks/useDiveChartData';
+} from '@/hooks';
 import { ChartTooltip } from './ChartTooltip';
 import { ChartLegend } from './ChartLegend';
 import { useChartSeries } from './useChartSeries';
@@ -35,7 +35,7 @@ interface DiveChartProps {
 export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveChartProps) {
   const { containerRef, containerSize } = useContainerSize();
   const { chartData, seriesConfigs, toggleSeriesVisibility, resetToDefault, showAllSeries, hideAllSeries } =
-    useDiveChartData(profile, diveType);
+    useChartData(profile, diveType);
   const {
     hoveredSeries,
     handleSeriesMouseEnter,

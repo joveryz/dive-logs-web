@@ -2,13 +2,13 @@
 export { useFilteredDives, getFreeDivePBId } from './useFilteredDives';
 export { useSelectedDive } from './useSelectedDive';
 
-// Chart hooks
+// Chart hooks (unified API)
 export {
-  useDiveChartData,
+  useChartData,
   useContainerSize,
   useSeriesHover,
   type EffectiveSeriesConfig,
-} from './useDiveChartData';
+} from './useChartData';
 
 // Stats hooks
 export {

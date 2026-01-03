@@ -1,3 +1,4 @@
 export * from './app';
-export * from './chart';
+export * from './chartKeys';
+export * from './chartConfig';
 export * from './labels';

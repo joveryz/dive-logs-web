@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { EffectiveSeriesConfig } from '@/hooks/useDiveChartData';
+import type { EffectiveSeriesConfig } from '@/hooks';
 
 interface ChartLegendProps {
   seriesConfigs: EffectiveSeriesConfig[];

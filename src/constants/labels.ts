@@ -1,74 +1,7 @@
 /**
- * CSV Header 到 UI 显示名称的映射
- * 仅包含 Shearwater CSV 导出文件中的字段
+ * UI 标签常量
+ * @module constants/labels
  */
-
-// ============================================================================
-// Summary CSV Header 映射
-// ============================================================================
-
-export const summaryHeaderLabels: Record<string, string> = {
-  Number: 'Dive #',
-  Mode: 'Dive Type',
-  StartDate: 'Start Time',
-  EndDate: 'End Time',
-  DurationInSeconds: 'Duration',
-  DepthInMetersMax: 'Max Depth',
-  DepthInMetersAvg: 'Avg Depth',
-  Buddy: 'Buddy',
-  Location: 'Location',
-  Site: 'Site',
-  Note: 'Notes',
-  TemperatureInCelsiusMax: 'Max Temp',
-  TemperatureInCelsiusMin: 'Min Temp',
-  TemperatureInCelsiusAvg: 'Avg Temp',
-  Salinity: 'Salinity',
-  SurfaceIntervalInSeconds: 'Surface Interval',
-  SurfacePressureInMillibarPreDive: 'Surface Pressure (Pre)',
-  SurfacePressureInMillibarPostDive: 'Surface Pressure (Post)',
-  DecoModel: 'Deco Model',
-  GradientFactorLow: 'GF Low',
-  GradientFactorHigh: 'GF High',
-  GradientFactor99Max: 'GF99 Max',
-  CentralNervousSystemPercentPreDive: 'CNS (Pre)',
-  CentralNervousSystemPercentPostDive: 'CNS (Post)',
-  ComputerModel: 'Computer Model',
-  ComputerSerialNumber: 'Serial Number',
-  ComputerFirmwareVersion: 'Firmware Version',
-  BatteryType: 'Battery Type',
-  BatteryVoltagePreDive: 'Battery (Pre)',
-  BatteryVoltagePostDive: 'Battery (Post)',
-  SampleRateInMs: 'Sample Rate',
-  DataFormat: 'Data Format',
-};
-
-// ============================================================================
-// Sample CSV Header 映射
-// ============================================================================
-
-export const sampleHeaderLabels: Record<string, string> = {
-  Number: 'Dive #',
-  ElapsedTimeInSeconds: 'Time',
-  Depth: 'Depth',
-  Temperature: 'Temperature',
-  HeartRate: 'Heart Rate',
-  BatteryVoltage: 'Battery',
-  TimeToSurfaceInMinutes: 'TTS',
-  TimeToSurfaceInMinutesAtPlusFive: 'TTS +5m',
-  NoDecoLimit: 'NDL',
-  CentralNervousSystemPercent: 'CNS',
-  GasDensity: 'Gas Density',
-  GradientFactor99: 'GF99',
-  PPO2: 'PPO₂',
-  PPN2: 'PPN₂',
-  PPHe: 'PPHe',
-  Tank1PressureInBar: 'Tank 1',
-  Tank2PressureInBar: 'Tank 2',
-  Tank3PressureInBar: 'Tank 3',
-  Tank4PressureInBar: 'Tank 4',
-  SurfaceAirConsumptionInBar: 'SAC',
-  GasTimeRemainingInMinutes: 'GTR',
-};
 
 // ============================================================================
 // 图表系列标签（基于 Sample 字段 + 派生字段）

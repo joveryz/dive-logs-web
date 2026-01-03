@@ -1,0 +1,264 @@
+/**
+ * 图表数据 Hook - 统一入口
+ * 组合多个模块化 hooks 提供完整的图表数据管理功能
+ * @module hooks/useChartData
+ */
+
+import { useMemo, useState, useCallback, useRef, useEffect } from 'react';
+import type { DiveProfilePoint, DiveType } from '@/types';
+import type { ChartSeriesConfig } from '@/constants';
+import { DEFAULT_CHART_SERIES } from '@/constants';
+import { calculateDynamicRange, normalizeValue } from '@/utils/chart';
+import {
+  FREEDIVE_DEFAULT_VISIBLE_KEYS,
+  SCUBA_DEFAULT_VISIBLE_KEYS,
+  CHART_SERIES_KEYS,
+  type ChartSeriesKey,
+} from '@/constants/chartKeys';
+
+// ============================================================================
+// 类型定义
+// ============================================================================
+
+/**
+ * 带计算范围的系列配置
+ */
+export interface EffectiveSeriesConfig extends ChartSeriesConfig {
+  minValue?: number;
+  maxValue?: number;
+  hasData?: boolean;
+}
+
+/**
+ * 归一化后的图表数据点
+ */
+export type NormalizedChartData = Record<string, number>;
+
+/**
+ * 容器尺寸
+ */
+export interface ContainerSize {
+  width: number;
+  height: number;
+}
+
+// ============================================================================
+// 辅助函数
+// ============================================================================
+
+/**
+ * 获取默认可见系列
+ */
+function getDefaultVisibleKeys(diveType?: DiveType): readonly ChartSeriesKey[] {
+  return diveType === 'FreeDive' ? FREEDIVE_DEFAULT_VISIBLE_KEYS : SCUBA_DEFAULT_VISIBLE_KEYS;
+}
+
+/**
+ * 获取可用系列
+ */
+function getAvailableSeries(diveType?: DiveType): ChartSeriesConfig[] {
+  if (diveType === 'FreeDive') {
+    return DEFAULT_CHART_SERIES.filter(s =>
+      (FREEDIVE_DEFAULT_VISIBLE_KEYS as readonly string[]).includes(s.key)
+    );
+  }
+  return DEFAULT_CHART_SERIES;
+}
+
+/**
+ * 计算系列配置及数据范围
+ */
+function computeSeriesConfigs(
+  profile: DiveProfilePoint[],
+  availableSeries: ChartSeriesConfig[]
+): EffectiveSeriesConfig[] {
+  return availableSeries.map((config) => {
+    if (config.key === CHART_SERIES_KEYS.DEPTH) {
+      return { ...config, hasData: true };
+    }
+
+    const values = profile
+      .map((p) => p[config.key as keyof DiveProfilePoint] as number | undefined)
+      .filter((v): v is number => v !== undefined);
+
+    const hasData = values.length > 0;
+    const { min, max } = calculateDynamicRange(values, config.key);
+
+    return { ...config, minValue: min, maxValue: max, hasData };
+  });
+}
+
+/**
+ * 归一化单个数据点
+ */
+function normalizeDataPoint(
+  point: DiveProfilePoint,
+  seriesConfigs: EffectiveSeriesConfig[]
+): NormalizedChartData {
+  const normalized: NormalizedChartData = {
+    time: point.time,
+    depth: point.depth,
+  };
+
+  for (const config of seriesConfigs) {
+    if (config.key === CHART_SERIES_KEYS.DEPTH) continue;
+
+    const value = point[config.key as keyof DiveProfilePoint] as number | undefined;
+    if (value === undefined || config.minValue === undefined || config.maxValue === undefined) {
+      continue;
+    }
+
+    if (config.key === CHART_SERIES_KEYS.ASCENT_RATE) {
+      const maxAbs = config.maxValue;
+      const scale = 45;
+      normalized['ascentRate_up'] = value > 0 ? 50 + (value / maxAbs) * scale : 50;
+      normalized['ascentRate_down'] = value < 0 ? 50 - (Math.abs(value) / maxAbs) * scale : 50;
+      normalized[`${config.key}_normalized`] = 50;
+    } else {
+      normalized[`${config.key}_normalized`] = normalizeValue(value, config.minValue, config.maxValue);
+    }
+
+    normalized[config.key] = value;
+  }
+
+  return normalized;
+}
+
+// ============================================================================
+// Hooks
+// ============================================================================
+
+/**
+ * 图表数据处理主 Hook
+ */
+export function useChartData(profile: DiveProfilePoint[], diveType?: DiveType) {
+  const [visibilityOverrides, setVisibilityOverrides] = useState<Record<string, boolean>>({});
+
+  const availableSeries = useMemo(() => getAvailableSeries(diveType), [diveType]);
+  const defaultVisibleKeys = useMemo(() => getDefaultVisibleKeys(diveType), [diveType]);
+
+  // 计算系列配置
+  const seriesConfigs = useMemo<EffectiveSeriesConfig[]>(
+    () => computeSeriesConfigs(profile, availableSeries),
+    [profile, availableSeries]
+  );
+
+  // 合并可见性
+  const effectiveSeriesConfigs = useMemo<EffectiveSeriesConfig[]>(
+    () => seriesConfigs.map((config) => ({
+      ...config,
+      visible: visibilityOverrides[config.key] ?? config.visible,
+    })),
+    [seriesConfigs, visibilityOverrides]
+  );
+
+  // 归一化数据
+  const chartData = useMemo<NormalizedChartData[]>(
+    () => profile.map((point) => normalizeDataPoint(point, seriesConfigs)),
+    [profile, seriesConfigs]
+  );
+
+  // 可见性操作
+  const toggleSeriesVisibility = useCallback((key: string) => {
+    setVisibilityOverrides((prev) => {
+      const current = prev[key] ?? availableSeries.find((s) => s.key === key)?.visible ?? true;
+      return { ...prev, [key]: !current };
+    });
+  }, [availableSeries]);
+
+  const resetToDefault = useCallback(() => {
+    setVisibilityOverrides(() => {
+      const overrides: Record<string, boolean> = {};
+      availableSeries.forEach((s) => {
+        overrides[s.key] = (defaultVisibleKeys as readonly string[]).includes(s.key);
+      });
+      return overrides;
+    });
+  }, [availableSeries, defaultVisibleKeys]);
+
+  const showAllSeries = useCallback(() => {
+    setVisibilityOverrides(() => {
+      const overrides: Record<string, boolean> = {};
+      availableSeries.forEach((s) => { overrides[s.key] = true; });
+      return overrides;
+    });
+  }, [availableSeries]);
+
+  const hideAllSeries = useCallback(() => {
+    setVisibilityOverrides(() => {
+      const overrides: Record<string, boolean> = {};
+      availableSeries.forEach((s) => { overrides[s.key] = false; });
+      return overrides;
+    });
+  }, [availableSeries]);
+
+  return {
+    chartData,
+    seriesConfigs: effectiveSeriesConfigs,
+    toggleSeriesVisibility,
+    resetToDefault,
+    showAllSeries,
+    hideAllSeries,
+  };
+}
+
+/**
+ * 容器尺寸监听 Hook
+ */
+export function useContainerSize(threshold: number = 1) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerSize, setContainerSize] = useState<ContainerSize>({ width: 0, height: 0 });
+  const rafIdRef = useRef<number | null>(null);
+  const lastSizeRef = useRef<ContainerSize>({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+
+      rafIdRef.current = requestAnimationFrame(() => {
+        for (const entry of entries) {
+          const { width, height } = entry.contentRect;
+          const { width: lastWidth, height: lastHeight } = lastSizeRef.current;
+          
+          if (Math.abs(width - lastWidth) > threshold || Math.abs(height - lastHeight) > threshold) {
+            lastSizeRef.current = { width, height };
+            setContainerSize({ width, height });
+          }
+        }
+      });
+    });
+
+    resizeObserver.observe(container);
+    return () => {
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+      resizeObserver.disconnect();
+    };
+  }, [threshold]);
+
+  return { containerRef, containerSize };
+}
+
+/**
+ * 系列悬停状态 Hook
+ */
+export function useSeriesHover() {
+  const [hoveredSeries, setHoveredSeries] = useState<string | null>(null);
+
+  const handleSeriesMouseEnter = useCallback((seriesKey: string) => {
+    setHoveredSeries(seriesKey);
+  }, []);
+
+  const handleSeriesMouseLeave = useCallback(() => {
+    setHoveredSeries(null);
+  }, []);
+
+  const getOpacity = useCallback(
+    (seriesKey: string) => hoveredSeries === null ? 1 : (hoveredSeries === seriesKey ? 1 : 0.15),
+    [hoveredSeries]
+  );
+
+  return { hoveredSeries, handleSeriesMouseEnter, handleSeriesMouseLeave, getOpacity };
+}
