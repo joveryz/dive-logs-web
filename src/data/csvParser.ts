@@ -316,6 +316,7 @@ function sampleToProfilePoint(
     time: parseInt(sample.ElapsedTimeInSeconds, 10) || 0,
     depth: Math.round(depth * 10) / 10,
     temperature: parseNum(sample.Temperature),
+    heartRate: parseNum(sample.HeartRate),
     ascentRate: Math.round(ascentRate * 100) / 100,
     ndl: ndl !== undefined && ndl < 100 ? ndl : 99,
     gf99,

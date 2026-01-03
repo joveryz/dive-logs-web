@@ -56,6 +56,8 @@ export interface DiveProfilePoint {
   depth: number;
   /** 温度（摄氏度） */
   temperature?: number;
+  /** 心率（bpm） */
+  heartRate?: number;
   /** 上升/下降速率（米/分钟），负值表示上升 */
   ascentRate?: number;
   /** 免减压极限时间（分钟） */

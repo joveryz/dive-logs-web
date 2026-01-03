@@ -77,6 +77,7 @@ export const sampleHeaderLabels: Record<string, string> = {
 export const chartSeriesLabels: Record<string, string> = {
   depth: 'Depth',
   temperature: 'Temperature',
+  heartRate: 'Heart Rate',
   ndl: 'NDL',
   tts: 'TTS',
   tts5: 'TTS @+5',
