@@ -23,7 +23,11 @@ interface SummaryRow {
   TemperatureInCelsiusMax: string;
   TemperatureInCelsiusMin: string;
   TemperatureInCelsiusAvg: string;
+  HeartRateMax: string;
+  HeartRateMin: string;
+  HeartRateAvg: string;
   Salinity: string;
+  SalinityType: string;
   SurfaceIntervalInSeconds: string;
   SurfacePressureInMillibarPreDive: string;
   SurfacePressureInMillibarPostDive: string;
@@ -41,22 +45,15 @@ interface SummaryRow {
   BatteryVoltagePostDive: string;
   SampleRateInMs: string;
   DataFormat: string;
-  LogVersion: string;
-  DatabaseVersion: string;
-  O2SensorStatusPreDive: string;
-  O2SensorStatusPostDive: string;
-  SensorDisplay: string;
-  PPO2SetpointLowPreDive: string;
-  PPO2SetpointLowPostDive: string;
-  PPO2SetpointHighPreDive: string;
-  PPO2SetpointHighPostDive: string;
-  Features: string;
 }
 
 interface SampleRow {
   Number: string;
   ElapsedTimeInSeconds: string;
   Depth: string;
+  Temperature: string;
+  HeartRate: string;
+  BatteryVoltage: string;
   TimeToSurfaceInMinutes: string;
   TimeToSurfaceInMinutesAtPlusFive: string;
   NoDecoLimit: string;
@@ -65,47 +62,25 @@ interface SampleRow {
   GradientFactor99: string;
   PPO2: string;
   PPN2: string;
-  PPHE: string;
+  PPHe: string;
   Tank1PressureInBar: string;
   Tank2PressureInBar: string;
   Tank3PressureInBar: string;
   Tank4PressureInBar: string;
-  SAC: string;
-  Temperature: string;
-  BatteryVoltage: string;
+  SurfaceAirConsumptionInBar: string;
   GasTimeRemainingInMinutes: string;
 }
 
 interface TankRow {
   Number: string;
-  Tank1Enabled: string;
-  Tank1TransmitterName: string;
-  Tank1TransmitterSerialNumber: string;
-  Tank1AverageDepthInMeters: string;
-  Tank1GasO2Percent: string;
-  Tank1GasHePercent: string;
-  Tank1GasN2Percent: string;
-  Tank2Enabled: string;
-  Tank2TransmitterName: string;
-  Tank2TransmitterSerialNumber: string;
-  Tank2AverageDepthInMeters: string;
-  Tank2GasO2Percent: string;
-  Tank2GasHePercent: string;
-  Tank2GasN2Percent: string;
-  Tank3Enabled: string;
-  Tank3TransmitterName: string;
-  Tank3TransmitterSerialNumber: string;
-  Tank3AverageDepthInMeters: string;
-  Tank3GasO2Percent: string;
-  Tank3GasHePercent: string;
-  Tank3GasN2Percent: string;
-  Tank4Enabled: string;
-  Tank4TransmitterName: string;
-  Tank4TransmitterSerialNumber: string;
-  Tank4AverageDepthInMeters: string;
-  Tank4GasO2Percent: string;
-  Tank4GasHePercent: string;
-  Tank4GasN2Percent: string;
+  Index: string;
+  Enabled: string;
+  TransmitterName: string;
+  TransmitterSerialNumber: string;
+  AverageDepthInMeters: string;
+  GasO2Percent: string;
+  GasHePercent: string;
+  GasN2Percent: string;
 }
 
 /**
@@ -176,7 +151,7 @@ function parseTankPressure(val: string): number | undefined {
 /**
  * 从样本数据中提取气瓶信息
  */
-function extractGasesInfo(samples: SampleRow[], mode: string, avgDepth: number, tankRow?: TankRow): GasesInfo | undefined {
+function extractGasesInfo(samples: SampleRow[], mode: string, avgDepth: number, tankRows: TankRow[]): GasesInfo | undefined {
   if (samples.length === 0) return undefined;
 
   // 辅助函数：提取气瓶压力数据
@@ -201,18 +176,24 @@ function extractGasesInfo(samples: SampleRow[], mode: string, avgDepth: number, 
 
   const tanks: TankInfo[] = [];
 
-  // 从 tankRow 获取 transmitter 序列号
+  // 从 tankRows 中按 Index 获取对应气瓶的 transmitter 序列号
   const getSerial = (serial?: string) => serial && serial !== '000000' ? serial : undefined;
-  const tank1Serial = getSerial(tankRow?.Tank1TransmitterSerialNumber);
-  const tank2Serial = getSerial(tankRow?.Tank2TransmitterSerialNumber);
-  const tank3Serial = getSerial(tankRow?.Tank3TransmitterSerialNumber);
-  const tank4Serial = getSerial(tankRow?.Tank4TransmitterSerialNumber);
+  const getTankRowByIndex = (index: number) => tankRows.find(t => parseInt(t.Index, 10) === index);
+  const tank1Row = getTankRowByIndex(0);
+  const tank2Row = getTankRowByIndex(1);
+  const tank3Row = getTankRowByIndex(2);
+  const tank4Row = getTankRowByIndex(3);
+  const tank1Serial = getSerial(tank1Row?.TransmitterSerialNumber);
+  const tank2Serial = getSerial(tank2Row?.TransmitterSerialNumber);
+  const tank3Serial = getSerial(tank3Row?.TransmitterSerialNumber);
+  const tank4Serial = getSerial(tank4Row?.TransmitterSerialNumber);
 
   // 辅助函数：计算并添加气瓶信息
   const addTankInfo = (
     tankData: { pressure: number; time: number; depth: number }[],
     tankNum: number,
-    serial?: string
+    serial?: string,
+    tankRowData?: TankRow
   ) => {
     if (tankData.length === 0) return;
     
@@ -223,35 +204,41 @@ function extractGasesInfo(samples: SampleRow[], mode: string, avgDepth: number, 
     const endTime = tankData[tankData.length - 1].time;
     const durationMin = (endTime - startTime) / 60;
     
+    // 使用 tankRow 中的平均深度，如果没有则使用传入的 avgDepth
+    const tankAvgDepth = tankRowData ? parseFloat(tankRowData.AverageDepthInMeters) || avgDepth : avgDepth;
+    
     // SAC = (压力变化 / 时间) / 环境压力(ATA)
-    const ambientPressure = avgDepth / 10 + 1;
+    const ambientPressure = tankAvgDepth / 10 + 1;
     const sacCalculated = durationMin > 0 && ambientPressure > 0 
       ? Math.round((pressureChange / durationMin / ambientPressure) * 100) / 100
       : undefined;
+
+    // 获取气体名称
+    const transmitterName = tankRowData?.TransmitterName || `T${tankNum}`;
     
     tanks.push({
-      name: `Tank ${tankNum}`,
+      name: transmitterName,
       startPressure: Math.round(startPressure * 100) / 100,
       endPressure: Math.round(endPressure * 100) / 100,
       pressureChange: Math.round(pressureChange * 100) / 100,
-      transmitter: serial ? `T${tankNum} (${serial})` : `T${tankNum}`,
-      avgDepth: Math.round(avgDepth * 100) / 100,
+      transmitter: serial ? `${transmitterName} (${serial})` : transmitterName,
+      avgDepth: Math.round(tankAvgDepth * 100) / 100,
       sacCalculated,
     });
   };
 
   // 添加各气瓶信息
-  addTankInfo(tank1Data, 1, tank1Serial);
-  addTankInfo(tank2Data, 2, tank2Serial);
-  addTankInfo(tank3Data, 3, tank3Serial);
-  addTankInfo(tank4Data, 4, tank4Serial);
+  addTankInfo(tank1Data, 1, tank1Serial, tank1Row);
+  addTankInfo(tank2Data, 2, tank2Serial, tank2Row);
+  addTankInfo(tank3Data, 3, tank3Serial, tank3Row);
+  addTankInfo(tank4Data, 4, tank4Serial, tank4Row);
 
   // 构建发射器列表
   const transmitters: string[] = [];
-  if (tank1Data.length > 0) transmitters.push(tank1Serial ? `T1 (${tank1Serial})` : 'T1');
-  if (tank2Data.length > 0) transmitters.push(tank2Serial ? `T2 (${tank2Serial})` : 'T2');
-  if (tank3Data.length > 0) transmitters.push(tank3Serial ? `T3 (${tank3Serial})` : 'T3');
-  if (tank4Data.length > 0) transmitters.push(tank4Serial ? `T4 (${tank4Serial})` : 'T4');
+  if (tank1Data.length > 0) transmitters.push(tank1Serial ? `${tank1Row?.TransmitterName || 'T1'} (${tank1Serial})` : tank1Row?.TransmitterName || 'T1');
+  if (tank2Data.length > 0) transmitters.push(tank2Serial ? `${tank2Row?.TransmitterName || 'T2'} (${tank2Serial})` : tank2Row?.TransmitterName || 'T2');
+  if (tank3Data.length > 0) transmitters.push(tank3Serial ? `${tank3Row?.TransmitterName || 'T3'} (${tank3Serial})` : tank3Row?.TransmitterName || 'T3');
+  if (tank4Data.length > 0) transmitters.push(tank4Serial ? `${tank4Row?.TransmitterName || 'T4'} (${tank4Serial})` : tank4Row?.TransmitterName || 'T4');
 
   // 根据模式判断 OC/CC gases
   const isCC = mode.toLowerCase().includes('cc') || mode.toLowerCase().includes('closed');
@@ -335,7 +322,7 @@ function sampleToProfilePoint(
     gasDensity: parseNum(sample.GasDensity),
     ppO2: parseNum(sample.PPO2),
     ppN2: parseNum(sample.PPN2),
-    ppHe: parseNum(sample.PPHE),
+    ppHe: parseNum(sample.PPHe),
     tank1Pressure,
     tank2Pressure,
     tank3Pressure,
@@ -366,10 +353,14 @@ export function parseDivesFromCSV(): Dive[] {
     samplesByDive.get(diveNum)!.push(sample);
   });
 
-  // 按潜水编号索引 tank 数据
-  const tanksByDive = new Map<string, TankRow>();
+  // 按潜水编号分组 tank 数据（新格式：每个气瓶一行）
+  const tanksByDive = new Map<string, TankRow[]>();
   tankRows.forEach((tank) => {
-    tanksByDive.set(tank.Number, tank);
+    const diveNum = tank.Number;
+    if (!tanksByDive.has(diveNum)) {
+      tanksByDive.set(diveNum, []);
+    }
+    tanksByDive.get(diveNum)!.push(tank);
   });
 
   const parseNum = (val: string): number | undefined => {
@@ -385,7 +376,7 @@ export function parseDivesFromCSV(): Dive[] {
   const dives: Dive[] = summaryRows.map((summary) => {
     const diveNum = summary.Number;
     const samples = samplesByDive.get(diveNum) || [];
-    const tankRow = tanksByDive.get(diveNum);
+    const diveTankRows = tanksByDive.get(diveNum) || [];
     const sampleRateMs = parseIntNum(summary.SampleRateInMs) || 10000;
     
     // 生成 profile 数据
@@ -523,8 +514,6 @@ export function parseDivesFromCSV(): Dive[] {
         serial: summary.ComputerSerialNumber || '',
         firmwareVersion: summary.ComputerFirmwareVersion || undefined,
         dataFormat: summary.DataFormat || undefined,
-        logVersion: summary.LogVersion || undefined,
-        dbVersion: summary.DatabaseVersion || undefined,
         battery: {
           type: summary.BatteryType || undefined,
           vStart: parseNum(summary.BatteryVoltagePreDive),
@@ -557,7 +546,7 @@ export function parseDivesFromCSV(): Dive[] {
       },
       
       // 气体信息
-      gasesInfo: extractGasesInfo(samples, summary.Mode, avgDepth, tankRow),
+      gasesInfo: extractGasesInfo(samples, summary.Mode, avgDepth, diveTankRows),
     };
   });
 
