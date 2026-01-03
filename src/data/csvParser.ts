@@ -4,9 +4,9 @@
 
 import { Dive, DiveProfilePoint, GasesInfo, TankInfo } from '@/types';
 import { mapDiveMode } from '@/constants/labels';
-import summaryCSV from './shearwater-export-summary.csv?raw';
-import samplesCSV from './shearwater-export-samples.csv?raw';
-import tanksCSV from './shearwater-export-tanks.csv?raw';
+import summariesCSV from './general-dive-log-summaries.csv?raw';
+import samplesCSV from './general-dive-log-samples.csv?raw';
+import tanksCSV from './general-dive-log-tanks.csv?raw';
 
 interface SummaryRow {
   Number: string;
@@ -363,7 +363,7 @@ function sampleToProfilePoint(
  * 解析 CSV 文件并生成潜水数据
  */
 export function parseDivesFromCSV(): Dive[] {
-  const summaryRows = parseCSV<SummaryRow>(summaryCSV);
+  const summaryRows = parseCSV<SummaryRow>(summariesCSV);
   const sampleRows = parseCSV<SampleRow>(samplesCSV);
   const tankRows = parseCSV<TankRow>(tanksCSV);
 
