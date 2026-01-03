@@ -11,7 +11,7 @@ import { Dive } from '@/types';
  */
 function isValidDive(dive: Dive): boolean {
   if (dive.diveNumber > 1000) return false;
-  if (dive.diveType === 'FreeDive' && dive.maxDepth < 5) return false;
+  if (dive.diveType === 'FreeDive' && dive.maxDepth < 6) return false;
   if (dive.diveType !== 'FreeDive' && dive.maxDepth < 10) return false;
   if (dive.diveType !== 'FreeDive' && dive.duration < 15 * 60) return false;
   return true;

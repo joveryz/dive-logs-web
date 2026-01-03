@@ -69,15 +69,26 @@ export const DiveTab = memo(function DiveTab({ dive, isPersonalBest }: DiveTabPr
           {/* 升降速率 */}
           {dive.ascentRateStats && (
             <Section title="Ascent / Descent">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <InfoCard 
-                  label="Ascent"
-                  value={`${formatNumber(Math.abs(dive.ascentRateStats.avgAscent), '', 'ascentRate')} - ${formatNumber(Math.abs(dive.ascentRateStats.maxAscent), ' m/s', 'ascentRate')}`}
+                  label="Avg Ascent"
+                  value={formatNumber(Math.abs(dive.ascentRateStats.avgAscent), ' m/s', 'ascentRate')}
                   style={{ color: '#22c55e' }}
                 />
                 <InfoCard 
-                  label="Descent"
-                  value={`${formatNumber(Math.abs(dive.ascentRateStats.avgDescent), '', 'ascentRate')} - ${formatNumber(Math.abs(dive.ascentRateStats.maxDescent), ' m/s', 'ascentRate')}`}
+                  label="Max Ascent"
+                  value={formatNumber(Math.abs(dive.ascentRateStats.maxAscent), ' m/s', 'ascentRate')}
+                  style={{ color: '#22c55e' }}
+                />
+                <div /> {/* 占位 */}
+                <InfoCard 
+                  label="Avg Descent"
+                  value={formatNumber(Math.abs(dive.ascentRateStats.avgDescent), ' m/s', 'ascentRate')}
+                  style={{ color: '#ef4444' }}
+                />
+                <InfoCard 
+                  label="Max Descent"
+                  value={formatNumber(Math.abs(dive.ascentRateStats.maxDescent), ' m/s', 'ascentRate')}
                   style={{ color: '#ef4444' }}
                 />
               </div>

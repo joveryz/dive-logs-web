@@ -211,26 +211,41 @@ export function DiveList() {
           </div>
           
           {/* 排序选择器 */}
-          <select
-            value={`${sortField}-${sortDirection}`}
-            onChange={(e) => {
-              const [field, direction] = e.target.value.split('-') as [SortField, SortDirection];
-              setSortField(field);
-              setSortDirection(direction);
-            }}
-            className="px-2.5 py-1.5 rounded-lg text-xs bg-dive-card/50 text-dive-text-secondary border border-dive-border/50 focus:border-cyan-500/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/20"
-          >
-            <option value="diveNumber-desc">Latest First</option>
-            <option value="diveNumber-asc">Oldest First</option>
-            <option value="maxDepth-desc">Deepest First</option>
-            <option value="maxDepth-asc">Shallowest First</option>
-            <option value="duration-desc">Longest First</option>
-            <option value="duration-asc">Shortest First</option>
-            <option value="date-desc">Date (Newest)</option>
-            <option value="date-asc">Date (Oldest)</option>
-            <option value="location-asc">Location A-Z</option>
-            <option value="location-desc">Location Z-A</option>
-          </select>
+          <div className="flex items-center gap-1.5">
+            <select
+              value={`${sortField}-${sortDirection}`}
+              onChange={(e) => {
+                const [field, direction] = e.target.value.split('-') as [SortField, SortDirection];
+                setSortField(field);
+                setSortDirection(direction);
+              }}
+              className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-dive-card/50 text-dive-text-muted border border-transparent hover:bg-dive-card hover:text-dive-text-secondary focus:outline-none focus:bg-dive-card focus:text-dive-text-secondary transition-all duration-200 cursor-pointer [&>option]:bg-dive-card [&>option]:text-dive-text"
+            >
+              <option value="diveNumber-desc"># Descending</option>
+              <option value="diveNumber-asc"># Ascending</option>
+              <option value="date-desc">Latest First</option>
+              <option value="date-asc">Oldest First</option>
+              <option value="maxDepth-desc">Deepest First</option>
+              <option value="maxDepth-asc">Shallowest First</option>
+              <option value="duration-desc">Longest First</option>
+              <option value="duration-asc">Shortest First</option>
+            </select>
+            {(sortField !== 'diveNumber' || sortDirection !== 'desc') && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSortField('diveNumber');
+                  setSortDirection('desc');
+                }}
+                className="p-1.5 rounded-lg text-dive-text-muted hover:text-dive-text-secondary hover:bg-dive-card/50 transition-all duration-200"
+                aria-label="Reset sort"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
       </div>
       

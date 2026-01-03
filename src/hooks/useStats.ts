@@ -179,11 +179,15 @@ export function useStats(dives: Dive[], category: StatsCategory) {
     const allStats = calculateStats(dives, 'All');
     categoryStats.push(formatStats(allStats));
 
-    // 按潜水次数排序分组，Solo 排在最前面
+    // 按潜水次数排序分组，Solo 排在最前面，年月按时间倒序
     const sortedGroups = [...groups.entries()].sort((a, b) => {
       // Solo 优先排在最前
       if (a[0] === 'Solo') return -1;
       if (b[0] === 'Solo') return 1;
+      // 年/年月按时间倒序排列
+      if (category === 'year' || category === 'yearMonth') {
+        return b[0].localeCompare(a[0]);
+      }
       // 其他按潜水次数排序
       return b[1].length - a[1].length;
     });
