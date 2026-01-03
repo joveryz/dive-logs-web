@@ -87,7 +87,8 @@ interface TankRow {
  * 解析 CSV 文本为对象数组
  */
 function parseCSV<T>(csv: string): T[] {
-  const lines = csv.trim().split('\n');
+  // 处理 Windows 换行符 \r\n
+  const lines = csv.trim().replace(/\r/g, '').split('\n');
   if (lines.length < 2) return [];
 
   const headers = lines[0].split(',');
@@ -531,7 +532,10 @@ export function parseDivesFromCSV(): Dive[] {
           cnsEnd: parseNum(summary.CNSPercentPostDive),
           decoModel: summary.DecoModel || undefined,
           endSurfaceGF: parseNum(summary.GradientFactorSurfaceEnd),
-          gf99Max: profile.reduce((max, p) => p.gf99 !== undefined && p.gf99 > max ? p.gf99 : max, 0) || undefined,
+          gf99Max: (() => {
+            const max = profile.reduce((m, p) => p.gf99 !== undefined && p.gf99 > m ? p.gf99 : m, 0);
+            return max > 0 ? max : undefined;
+          })(),
           conservatism: summary.GradientFactorLow && summary.GradientFactorHigh 
             ? `GF ${summary.GradientFactorLow}/${summary.GradientFactorHigh}`
             : undefined,
