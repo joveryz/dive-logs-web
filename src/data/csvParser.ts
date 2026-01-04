@@ -548,7 +548,13 @@ export function parseDivesFromCSV(): Dive[] {
           sampleRate: parseIntNum(summary.SampleRateInMs) ? parseIntNum(summary.SampleRateInMs)! / 1000 : 10,
           waterDensity: summary.WaterDenisity || undefined,
           waterType: summary.WaterType || undefined,
-          surfacePressure: parseNum(summary.SurfacePressureInMillibarPreDive),
+          surfacePressure: Math.min(
+            parseNum(summary.SurfacePressureInMillibarPreDive) ?? Infinity,
+            parseNum(summary.SurfacePressureInMillibarPostDive) ?? Infinity
+          ) === Infinity ? undefined : Math.min(
+            parseNum(summary.SurfacePressureInMillibarPreDive) ?? Infinity,
+            parseNum(summary.SurfacePressureInMillibarPostDive) ?? Infinity
+          ),
           surfaceInterval: formatSurfaceInterval(surfaceIntervalSec),
         },
         deco: {
@@ -571,7 +577,13 @@ export function parseDivesFromCSV(): Dive[] {
         minTemp: parseNum(summary.TemperatureInCelsiusMin),
         maxTemp: parseNum(summary.TemperatureInCelsiusMax),
         avgTemp: parseNum(summary.TemperatureInCelsiusAvg),
-        surfacePressure: parseNum(summary.SurfacePressureInMillibarPreDive),
+        surfacePressure: Math.min(
+          parseNum(summary.SurfacePressureInMillibarPreDive) ?? Infinity,
+          parseNum(summary.SurfacePressureInMillibarPostDive) ?? Infinity
+        ) === Infinity ? undefined : Math.min(
+          parseNum(summary.SurfacePressureInMillibarPreDive) ?? Infinity,
+          parseNum(summary.SurfacePressureInMillibarPostDive) ?? Infinity
+        ),
         maxHeartRate: parseNum(summary.HeartRateMax),
         minHeartRate: parseNum(summary.HeartRateMin),
         avgHeartRate: parseNum(summary.HeartRateAvg),

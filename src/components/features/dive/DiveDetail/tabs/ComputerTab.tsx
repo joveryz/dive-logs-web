@@ -51,7 +51,7 @@ export const ComputerTab = memo(function ComputerTab({ dive }: ComputerTabProps)
             </div>
             <div className="grid grid-cols-3 gap-3">
               <InfoCard label={uiLabels.waterType} value={diveSettings?.waterType || '-'} />
-              <InfoCard label={uiLabels.waterDensity} value={diveSettings?.waterDensity || '-'} />
+              <InfoCard label={uiLabels.waterDensity} value={diveSettings?.waterDensity ? `${diveSettings.waterDensity} kg/m³` : '-'} />
               <InfoCard label={uiLabels.surfacePressure} value={formatNumber(diveSettings?.surfacePressure, ' mBar')} />
             </div>
           </Section>

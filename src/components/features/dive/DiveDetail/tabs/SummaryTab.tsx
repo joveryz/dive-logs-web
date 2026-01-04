@@ -122,7 +122,7 @@ export const SummaryTab = memo(function SummaryTab({ dive, isPersonalBest }: Sum
             </div>
             <div className="grid grid-cols-3 gap-3">
               <InfoCard label={uiLabels.waterType} value={computerDiveSettings?.waterType || '-'} />
-              <InfoCard label={uiLabels.waterDensity} value={computerDiveSettings?.waterDensity || '-'} />
+              <InfoCard label={uiLabels.waterDensity} value={computerDiveSettings?.waterDensity ? `${computerDiveSettings.waterDensity} kg/m³` : '-'} />
               <InfoCard label={uiLabels.surfacePressure} value={formatNumber(environment?.surfacePressure, ' mBar')} />
             </div>
           </Section>
