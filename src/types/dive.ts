@@ -305,8 +305,8 @@ export interface ComputerInfo {
     mode?: string;
     sampleRate?: number;
     recordedUnits?: string;
-    salinitySetting?: string;
-    salinityType?: string;
+    waterDensity?: string;
+    waterType?: string;
     surfacePressure?: number;
     surfaceInterval?: string;
   };

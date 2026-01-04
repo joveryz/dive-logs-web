@@ -94,8 +94,8 @@ export const uiLabels = {
   platform: 'Platform',
   environment: 'Environment',
   conditions: 'Conditions',
-  salinity: 'Salinity',
-  salinityType: 'Water Type',
+  waterDensity: 'Water Density',
+  waterType: 'Water Type',
   surfaceInterval: 'Surface Interval',
   
   // 电脑标签

@@ -26,8 +26,6 @@ interface SummaryRow {
   HeartRateMax: string;
   HeartRateMin: string;
   HeartRateAvg: string;
-  Salinity: string;
-  SalinityType: string;
   SurfaceIntervalInSeconds: string;
   SurfacePressureInMillibarPreDive: string;
   SurfacePressureInMillibarPostDive: string;
@@ -45,6 +43,8 @@ interface SummaryRow {
   BatteryVoltagePostDive: string;
   SampleRateInMs: string;
   DataFormat: string;
+  WaterDenisity: string;
+  WaterType: string;
 }
 
 interface SampleRow {
@@ -546,8 +546,8 @@ export function parseDivesFromCSV(): Dive[] {
         dive: {
           mode: summary.Mode,
           sampleRate: parseIntNum(summary.SampleRateInMs) ? parseIntNum(summary.SampleRateInMs)! / 1000 : 10,
-          salinitySetting: summary.Salinity || undefined,
-          salinityType: summary.SalinityType || undefined,
+          waterDensity: summary.WaterDenisity || undefined,
+          waterType: summary.WaterType || undefined,
           surfacePressure: parseNum(summary.SurfacePressureInMillibarPreDive),
           surfaceInterval: formatSurfaceInterval(surfaceIntervalSec),
         },

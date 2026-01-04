@@ -50,8 +50,8 @@ export const ComputerTab = memo(function ComputerTab({ dive }: ComputerTabProps)
               <InfoCard label={uiLabels.dataFormat} value={computerInfo?.dataFormat || '-'} />
             </div>
             <div className="grid grid-cols-3 gap-3">
-              <InfoCard label={uiLabels.salinityType} value={diveSettings?.salinityType || '-'} />
-              <InfoCard label={uiLabels.salinity} value={diveSettings?.salinitySetting || '-'} />
+              <InfoCard label={uiLabels.waterType} value={diveSettings?.waterType || '-'} />
+              <InfoCard label={uiLabels.waterDensity} value={diveSettings?.waterDensity || '-'} />
               <InfoCard label={uiLabels.surfacePressure} value={formatNumber(diveSettings?.surfacePressure, ' mBar')} />
             </div>
           </Section>
