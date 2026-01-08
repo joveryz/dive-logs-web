@@ -227,23 +227,6 @@ export function DiveList() {
               {filterValidDivesOnly ? 'Valid Only' : 'All Dives'}
             </button>
             
-            {/* 潜水类型筛选器 */}
-            <select
-              value={filterDiveType || ''}
-              onChange={(e) => setFilterDiveType(e.target.value || null)}
-              className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer focus:outline-none [&>option]:bg-dive-card [&>option]:text-dive-text ${
-                filterDiveType 
-                  ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' 
-                  : 'bg-dive-card/50 text-dive-text-muted border border-transparent hover:bg-dive-card hover:text-dive-text-secondary'
-              }`}
-              aria-label="Filter by dive type"
-            >
-              <option value="">All Types</option>
-              {availableDiveTypes.map((type) => (
-                <option key={type} value={type}>{type}</option>
-              ))}
-            </select>
-            
             {/* 潜水员筛选器 */}
             {availableDivers.length > 1 && (
               <select
@@ -262,6 +245,23 @@ export function DiveList() {
                 ))}
               </select>
             )}
+            
+            {/* 潜水类型筛选器 */}
+            <select
+              value={filterDiveType || ''}
+              onChange={(e) => setFilterDiveType(e.target.value || null)}
+              className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer focus:outline-none [&>option]:bg-dive-card [&>option]:text-dive-text ${
+                filterDiveType 
+                  ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' 
+                  : 'bg-dive-card/50 text-dive-text-muted border border-transparent hover:bg-dive-card hover:text-dive-text-secondary'
+              }`}
+              aria-label="Filter by dive type"
+            >
+              <option value="">All Types</option>
+              {availableDiveTypes.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
           </div>
           
           {/* 排序选择器 */}
