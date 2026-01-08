@@ -108,13 +108,31 @@ function parseCSV<T>(csv: string): T[] {
 }
 
 /**
- * 从日期时间字符串提取日期和时间
+ * 从 UTC 日期时间字符串解析并转换为本地时间
+ * @param dateTimeStr UTC 时间字符串，格式: "2024-09-27 11:49:56"
+ * @returns 本地日期和时间 { date: "YYYY-MM-DD", time: "HH:MM" }
  */
 function parseDateTime(dateTimeStr: string): { date: string; time: string } {
-  // 格式: "2024-09-27 11:49:56"
-  const [date, timeFull] = dateTimeStr.split(' ');
-  const time = timeFull || '00:00:00'; // HH:MM:SS
-  return { date, time };
+  // CSV 中的时间是 UTC，转换为浏览器本地时间
+  const utcDate = new Date(dateTimeStr.replace(' ', 'T') + 'Z');
+  
+  if (isNaN(utcDate.getTime())) {
+    // 解析失败，返回原始值
+    const [date, timeFull] = dateTimeStr.split(' ');
+    return { date: date || '1970-01-01', time: timeFull?.substring(0, 5) || '00:00' };
+  }
+  
+  // 格式化为本地时间
+  const year = utcDate.getFullYear();
+  const month = String(utcDate.getMonth() + 1).padStart(2, '0');
+  const day = String(utcDate.getDate()).padStart(2, '0');
+  const hours = String(utcDate.getHours()).padStart(2, '0');
+  const minutes = String(utcDate.getMinutes()).padStart(2, '0');
+  
+  return {
+    date: `${year}-${month}-${day}`,
+    time: `${hours}:${minutes}`
+  };
 }
 
 /**
