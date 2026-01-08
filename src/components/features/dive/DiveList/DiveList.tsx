@@ -124,7 +124,9 @@ export function DiveList() {
     filterValidDivesOnly, 
     setFilterValidDivesOnly,
     filterDiveType,
-    setFilterDiveType 
+    setFilterDiveType,
+    filterDiver,
+    setFilterDiver
   } = useDiveStore();
   const filteredDives = useFilteredDives();
   const allDivesForTypes = useDiveStore(selectDives);
@@ -133,6 +135,12 @@ export function DiveList() {
   const availableDiveTypes = useMemo(() => {
     const types = new Set(allDivesForTypes.map(d => d.diveType));
     return Array.from(types).sort();
+  }, [allDivesForTypes]);
+  
+  // 获取所有可用的潜水员（去重）
+  const availableDivers = useMemo(() => {
+    const divers = new Set(allDivesForTypes.map(d => d.diver).filter((d): d is string => !!d));
+    return Array.from(divers).sort();
   }, [allDivesForTypes]);
   const [sortField, setSortField] = useState<SortField>('diveNumber');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
@@ -235,6 +243,25 @@ export function DiveList() {
                 <option key={type} value={type}>{type}</option>
               ))}
             </select>
+            
+            {/* 潜水员筛选器 */}
+            {availableDivers.length > 1 && (
+              <select
+                value={filterDiver || ''}
+                onChange={(e) => setFilterDiver(e.target.value || null)}
+                className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer focus:outline-none [&>option]:bg-dive-card [&>option]:text-dive-text ${
+                  filterDiver 
+                    ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' 
+                    : 'bg-dive-card/50 text-dive-text-muted border border-transparent hover:bg-dive-card hover:text-dive-text-secondary'
+                }`}
+                aria-label="Filter by diver"
+              >
+                <option value="">All Divers</option>
+                {availableDivers.map((diver) => (
+                  <option key={diver} value={diver}>{diver}</option>
+                ))}
+              </select>
+            )}
           </div>
           
           {/* 排序选择器 */}

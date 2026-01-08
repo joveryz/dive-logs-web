@@ -39,6 +39,12 @@ export const selectFilterValidDivesOnly = (state: DiveStore): boolean =>
 export const selectFilterDiveType = (state: DiveStore): string | null =>
   state.filterDiveType;
 
+/**
+ * 选择筛选的潜水员
+ */
+export const selectFilterDiver = (state: DiveStore): string | null =>
+  state.filterDiver;
+
 // ============================================================================
 // 派生 Selectors
 // ============================================================================
