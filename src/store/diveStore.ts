@@ -61,11 +61,22 @@ export type DiveStore = DiveState & DiveActions;
 // ============================================================================
 
 /**
+ * 获取默认选中的潜水 ID（编号最大的）
+ */
+const getDefaultSelectedDiveId = (): string | null => {
+  if (initialDives.length === 0) return null;
+  const maxDive = initialDives.reduce((max, dive) => 
+    dive.diveNumber > max.diveNumber ? dive : max
+  );
+  return maxDive.id;
+};
+
+/**
  * 初始状态
  */
 const initialState: DiveState = {
   dives: initialDives,
-  selectedDiveId: initialDives[0]?.id || null,
+  selectedDiveId: getDefaultSelectedDiveId(),
   searchQuery: '',
   filterValidDivesOnly: true,
   filterDiveType: null,
