@@ -14,27 +14,24 @@ interface SummaryRow {
   StartDate: string;
   EndDate: string;
   DurationInSeconds: string;
-  DepthInMetersMax: string;
-  DepthInMetersAvg: string;
+  Diver: string;
   Buddy: string;
   Location: string;
   Site: string;
   Note: string;
-  TemperatureInCelsiusMax: string;
-  TemperatureInCelsiusMin: string;
-  TemperatureInCelsiusAvg: string;
+  DepthInMetersMax: string;
+  DepthInMetersAvg: string;
   HeartRateMax: string;
   HeartRateMin: string;
   HeartRateAvg: string;
-  SurfaceIntervalInSeconds: string;
+  TemperatureInCelsiusMax: string;
+  TemperatureInCelsiusMin: string;
+  TemperatureInCelsiusAvg: string;
   SurfacePressureInMillibarPreDive: string;
   SurfacePressureInMillibarPostDive: string;
-  DecoModel: string;
-  GradientFactorLow: string;
-  GradientFactorHigh: string;
-  GradientFactorSurfaceEnd: string;
-  CentralNervousSystemPercentPreDive: string;
-  CentralNervousSystemPercentPostDive: string;
+  SurfaceIntervalInSeconds: string;
+  WaterDenisity: string;
+  WaterType: string;
   ComputerModel: string;
   ComputerSerialNumber: string;
   ComputerFirmwareVersion: string;
@@ -43,8 +40,12 @@ interface SummaryRow {
   BatteryVoltagePostDive: string;
   SampleRateInMs: string;
   DataFormat: string;
-  WaterDenisity: string;
-  WaterType: string;
+  DecoModel: string;
+  GradientFactorLow: string;
+  GradientFactorHigh: string;
+  GradientFactorSurfaceEnd: string;
+  CentralNervousSystemPercentPreDive: string;
+  CentralNervousSystemPercentPostDive: string;
 }
 
 interface SampleRow {
@@ -519,6 +520,7 @@ export function parseDivesFromCSV(): Dive[] {
       diveType: mapDiveMode(summary.Mode),
       location: summary.Location || 'Unknown',
       site: summary.Site || 'Unknown',
+      diver: summary.Diver || undefined,
       buddy: summary.Buddy || 'Solo',
       notes: summary.Note || undefined,
       tags: summary.Note ? summary.Note.split(';').map(t => t.trim()).filter(t => t.length > 0) : [],

@@ -152,7 +152,10 @@ export const SummaryTab = memo(function SummaryTab({ dive, isPersonalBest }: Sum
               ) : (
                 <div />
               )}
-              <InfoCard label={uiLabels.buddy} value={dive.buddy} />
+              <InfoCard 
+                label={uiLabels.diverAndBuddy} 
+                value={dive.buddy && dive.buddy !== 'Solo' ? `${dive.diver} & ${dive.buddy}` : dive.diver || '-'} 
+              />
             </div>
           </Section>
 

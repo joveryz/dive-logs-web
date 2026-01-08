@@ -74,7 +74,7 @@ export const uiLabels = {
   avgDescent: 'Avg Descent',
   startTime: 'Start Time',
   endTime: 'End Time',
-  buddy: 'Buddy',
+  diverAndBuddy: 'Diver & Buddy',
   site: 'Site',
   notes: 'Notes',
   tags: 'Tags',

@@ -85,6 +85,11 @@ const DiveCard = ({
       
       {/* 右侧信息 */}
       <div className="flex items-center gap-2">
+        {dive.diver && (
+          <span className="text-xs text-cyan-400/80 bg-cyan-900/20 px-2 py-0.5 rounded border border-cyan-500/20">
+            {dive.diver}
+          </span>
+        )}
         {dive.buddy && (
           <span className="text-xs text-dive-text-muted bg-dive-hover/50 px-2 py-0.5 rounded">
             {dive.buddy}

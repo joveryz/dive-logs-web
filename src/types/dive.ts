@@ -362,6 +362,8 @@ export interface Dive {
   location: string;
   /** 潜点名称 */
   site: string;
+  /** 潜水员 */
+  diver: string;
   /** 潜伴 */
   buddy: string;
   /** 潜水电脑 */
