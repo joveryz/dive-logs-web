@@ -4,8 +4,7 @@ import { Dive } from '@/types';
 
 /**
  * 判断潜水记录是否有效
- * - 潜水编号 > 1000 的无效
- * - FreeDive 深度 < 5m 的无效
+ * - FreeDive 深度 < 6m 的无效
  * - 非 FreeDive 深度 < 10m 的无效
  * - 非 FreeDive 时长 < 15min 的无效
  */
