@@ -180,14 +180,10 @@ export function DiveList() {
     <div className="flex flex-col h-full bg-dive-surface" role="region" aria-label="Dive List">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-dive-border/50">
-        <div className="flex items-center gap-3">
-          <h2 className="text-cyan-400 font-semibold text-lg">Dives</h2>
-          <span className="px-2 py-0.5 rounded-full text-xs bg-cyan-900/30 text-cyan-400 tabular-nums">
-            {filteredDives.length}
-          </span>
-        </div>
-        <span className="text-dive-text-muted text-xs">
-          of {useDiveStore.getState().dives.length} total
+        <h2 className="text-cyan-400 font-semibold text-lg">Dives</h2>
+        <span className="text-xs tabular-nums">
+          <span className="text-cyan-400 font-semibold">{filteredDives.length}</span>
+          <span className="text-dive-text-muted"> of {useDiveStore.getState().dives.length} total</span>
         </span>
       </div>
       
