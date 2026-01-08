@@ -35,10 +35,10 @@ interface DiveTypeBadgeProps {
  */
 export const DiveTypeBadge = memo(function DiveTypeBadge({ 
   diveType, 
-  className = '' 
+  className = 'text-xs' 
 }: DiveTypeBadgeProps) {
   return (
-    <span className={`inline-block px-1.5 py-0.5 rounded text-xs ${getDiveTypeStyle(diveType)} ${className}`}>
+    <span className={`inline-block px-1.5 py-0.5 rounded translate-y-[1px] ${className} ${getDiveTypeStyle(diveType)}`}>
       {diveType}
     </span>
   );

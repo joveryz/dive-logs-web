@@ -48,7 +48,7 @@ export const SummaryTab = memo(function SummaryTab({ dive, isPersonalBest }: Sum
         </div>
         <div className="bg-dive-card/60 rounded-lg p-3 text-center">
           <div className="text-xs text-dive-text-muted uppercase">{uiLabels.type}</div>
-          <DiveTypeBadge diveType={dive.diveType} className="text-base justify-center" />
+          <DiveTypeBadge diveType={dive.diveType} className="text-base font-semibold justify-center" />
         </div>
       </div>
 
