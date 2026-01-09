@@ -1,4 +1,8 @@
+import { parseExporterVersion } from '@/data/csvParser';
+
 export function Footer() {
+  const exporterVersion = parseExporterVersion();
+
   return (
     <footer 
       className="px-4 py-1.5 bg-dive-surface border-t border-dive-border text-center"
@@ -13,7 +17,15 @@ export function Footer() {
           className="text-cyan-400 hover:text-cyan-300 transition-colors"
         >
           Jovery Zhang
-        </a>. Some rights reserved.
+        </a>. Some rights reserved
+        {exporterVersion && (
+          <>
+            {' | '}
+            <span className="text-dive-text-muted text-xs">
+              Exporter v{exporterVersion.version}({exporterVersion.commit}) on {exporterVersion.buildDate}
+            </span>
+          </>
+        )}
       </span>
     </footer>
   );

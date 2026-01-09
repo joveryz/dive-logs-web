@@ -2,11 +2,12 @@
  * Shearwater CSV 数据解析模块
  */
 
-import { Dive, DiveProfilePoint, GasesInfo, TankInfo } from '@/types';
+import { Dive, DiveProfilePoint, ExporterVersion, GasesInfo, TankInfo } from '@/types';
 import { mapDiveMode } from '@/constants/labels';
 import summariesCSV from './general-dive-log-summaries.csv?raw';
 import samplesCSV from './general-dive-log-samples.csv?raw';
 import tanksCSV from './general-dive-log-tanks.csv?raw';
+import versionCSV from './general-dive-log-exporter-version.csv?raw';
 
 interface SummaryRow {
   Number: string;
@@ -82,6 +83,12 @@ interface TankRow {
   GasO2Percent: string;
   GasHePercent: string;
   GasN2Percent: string;
+}
+
+interface ExporterVersionRow {
+  Version: string;
+  Commit: string;
+  BuildDate: string;
 }
 
 /**
@@ -622,4 +629,19 @@ export function parseDivesFromCSV(): Dive[] {
   });
 
   return dives;
+}
+
+/**
+ * 解析版本信息 CSV
+ */
+export function parseExporterVersion(): ExporterVersion | null {
+  const rows = parseCSV<ExporterVersionRow>(versionCSV);
+  if (rows.length === 0) return null;
+  
+  const row = rows[0];
+  return {
+    version: row.Version || '',
+    commit: row.Commit || '',
+    buildDate: row.BuildDate || '',
+  };
 }
