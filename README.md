@@ -22,6 +22,10 @@ This is a web-based dive log viewer and analyzer.
 
 The raw dive log data is stored in the `./data` directory. The data is exported to CSV files in the `./src/data` directory during the build process.
 
+For Garmin fit files, please name them with `{date}_{buddyName}_{location}_{site}_{diverName}.fit`, e.g., `20251231_Jovery_Beijing_HiDive_Yiqu.fit`.
+
+If there is no buddy, please use `Solo`, e.g., `20260108_Solo_Beijing_HiDive_Jovery.fit`.
+
 ## Tech
 
 - React
