@@ -99,7 +99,17 @@ export const TANK_PRESSURE_KEYS: readonly ChartSeriesKey[] = [
 ] as const;
 
 /**
- * FreeDive 模式默认显示的系列
+ * FreeDive 模式可用的系列（legend 中显示的选项）
+ */
+export const FREEDIVE_AVAILABLE_KEYS: readonly ChartSeriesKey[] = [
+  CHART_SERIES_KEYS.DEPTH,
+  CHART_SERIES_KEYS.ASCENT_RATE,
+  CHART_SERIES_KEYS.HEART_RATE,
+  CHART_SERIES_KEYS.TEMPERATURE,
+] as const;
+
+/**
+ * FreeDive 模式默认显示的系列（默认勾选）
  */
 export const FREEDIVE_DEFAULT_VISIBLE_KEYS: readonly ChartSeriesKey[] = [
   CHART_SERIES_KEYS.DEPTH,
@@ -109,7 +119,7 @@ export const FREEDIVE_DEFAULT_VISIBLE_KEYS: readonly ChartSeriesKey[] = [
 ] as const;
 
 /**
- * OC Rec 及其他潜水模式默认显示的系列
+ * OC Rec 及其他潜水模式默认显示的系列（默认勾选）
  */
 export const SCUBA_DEFAULT_VISIBLE_KEYS: readonly ChartSeriesKey[] = [
   CHART_SERIES_KEYS.DEPTH,

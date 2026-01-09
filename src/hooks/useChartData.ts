@@ -10,6 +10,7 @@ import type { ChartSeriesConfig } from '@/constants';
 import { DEFAULT_CHART_SERIES } from '@/constants';
 import { calculateDynamicRange, normalizeValue } from '@/utils/chart';
 import {
+  FREEDIVE_AVAILABLE_KEYS,
   FREEDIVE_DEFAULT_VISIBLE_KEYS,
   SCUBA_DEFAULT_VISIBLE_KEYS,
   CHART_SERIES_KEYS,
@@ -54,12 +55,12 @@ function getDefaultVisibleKeys(diveType?: DiveType): readonly ChartSeriesKey[] {
 }
 
 /**
- * 获取可用系列
+ * 获取可用系列（legend 中显示的选项）
  */
 function getAvailableSeries(diveType?: DiveType): ChartSeriesConfig[] {
   if (diveType === 'FreeDive') {
     return DEFAULT_CHART_SERIES.filter(s =>
-      (FREEDIVE_DEFAULT_VISIBLE_KEYS as readonly string[]).includes(s.key)
+      (FREEDIVE_AVAILABLE_KEYS as readonly string[]).includes(s.key)
     );
   }
   return DEFAULT_CHART_SERIES;
@@ -132,10 +133,18 @@ function normalizeDataPoint(
  * 图表数据处理主 Hook
  */
 export function useChartData(profile: DiveProfilePoint[], diveType?: DiveType) {
-  const [visibilityOverrides, setVisibilityOverrides] = useState<Record<string, boolean>>({});
-
   const availableSeries = useMemo(() => getAvailableSeries(diveType), [diveType]);
   const defaultVisibleKeys = useMemo(() => getDefaultVisibleKeys(diveType), [diveType]);
+
+  // 初始化时使用默认可见系列
+  const [visibilityOverrides, setVisibilityOverrides] = useState<Record<string, boolean>>(() => {
+    const keys = getDefaultVisibleKeys(diveType);
+    const overrides: Record<string, boolean> = {};
+    DEFAULT_CHART_SERIES.forEach(s => {
+      overrides[s.key] = (keys as readonly string[]).includes(s.key);
+    });
+    return overrides;
+  });
 
   // 计算系列配置
   const seriesConfigs = useMemo<EffectiveSeriesConfig[]>(
