@@ -131,12 +131,12 @@ export function DiveDetail() {
         {
           content: chartContent,
           minSize: 150,
-          defaultSize: 45,
+          defaultSize: 55,
         },
         {
           content: <DetailContent dive={dive} cursorData={cursorData} />,
           minSize: 100,
-          defaultSize: 55,
+          defaultSize: 45,
         },
       ]}
     />

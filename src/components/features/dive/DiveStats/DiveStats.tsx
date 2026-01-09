@@ -62,7 +62,7 @@ export const DiveStats = memo(function DiveStats({ dives }: DiveStatsProps) {
           </select>
         </div>
         <div className="text-dive-text-secondary text-sm">
-          Included: <span className="text-cyan-400">{totalDives}/{totalDives}</span>
+          Included: <span className="text-cyan-400">{totalDives}</span>
         </div>
       </div>
 
@@ -89,6 +89,9 @@ export const DiveStats = memo(function DiveStats({ dives }: DiveStatsProps) {
             <StatsRow label={STATS_ROW_LABELS.avgMaxDepth} values={getRowValues('avgMaxDepth')} />
             <StatsRow label={STATS_ROW_LABELS.longestDive} values={getRowValues('longestDive')} isHighlight />
             <StatsRow label={STATS_ROW_LABELS.avgDiveTime} values={getRowValues('avgDiveTime')} />
+            <StatsRow label={STATS_ROW_LABELS.minHeartRate} values={getRowValues('minHeartRate')} isHighlight />
+            <StatsRow label={STATS_ROW_LABELS.maxHeartRate} values={getRowValues('maxHeartRate')} />
+            <StatsRow label={STATS_ROW_LABELS.avgHeartRate} values={getRowValues('avgHeartRate')} />
             <StatsRow label={STATS_ROW_LABELS.mostVisitedLocation} values={getRowValues('mostVisitedLocation')} isHighlight />
             <StatsRow label={STATS_ROW_LABELS.uniqueLocations} values={getRowValues('uniqueLocations')} />
             <StatsRow label={STATS_ROW_LABELS.mostVisitedSite} values={getRowValues('mostVisitedSite')} isHighlight />

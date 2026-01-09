@@ -5,7 +5,7 @@ import { formatDurationReadable } from '@/utils';
 /**
  * 统计分类类型
  */
-export type StatsCategory = 'diveType' | 'location' | 'site' | 'buddy' | 'yearMonth' | 'year' | 'computer';
+export type StatsCategory = 'diveType' | 'diver' | 'buddy' | 'year' | 'yearMonth' | 'location' | 'site' | 'computer';
 
 /**
  * 单个分类的统计数据
@@ -27,6 +27,12 @@ export interface CategoryStats {
   longestDive: number;
   /** 平均潜水时间（秒） */
   avgDiveTime: number;
+  /** 最低心率 */
+  minHeartRate: number | null;
+  /** 最高心率 */
+  maxHeartRate: number | null;
+  /** 平均心率 */
+  avgHeartRate: number | null;
   /** 最常去的地点 */
   mostVisitedLocation: string;
   /** 独立地点数量 */
@@ -48,6 +54,9 @@ export interface FormattedStats {
   avgMaxDepth: string;
   longestDive: string;
   avgDiveTime: string;
+  minHeartRate: string;
+  maxHeartRate: string;
+  avgHeartRate: string;
   mostVisitedLocation: string;
   uniqueLocations: string;
   mostVisitedSite: string;
@@ -61,6 +70,8 @@ function getCategoryValue(dive: Dive, category: StatsCategory): string {
   switch (category) {
     case 'diveType':
       return dive.diveType;
+    case 'diver':
+      return dive.diver || 'Unknown';
     case 'location':
       return dive.location;
     case 'site':
@@ -92,6 +103,9 @@ function calculateStats(dives: Dive[], name: string): CategoryStats {
       avgMaxDepth: 0,
       longestDive: 0,
       avgDiveTime: 0,
+      minHeartRate: null,
+      maxHeartRate: null,
+      avgHeartRate: null,
       mostVisitedLocation: '-',
       uniqueLocations: 0,
       mostVisitedSite: '-',
@@ -122,6 +136,25 @@ function calculateStats(dives: Dive[], name: string): CategoryStats {
   const mostVisitedSite = [...siteCounts.entries()]
     .sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
 
+  // 计算心率统计
+  const heartRates = dives
+    .filter(d => d.environment?.minHeartRate || d.environment?.maxHeartRate || d.environment?.avgHeartRate)
+    .map(d => d.environment);
+  
+  let minHeartRate: number | null = null;
+  let maxHeartRate: number | null = null;
+  let avgHeartRate: number | null = null;
+  
+  if (heartRates.length > 0) {
+    const minRates = heartRates.map(e => e?.minHeartRate).filter((v): v is number => v !== undefined);
+    const maxRates = heartRates.map(e => e?.maxHeartRate).filter((v): v is number => v !== undefined);
+    const avgRates = heartRates.map(e => e?.avgHeartRate).filter((v): v is number => v !== undefined);
+    
+    if (minRates.length > 0) minHeartRate = Math.min(...minRates);
+    if (maxRates.length > 0) maxHeartRate = Math.max(...maxRates);
+    if (avgRates.length > 0) avgHeartRate = avgRates.reduce((a, b) => a + b, 0) / avgRates.length;
+  }
+
   return {
     name,
     diveCount: dives.length,
@@ -131,6 +164,9 @@ function calculateStats(dives: Dive[], name: string): CategoryStats {
     avgMaxDepth,
     longestDive,
     avgDiveTime,
+    minHeartRate,
+    maxHeartRate,
+    avgHeartRate,
     mostVisitedLocation,
     uniqueLocations: locationCounts.size,
     mostVisitedSite,
@@ -150,6 +186,9 @@ function formatStats(stats: CategoryStats): FormattedStats {
     avgMaxDepth: `${stats.avgMaxDepth.toFixed(1)}m`,
     longestDive: formatDurationReadable(stats.longestDive),
     avgDiveTime: formatDurationReadable(stats.avgDiveTime),
+    minHeartRate: stats.minHeartRate !== null ? `${Math.round(stats.minHeartRate)} bpm` : '-',
+    maxHeartRate: stats.maxHeartRate !== null ? `${Math.round(stats.maxHeartRate)} bpm` : '-',
+    avgHeartRate: stats.avgHeartRate !== null ? `${Math.round(stats.avgHeartRate)} bpm` : '-',
     mostVisitedLocation: stats.mostVisitedLocation,
     uniqueLocations: stats.uniqueLocations.toString(),
     mostVisitedSite: stats.mostVisitedSite,
@@ -209,6 +248,7 @@ export function useStats(dives: Dive[], category: StatsCategory) {
  */
 export const STATS_CATEGORY_LABELS: Record<StatsCategory, string> = {
   diveType: 'Dive Mode',
+  diver: 'Diver',
   location: 'Location',
   site: 'Site',
   buddy: 'Buddy',
@@ -227,6 +267,9 @@ export const STATS_ROW_LABELS = {
   avgMaxDepth: 'Avg Max Depth',
   longestDive: 'Longest Dive',
   avgDiveTime: 'Avg Dive Time',
+  minHeartRate: 'Min Heart Rate',
+  maxHeartRate: 'Max Heart Rate',
+  avgHeartRate: 'Avg Heart Rate',
   mostVisitedLocation: 'Top Location',
   uniqueLocations: 'Locations',
   mostVisitedSite: 'Top Site',
