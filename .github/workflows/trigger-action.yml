@@ -28,7 +28,7 @@ jobs:
   trigger:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Action dive-logs-deployment
+      - name: Trigger action dive-logs-deployment
         run: |
           curl -L \
             -X POST \
