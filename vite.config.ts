@@ -1,10 +1,28 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
+import { execSync } from 'child_process'
+
+// 获取 Git commit id 和构建时间
+function getGitCommitHash(): string {
+  try {
+    return execSync('git rev-parse --short HEAD').toString().trim()
+  } catch {
+    return 'unknown'
+  }
+}
+
+function getBuildDate(): string {
+  return new Date().toISOString().replace('T', ' ').substring(0, 19)
+}
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  define: {
+    __APP_COMMIT_HASH__: JSON.stringify(getGitCommitHash()),
+    __APP_BUILD_DATE__: JSON.stringify(getBuildDate()),
+  },
   //server:{
   //  host:'172.16.68.151',
   //  port:8000

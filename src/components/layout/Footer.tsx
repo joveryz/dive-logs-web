@@ -18,14 +18,14 @@ export function Footer() {
         >
           Jovery Zhang
         </a>. Some rights reserved
-        {exporterVersion && (
-          <>
-            {' | '}
-            <span className="text-dive-text-muted text-xs">
-              Exporter v{exporterVersion.version}({exporterVersion.commit}) on {exporterVersion.buildDate}
-            </span>
-          </>
-        )}
+        {' | '}
+        <span className="text-dive-text-muted text-xs">
+          Exporter: {exporterVersion.commit}({exporterVersion.buildDate})
+        </span>
+        {' | '}
+        <span className="text-dive-text-muted text-xs">
+          Web: {__APP_COMMIT_HASH__}({__APP_BUILD_DATE__})
+        </span>
       </span>
     </footer>
   );

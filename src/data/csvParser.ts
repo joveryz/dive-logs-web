@@ -636,8 +636,6 @@ export function parseDivesFromCSV(): Dive[] {
  */
 export function parseExporterVersion(): ExporterVersion | null {
   const rows = parseCSV<ExporterVersionRow>(versionCSV);
-  if (rows.length === 0) return null;
-  
   const row = rows[0];
   return {
     version: row.Version || '',
