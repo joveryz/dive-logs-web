@@ -16,7 +16,7 @@ export function DesktopLayout() {
               <DiveList />
             </ErrorBoundary>
           ),
-          minSize: 500,
+          minSize: 450,
           defaultSize: 25,
         },
         {
