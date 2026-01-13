@@ -205,7 +205,7 @@ export function DiveList() {
         <SearchInput
           value={searchQuery}
           onChange={setSearchQuery}
-          placeholder="Search dives..."
+          placeholder="Search... (e.g. depth>20)"
         />
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">

@@ -17,6 +17,58 @@ function isValidDive(dive: Dive): boolean {
 }
 
 /**
+ * 比较搜索表达式
+ * 支持格式: field>value, field<value, field>=value, field<=value
+ * 支持字段: depth, duration/time
+ */
+interface ComparisonQuery {
+  field: string;
+  operator: '>' | '<' | '>=' | '<=';
+  value: number;
+}
+
+function parseComparisonQuery(query: string): ComparisonQuery | null {
+  const match = query.match(/^(depth|duration|time)\s*(>=|<=|>|<)\s*(\d+(?:\.\d+)?)$/i);
+  if (!match) return null;
+  
+  return {
+    field: match[1].toLowerCase(),
+    operator: match[2] as ComparisonQuery['operator'],
+    value: parseFloat(match[3]),
+  };
+}
+
+function getDiveFieldValue(dive: Dive, field: string): number | null {
+  switch (field) {
+    case 'depth':
+      return dive.maxDepth;
+    case 'duration':
+    case 'time':
+      return dive.duration;
+    default:
+      return null;
+  }
+}
+
+function matchesComparison(dive: Dive, comparison: ComparisonQuery): boolean {
+  const fieldValue = getDiveFieldValue(dive, comparison.field);
+  if (fieldValue === null) return false;
+  
+  switch (comparison.operator) {
+    case '>':
+      return fieldValue > comparison.value;
+    case '<':
+      return fieldValue < comparison.value;
+    case '>=':
+      return fieldValue >= comparison.value;
+    case '<=':
+      return fieldValue <= comparison.value;
+    default:
+      return false;
+  }
+}
+
+/**
  * 获取 FreeDive PB (Personal Best) ID
  */
 export function getFreeDivePBId(dives: Dive[]): string | null {
@@ -60,7 +112,7 @@ export function useFilteredDives() {
     
     // 文本搜索过滤
     if (searchQuery.trim()) {
-      const searchLower = searchQuery.toLowerCase();
+      const searchLower = searchQuery.toLowerCase().trim();
       
       // 特殊搜索: "pb" 搜索 FreeDive PB
       if (searchLower === 'pb') {
@@ -71,15 +123,21 @@ export function useFilteredDives() {
           result = [];
         }
       } else {
-        result = result.filter(dive => 
-          dive.location.toLowerCase().includes(searchLower) ||
-          dive.site.toLowerCase().includes(searchLower) ||
-          dive.diveComputer.model.toLowerCase().includes(searchLower) ||
-          dive.diveType.toLowerCase().includes(searchLower) ||
-          dive.buddy?.toLowerCase().includes(searchLower) ||
-          dive.diveNumber.toString().includes(searchLower) ||
-          dive.tags?.some(tag => tag.toLowerCase().includes(searchLower))
-        );
+        // 尝试解析比较表达式 (如 depth>30, time<60)
+        const comparison = parseComparisonQuery(searchLower);
+        if (comparison) {
+          result = result.filter(dive => matchesComparison(dive, comparison));
+        } else {
+          result = result.filter(dive => 
+            dive.location.toLowerCase().includes(searchLower) ||
+            dive.site.toLowerCase().includes(searchLower) ||
+            dive.diveComputer.model.toLowerCase().includes(searchLower) ||
+            dive.diveType.toLowerCase().includes(searchLower) ||
+            dive.buddy?.toLowerCase().includes(searchLower) ||
+            dive.diveNumber.toString().includes(searchLower) ||
+            dive.tags?.some(tag => tag.toLowerCase().includes(searchLower))
+          );
+        }
       }
     }
     
