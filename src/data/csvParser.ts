@@ -1,13 +1,25 @@
 /**
  * Shearwater CSV 数据解析模块
+ * CSV 数据以 Base64 编码存储，运行时解码
  */
 
 import { Dive, DiveProfilePoint, ExporterVersion, GasesInfo, TankInfo } from '@/types';
 import { mapDiveMode } from '@/constants/labels';
-import summariesCSV from './general-dive-log-summaries.csv?raw';
-import samplesCSV from './general-dive-log-samples.csv?raw';
-import tanksCSV from './general-dive-log-tanks.csv?raw';
-import versionCSV from './general-dive-log-exporter-version.csv?raw';
+import summariesB64 from './general-dive-log-summaries.b64?raw';
+import samplesB64 from './general-dive-log-samples.b64?raw';
+import tanksB64 from './general-dive-log-tanks.b64?raw';
+import versionB64 from './general-dive-log-exporter-version.b64?raw';
+
+// Base64 解码函数
+function decodeBase64(encoded: string): string {
+  return atob(encoded);
+}
+
+// 解码后的 CSV 内容
+const summariesCSV = decodeBase64(summariesB64);
+const samplesCSV = decodeBase64(samplesB64);
+const tanksCSV = decodeBase64(tanksB64);
+const versionCSV = decodeBase64(versionB64);
 
 interface SummaryRow {
   Number: string;

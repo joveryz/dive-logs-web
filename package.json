@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "encode-csv": "node scripts/encode-csv.js",
+    "prebuild": "node scripts/encode-csv.js"
   },
   "dependencies": {
     "crypto-js": "^4.2.0",

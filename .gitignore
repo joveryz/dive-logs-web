@@ -69,3 +69,4 @@ coverage/
 
 # Test data
 general-dive-log-*.csv
+general-dive-log-*.b64
