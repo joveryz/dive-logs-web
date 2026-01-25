@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PAT Encryption Tool</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+  <style>
+    body { font-family: system-ui; max-width: 500px; margin: 50px auto; padding: 20px; background: #1a1a2e; color: #eee; }
+    input, button { width: 100%; padding: 10px; margin: 5px 0; border-radius: 6px; border: 1px solid #333; box-sizing: border-box; }
+    input { background: #16213e; color: #eee; }
+    button { background: #0891b2; color: white; border: none; cursor: pointer; }
+    button:hover { background: #06b6d4; }
+    pre { background: #16213e; padding: 15px; border-radius: 6px; word-break: break-all; white-space: pre-wrap; font-size: 12px; }
+    label { display: block; margin-top: 15px; font-size: 14px; color: #888; }
+  </style>
+</head>
+<body>
+  <h2>Encrypt PAT</h2>
+  
+  <label>GitHub PAT</label>
+  <input type="password" id="pat" placeholder="ghp_xxxxxxxxxxxx">
+  
+  <label>Password (remember this!)</label>
+  <input type="password" id="password" placeholder="Strong password (12+ chars)">
+  
+  <button onclick="encrypt()">Encrypt</button>
+  
+  <label>Encrypted Result (copy this to crypto.ts)</label>
+  <pre id="result">-</pre>
+  
+  <hr style="border-color: #333; margin: 30px 0;">
+  
+  <h2>Decrypt PAT</h2>
+  <label>Encrypted Data</label>
+  <input type="text" id="encryptedInput" placeholder="Paste encrypted data">
+  
+  <label>Password</label>
+  <input type="password" id="decryptPassword" placeholder="Password">
+  
+  <button onclick="testDecrypt()">Decrypt</button>
+  
+  <pre id="decryptResult">-</pre>
+
+  <script>
+    function encrypt() {
+      const pat = document.getElementById('pat').value;
+      const password = document.getElementById('password').value;
+      
+      if (!pat || !password) {
+        alert('Please enter both PAT and password');
+        return;
+      }
+      
+      const encrypted = CryptoJS.AES.encrypt(pat, password).toString();
+      document.getElementById('result').textContent = encrypted;
+      document.getElementById('encryptedInput').value = encrypted;
+      document.getElementById('decryptPassword').value = password;
+    }
+    
+    function testDecrypt() {
+      const encrypted = document.getElementById('encryptedInput').value;
+      const password = document.getElementById('decryptPassword').value;
+      const resultEl = document.getElementById('decryptResult');
+      
+      try {
+        const bytes = CryptoJS.AES.decrypt(encrypted, password);
+        const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+        
+        if (!decrypted) {
+          resultEl.textContent = 'Failed, incorrect password';
+        } else {
+          resultEl.textContent = 'Success\n' + decrypted.substring(0, 30) + '...';
+        }
+      } catch (e) {
+        resultEl.textContent = 'Error: ' + e.message;
+      }
+    }
+  </script>
+</body>
+</html>
