@@ -42,13 +42,24 @@ export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveC
     handleSeriesMouseLeave,
   } = useSeriesHover();
   
-  // 检测是否为移动端
-  const [isMobile, setIsMobile] = useState(false);
+  // 检测是否应该隐藏 tooltip 内容框
+  // 仅在竖屏窄屏（<768px 且高度>宽度）时隐藏，横屏时显示 tooltip
+  const [shouldHideTooltipContent, setShouldHideTooltipContent] = useState(false);
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    const checkCondition = () => {
+      const isNarrowPortrait = window.innerWidth < 768 && window.innerHeight > window.innerWidth;
+      setShouldHideTooltipContent(isNarrowPortrait);
+    };
+    checkCondition();
+    
+    window.addEventListener('resize', checkCondition);
+    const mediaQuery = window.matchMedia('(orientation: portrait)');
+    mediaQuery.addEventListener('change', checkCondition);
+    
+    return () => {
+      window.removeEventListener('resize', checkCondition);
+      mediaQuery.removeEventListener('change', checkCondition);
+    };
   }, []);
 
   // 处理鼠标/触摸移动事件
@@ -219,15 +230,17 @@ export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveC
               {/* 渲染所有数据系列 */}
               {chartSeriesElements}
 
-              {/* Tooltip - 移动端只显示 cursor 竖线，不显示内容 */}
+              {/* Tooltip - 竖屏窄屏时只显示 cursor 竖线，横屏时显示完整内容 */}
               <Tooltip
-                content={isMobile ? () => null : <ChartTooltip seriesConfigs={seriesConfigs} />}
+                content={shouldHideTooltipContent ? () => null : <ChartTooltip seriesConfigs={seriesConfigs} />}
                 cursor={{
                   stroke: CHART_COLORS.tooltip.cursor,
                   strokeWidth: 1,
                   strokeDasharray: '5 5',
                 }}
                 isAnimationActive={false}
+                allowEscapeViewBox={{ x: false, y: false }}
+                wrapperStyle={{ zIndex: 100 }}
               />
             </ComposedChart>
           </ResponsiveContainer>

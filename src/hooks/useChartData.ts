@@ -213,6 +213,7 @@ export function useChartData(profile: DiveProfilePoint[], diveType?: DiveType) {
 
 /**
  * 容器尺寸监听 Hook
+ * 支持屏幕旋转和 resize 事件
  */
 export function useContainerSize(threshold: number = 1) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -220,32 +221,52 @@ export function useContainerSize(threshold: number = 1) {
   const rafIdRef = useRef<number | null>(null);
   const lastSizeRef = useRef<ContainerSize>({ width: 0, height: 0 });
 
+  // 更新尺寸的函数
+  const updateSize = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    
+    const { clientWidth: width, clientHeight: height } = container;
+    const { width: lastWidth, height: lastHeight } = lastSizeRef.current;
+    
+    if (Math.abs(width - lastWidth) > threshold || Math.abs(height - lastHeight) > threshold) {
+      lastSizeRef.current = { width, height };
+      setContainerSize({ width, height });
+    }
+  }, [threshold]);
+
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const resizeObserver = new ResizeObserver((entries) => {
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+    // 初始化尺寸
+    updateSize();
 
-      rafIdRef.current = requestAnimationFrame(() => {
-        for (const entry of entries) {
-          const { width, height } = entry.contentRect;
-          const { width: lastWidth, height: lastHeight } = lastSizeRef.current;
-          
-          if (Math.abs(width - lastWidth) > threshold || Math.abs(height - lastHeight) > threshold) {
-            lastSizeRef.current = { width, height };
-            setContainerSize({ width, height });
-          }
-        }
-      });
+    const resizeObserver = new ResizeObserver(() => {
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = requestAnimationFrame(updateSize);
     });
+
+    // 监听屏幕方向变化
+    const mediaQuery = window.matchMedia('(orientation: portrait)');
+    const handleOrientationChange = () => {
+      // 延迟更新，等待布局稳定
+      setTimeout(updateSize, 100);
+      setTimeout(updateSize, 300);
+    };
+    mediaQuery.addEventListener('change', handleOrientationChange);
+
+    // 监听 resize 事件作为后备
+    window.addEventListener('resize', updateSize);
 
     resizeObserver.observe(container);
     return () => {
       if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
       resizeObserver.disconnect();
+      mediaQuery.removeEventListener('change', handleOrientationChange);
+      window.removeEventListener('resize', updateSize);
     };
-  }, [threshold]);
+  }, [updateSize]);
 
   return { containerRef, containerSize };
 }
