@@ -69,14 +69,24 @@ function matchesComparison(dive: Dive, comparison: ComparisonQuery): boolean {
 }
 
 /**
- * 获取 FreeDive PB (Personal Best) ID
+ * 获取每个 Diver 的 FreeDive PB (Personal Best) ID 集合
+ * 返回一个 Set，包含所有 diver 各自的最深 FreeDive 记录 ID
  */
-export function getFreeDivePBId(dives: Dive[]): string | null {
+export function getFreeDivePBIds(dives: Dive[]): Set<string> {
   const freeDives = dives.filter(d => d.diveType === 'FreeDive');
-  if (freeDives.length === 0) return null;
-  return freeDives.reduce((deepest, dive) => 
-    dive.maxDepth > deepest.maxDepth ? dive : deepest
-  ).id;
+  if (freeDives.length === 0) return new Set();
+  
+  // 按 diver 分组，找到每个 diver 的 PB
+  const diverPBs = new Map<string, Dive>();
+  for (const dive of freeDives) {
+    const diver = dive.diver || '__unknown__';
+    const current = diverPBs.get(diver);
+    if (!current || dive.maxDepth > current.maxDepth) {
+      diverPBs.set(diver, dive);
+    }
+  }
+  
+  return new Set(Array.from(diverPBs.values()).map(d => d.id));
 }
 
 /**
@@ -114,11 +124,11 @@ export function useFilteredDives() {
     if (searchQuery.trim()) {
       const searchLower = searchQuery.toLowerCase().trim();
       
-      // 特殊搜索: "pb" 搜索 FreeDive PB
+      // 特殊搜索: "pb" 搜索所有 diver 的 FreeDive PB
       if (searchLower === 'pb') {
-        const pbId = getFreeDivePBId(dives);
-        if (pbId) {
-          result = result.filter(dive => dive.id === pbId);
+        const pbIds = getFreeDivePBIds(dives);
+        if (pbIds.size > 0) {
+          result = result.filter(dive => pbIds.has(dive.id));
         } else {
           result = [];
         }

@@ -1,5 +1,5 @@
 import { useState, memo, useCallback } from 'react';
-import { useSelectedDive, getFreeDivePBId, useFilteredDives } from '@/hooks';
+import { useSelectedDive, getFreeDivePBIds, useFilteredDives } from '@/hooks';
 import { useDiveStore } from '@/store';
 import { DiveChart } from '../DiveChart';
 import { DiveStats } from '../DiveStats';
@@ -32,8 +32,8 @@ const DetailContent = memo(function DetailContent({
   const [activeTab, setActiveTab] = useState<TabId>('summary');
   
   // 检查是否是 FreeDive 个人最佳记录
-  const freeDivePersonalBestId = getFreeDivePBId(useDiveStore.getState().dives);
-  const isPersonalBest = dive.diveType === 'FreeDive' && dive.id === freeDivePersonalBestId;
+  const freeDivePBIds = getFreeDivePBIds(useDiveStore.getState().dives);
+  const isPersonalBest = dive.diveType === 'FreeDive' && freeDivePBIds.has(dive.id);
 
   return (
     <div className="h-full flex flex-col bg-dive-surface">

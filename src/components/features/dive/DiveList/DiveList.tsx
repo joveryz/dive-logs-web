@@ -1,6 +1,6 @@
 import { useMemo, useState, useRef } from 'react';
 import { useDiveStore, selectDives } from '@/store';
-import { useFilteredDives, getFreeDivePBId } from '@/hooks';
+import { useFilteredDives, getFreeDivePBIds } from '@/hooks';
 import { SearchInput, DiveTypeBadge } from '@/components/common';
 import { formatDuration, formatDepth } from '@/utils';
 import type { SortField, SortDirection, Dive } from '@/types';
@@ -175,10 +175,10 @@ export function DiveList() {
     });
   }, [filteredDives, sortField, sortDirection]);
 
-  // FreeDive PB (Personal Best) - 深度最深的 FreeDive
+  // FreeDive PB (Personal Best) - 每个 diver 的最深 FreeDive
   const allDives = useDiveStore(selectDives);
-  const freeDivePBId = useMemo(() => {
-    return getFreeDivePBId(allDives);
+  const freeDivePBIds = useMemo(() => {
+    return getFreeDivePBIds(allDives);
   }, [allDives]);
   
   // 键盘导航处理
@@ -310,7 +310,7 @@ export function DiveList() {
             key={dive.id}
             dive={dive}
             isSelected={selectedDiveId === dive.id}
-            isPB={dive.diveType === 'FreeDive' && dive.id === freeDivePBId}
+            isPB={dive.diveType === 'FreeDive' && freeDivePBIds.has(dive.id)}
             onClick={() => setSelectedDiveId(dive.id)}
             onKeyDown={(e) => handleKeyDown(e, dive.id)}
           />
