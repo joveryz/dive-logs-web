@@ -108,11 +108,34 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     }
   }, [generateDefaultFileName]);
 
+  // 校验 FIT 文件名格式：{Date}_{Buddy}_{Location}_{Site}_{Diver}
+  const validateFitFileName = useCallback((name: string): string | null => {
+    // 只允许英文字母、数字、下划线、连字符、点
+    if (!/^[a-zA-Z0-9_\-.]+$/.test(name)) {
+      return 'Filename can only contain letters, numbers, underscores, hyphens';
+    }
+    // 格式：YYYYMMDD_Buddy_Location_Site_Diver
+    const parts = name.split('_');
+    if (parts.length < 5) {
+      return 'Filename should have at least 5 parts';
+    }
+    return null;
+  }, []);
+
   // 上传文件到 GitHub
   const uploadToGitHub = useCallback(async () => {
     if (!selectedFile || !fileName.trim()) {
       setErrorMessage('Please select a file and enter filename');
       return;
+    }
+
+    // FIT 文件校验文件名格式
+    if (fileExt.toLowerCase() === '.fit') {
+      const validationError = validateFitFileName(fileName.trim());
+      if (validationError) {
+        setErrorMessage(validationError);
+        return;
+      }
     }
 
     setStep('uploading');
@@ -164,16 +187,23 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     }
   }, [selectedFile, fileName, token]);
 
-  // 重新上传
+  // 重新上传（清空所有设置）
   const resetUpload = useCallback(() => {
     setSelectedFile(null);
     setFileName('');
+    setFileExt('');
     setErrorMessage('');
     setUploadedUrl('');
     setStep('upload');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+  }, []);
+
+  // 重试上传（保留文件设置）
+  const retryUpload = useCallback(() => {
+    setErrorMessage('');
+    setStep('upload');
   }, []);
 
   if (!isOpen) return null;
@@ -239,7 +269,10 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
               </div>
 
               {errorMessage && (
-                <div className="text-red-400 text-sm">{errorMessage}</div>
+                <div className="flex items-center gap-2 px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span>{errorMessage}</span>
+                </div>
               )}
 
               <button
@@ -249,7 +282,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
               >
                 {isDecrypting ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <Unlock className="w-4 h-4 animate-pulse" />
                     Unlocking...
                   </>
                 ) : (
@@ -299,7 +332,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                 {selectedFile && (
                   <div>
                     <label className="block text-sm text-dive-text-secondary mb-1">
-                      Filename (saved to data/ directory)
+                      Filename
                     </label>
                     <div className="flex items-center gap-1">
                       <input
@@ -318,13 +351,19 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                 )}
 
                 {errorMessage && (
-                  <div className="text-red-400 text-sm">{errorMessage}</div>
+                  <div className="flex items-center gap-2 px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    <span>{errorMessage}</span>
+                  </div>
                 )}
               </div>
 
               <div className="pt-2">
                 <button
-                  onClick={uploadToGitHub}
+                  onClick={(e) => {
+                    (e.target as HTMLButtonElement).blur();
+                    uploadToGitHub();
+                  }}
                   disabled={!selectedFile || !fileName.trim()}
                   className="w-full py-2 bg-cyan-600 hover:bg-cyan-500 disabled:bg-dive-card disabled:text-dive-text-muted text-white font-medium rounded-lg transition-colors"
                 >
@@ -336,8 +375,8 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
 
           {/* Uploading Step */}
           {step === 'uploading' && (
-            <div className="flex flex-col items-center py-8">
-              <div className="w-10 h-10 border-3 border-cyan-400 border-t-transparent rounded-full animate-spin mb-4" />
+            <div className="flex flex-col items-center py-8 cursor-default select-none">
+              <div className="w-10 h-10 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mb-4" />
               <span className="text-dive-text">Uploading...</span>
             </div>
           )}
@@ -391,7 +430,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                   Check Settings
                 </button>
                 <button
-                  onClick={resetUpload}
+                  onClick={retryUpload}
                   className="flex-1 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-medium rounded-lg transition-colors"
                 >
                   Retry
