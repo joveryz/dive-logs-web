@@ -23,10 +23,10 @@ export default defineConfig({
     __APP_COMMIT_HASH__: JSON.stringify(getGitCommitHash()),
     __APP_BUILD_DATE__: JSON.stringify(getBuildDate()),
   },
-  //server:{
-  //  host:'172.16.68.151',
-  //  port:8000
-  //},
+  server: {
+    host: true, // 监听所有网络接口，允许局域网访问
+    port: 8000,
+  },
   base: '/',
   resolve: {
     alias: {
