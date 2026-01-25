@@ -28,4 +28,4 @@ export function decryptPAT(encryptedData: string, password: string): string {
 // 加密后的 PAT 数据（硬编码）
 // 使用控制台运行 encryptPAT(yourPAT, yourPassword) 生成
 // ========================================
-export const ENCRYPTED_PAT = 'U2FsdGVkX19Y9kfoFaYNOEd8i17EmFMRkG2txFycpj50zsVmBIdD1OzmEbYoMdv4thj9jWFhF7bCtF5Grd4CpRcHtjrKGLqYAcg3fhZYwtDdPUCcsiKnqFNhFLIPHmLbiYImF1ssyD33ew5N/tAc0w==';
+export const ENCRYPTED_PAT = 'U2FsdGVkX19ZEO7cjO7TVKeb3z/d7N8MOz1WbmQB54zJtimTRoObB+6LESR+rnl+sCE5V78JgN5PKZLKQRKab2Sr6rza5GA0Eua68OPzFNZiPEUL66W1yFHKzdkAiZPFNwjiB1/clZM2A1VCqRTtdQ==';
