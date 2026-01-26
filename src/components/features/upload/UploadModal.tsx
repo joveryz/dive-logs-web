@@ -1,9 +1,6 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Upload, X, Eye, EyeOff, Unlock, Lock, CheckCircle, CloudUpload, AlertCircle } from 'lucide-react';
 import { decryptPAT, ENCRYPTED_PAT } from '@/utils/crypto';
-
-// localStorage keys
-const STORAGE_KEY_UNLOCKED = 'upload_unlocked';
 
 // 固定仓库地址
 const REPO = 'joveryz/dive-logs';
@@ -36,21 +33,24 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 加载保存的状态
-  useEffect(() => {
-    if (isOpen) {
-      // 检查是否有缓存的解密后 token（会话级别）
-      const cachedToken = sessionStorage.getItem(STORAGE_KEY_UNLOCKED) || '';
-      setToken(cachedToken);
-      setStep(cachedToken ? 'upload' : 'config');
-      setSelectedFile(null);
-      setFileName('');
-      setFileExt('');
-      setErrorMessage('');
-      setUploadedUrl('');
-      setPassword('');
-    }
-  }, [isOpen]);
+  // 重置上传相关状态（保留 token）
+  const resetUploadState = useCallback(() => {
+    setSelectedFile(null);
+    setFileName('');
+    setFileExt('');
+    setErrorMessage('');
+    setUploadedUrl('');
+    setPassword('');
+    // 如果已有 token 则直接进入上传步骤
+    setStep(token ? 'upload' : 'config');
+  }, [token]);
+
+  // 模态框打开时重置状态
+  const prevIsOpen = useRef(isOpen);
+  if (isOpen && !prevIsOpen.current) {
+    resetUploadState();
+  }
+  prevIsOpen.current = isOpen;
 
   // 解密并保存
   const unlockWithPassword = useCallback(() => {
@@ -69,8 +69,6 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     try {
       const decryptedToken = decryptPAT(ENCRYPTED_PAT, password.trim());
       setToken(decryptedToken);
-      // 仅保存到 sessionStorage（关闭浏览器后清除）
-      sessionStorage.setItem(STORAGE_KEY_UNLOCKED, decryptedToken);
       setStep('upload');
     } catch {
       setErrorMessage('Incorrect password');
@@ -79,9 +77,8 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     }
   }, [password]);
 
-  // 锁定（清除解密的 token）
+  // 锁定（清除内存中的 token）
   const lockAccess = useCallback(() => {
-    sessionStorage.removeItem(STORAGE_KEY_UNLOCKED);
     setToken('');
     setPassword('');
     setStep('config');
