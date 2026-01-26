@@ -26,24 +26,47 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
   // 上传状态
   const [step, setStep] = useState<UploadStep>('config');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [fileName, setFileName] = useState('');  // 不含扩展名的文件名
+  const [fileName, setFileName] = useState('');  // 非 FIT 文件的文件名
   const [fileExt, setFileExt] = useState('');    // 扩展名（如 .fit）
   const [errorMessage, setErrorMessage] = useState('');
   const [uploadedUrl, setUploadedUrl] = useState('');
   
+  // FIT 文件五部分
+  const [fitDate, setFitDate] = useState('');
+  const [fitBuddy, setFitBuddy] = useState('');
+  const [fitLocation, setFitLocation] = useState('');
+  const [fitSite, setFitSite] = useState('');
+  const [fitDiver, setFitDiver] = useState('');
+  
+  // 判断是否是 FIT 文件
+  const isFitFile = fileExt.toLowerCase() === '.fit';
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 重置上传相关状态（保留 token）
-  const resetUploadState = useCallback(() => {
+  // 重置文件相关状态
+  const resetFileState = useCallback(() => {
     setSelectedFile(null);
     setFileName('');
     setFileExt('');
+    setFitDate('');
+    setFitBuddy('');
+    setFitLocation('');
+    setFitSite('');
+    setFitDiver('');
     setErrorMessage('');
     setUploadedUrl('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }, []);
+
+  // 重置上传相关状态（保留 token）
+  const resetUploadState = useCallback(() => {
+    resetFileState();
     setPassword('');
     // 如果已有 token 则直接进入上传步骤
     setStep(token ? 'upload' : 'config');
-  }, [token]);
+  }, [token, resetFileState]);
 
   // 模态框打开时重置状态
   const prevIsOpen = useRef(isOpen);
@@ -84,55 +107,95 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     setStep('config');
   }, []);
 
-  // 生成默认文件名（不含扩展名）
-  const generateDefaultFileName = useCallback((file: File) => {
-    const today = new Date();
-    const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
-    // 获取不含扩展名的文件名
-    const baseName = file.name.replace(/\.[^.]+$/, '');
-    return `${dateStr}_${baseName}`;
-  }, []);
-
   // 选择文件
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      setFileName(generateDefaultFileName(file));
       // 提取扩展名
       const ext = file.name.includes('.') ? file.name.slice(file.name.lastIndexOf('.')) : '';
       setFileExt(ext);
+      
+      // FIT 文件尝试解析原始文件名
+      if (ext.toLowerCase() === '.fit') {
+        const baseName = file.name.replace(/\.[^.]+$/, '');
+        const parts = baseName.split('_');
+        
+        if (parts.length === 5) {
+          // 文件名符合五部分格式，自动填入
+          setFitDate(parts[0]);
+          setFitBuddy(parts[1]);
+          setFitLocation(parts[2]);
+          setFitSite(parts[3]);
+          setFitDiver(parts[4]);
+        } else {
+          // 不符合格式，只填入今天日期
+          const today = new Date();
+          const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
+          setFitDate(dateStr);
+          setFitBuddy('');
+          setFitLocation('');
+          setFitSite('');
+          setFitDiver('');
+        }
+      } else {
+        // 非 FIT 文件：使用原始文件名（不含扩展名）
+        const baseName = file.name.replace(/\.[^.]+$/, '');
+        setFileName(baseName);
+      }
     }
-  }, [generateDefaultFileName]);
+  }, []);
 
-  // 校验 FIT 文件名格式：{Date}_{Buddy}_{Location}_{Site}_{Diver}
-  const validateFitFileName = useCallback((name: string): string | null => {
-    // 只允许英文字母、数字、下划线、连字符、点
-    if (!/^[a-zA-Z0-9_\-.]+$/.test(name)) {
-      return 'Filename can only contain letters, numbers, underscores, hyphens';
+  // 校验单个字段：只允许英文字母、数字、连字符、点（不允许下划线，因为下划线用作分隔符）
+  const validateField = useCallback((value: string, fieldName: string): string | null => {
+    if (!value.trim()) {
+      return `${fieldName} is required`;
     }
-    // 格式：YYYYMMDD_Buddy_Location_Site_Diver
-    const parts = name.split('_');
-    if (parts.length < 5) {
-      return 'Filename should have at least 5 parts';
+    if (!/^[a-zA-Z0-9\-.]+$/.test(value)) {
+      return `${fieldName} can only contain letters, numbers, hyphens, dots`;
     }
     return null;
   }, []);
 
+  // 校验 FIT 文件所有字段
+  const validateFitFields = useCallback((): string | null => {
+    // 日期必须是8位数字
+    if (!/^\d{8}$/.test(fitDate)) {
+      return 'Date must be 8 digits (YYYYMMDD)';
+    }
+    const buddyErr = validateField(fitBuddy, 'Buddy');
+    if (buddyErr) return buddyErr;
+    const locationErr = validateField(fitLocation, 'Location');
+    if (locationErr) return locationErr;
+    const siteErr = validateField(fitSite, 'Site');
+    if (siteErr) return siteErr;
+    const diverErr = validateField(fitDiver, 'Diver');
+    if (diverErr) return diverErr;
+    return null;
+  }, [fitDate, fitBuddy, fitLocation, fitSite, fitDiver, validateField]);
+
   // 上传文件到 GitHub
   const uploadToGitHub = useCallback(async () => {
-    if (!selectedFile || !fileName.trim()) {
-      setErrorMessage('Please select a file and enter filename');
+    if (!selectedFile) {
+      setErrorMessage('Please select a file');
       return;
     }
 
-    // FIT 文件校验文件名格式
-    if (fileExt.toLowerCase() === '.fit') {
-      const validationError = validateFitFileName(fileName.trim());
+    // FIT 文件校验五部分
+    let finalFileName: string;
+    if (isFitFile) {
+      const validationError = validateFitFields();
       if (validationError) {
         setErrorMessage(validationError);
         return;
       }
+      finalFileName = `${fitDate}_${fitBuddy}_${fitLocation}_${fitSite}_${fitDiver}${fileExt}`;
+    } else {
+      if (!fileName.trim()) {
+        setErrorMessage('Please enter filename');
+        return;
+      }
+      finalFileName = `${fileName.trim()}${fileExt}`;
     }
 
     setStep('uploading');
@@ -150,25 +213,41 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
         reader.readAsDataURL(selectedFile);
       });
 
-      // 使用用户输入的文件名 + 原扩展名
-      const finalFileName = `${fileName.trim()}${fileExt}`;
+      const apiUrl = `https://api.github.com/repos/${REPO}/contents/data/${finalFileName}`;
 
-      // 调用 GitHub API
-      const response = await fetch(
-        `https://api.github.com/repos/${REPO}/contents/data/${finalFileName}`,
-        {
-          method: 'PUT',
+      // 先检查文件是否已存在，获取 sha（用于覆盖）
+      let existingSha: string | undefined;
+      try {
+        const checkResponse = await fetch(apiUrl, {
           headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
             'Accept': 'application/vnd.github.v3+json',
           },
-          body: JSON.stringify({
-            message: `Add dive log: ${finalFileName}`,
-            content: fileContent,
-          }),
+        });
+        if (checkResponse.ok) {
+          const existingFile = await checkResponse.json();
+          existingSha = existingFile.sha;
         }
-      );
+      } catch {
+        // 文件不存在，忽略错误
+      }
+
+      // 调用 GitHub API（创建或更新）
+      const response = await fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/vnd.github.v3+json',
+        },
+        body: JSON.stringify({
+          message: existingSha 
+            ? `Update dive log: ${finalFileName}` 
+            : `Add dive log: ${finalFileName}`,
+          content: fileContent,
+          ...(existingSha && { sha: existingSha }),
+        }),
+      });
 
       if (!response.ok) {
         const error = await response.json();
@@ -182,20 +261,13 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
       setErrorMessage(err instanceof Error ? err.message : 'Upload failed');
       setStep('error');
     }
-  }, [selectedFile, fileName, token]);
+  }, [selectedFile, fileName, fileExt, token, isFitFile, validateFitFields, fitDate, fitBuddy, fitLocation, fitSite, fitDiver]);
 
   // 重新上传（清空所有设置）
   const resetUpload = useCallback(() => {
-    setSelectedFile(null);
-    setFileName('');
-    setFileExt('');
-    setErrorMessage('');
-    setUploadedUrl('');
+    resetFileState();
     setStep('upload');
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  }, []);
+  }, [resetFileState]);
 
   // 重试上传（保留文件设置）
   const retryUpload = useCallback(() => {
@@ -325,8 +397,70 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                   </label>
                 </div>
 
-                {/* File Name */}
-                {selectedFile && (
+                {/* File Name - FIT 文件显示5个字段，其他文件显示单一输入框 */}
+                {selectedFile && isFitFile && (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-xs text-dive-text-secondary mb-1">Date (YYYYMMDD)</label>
+                        <input
+                          type="text"
+                          value={fitDate}
+                          onChange={(e) => setFitDate(e.target.value)}
+                          placeholder="20260126"
+                          className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-dive-text-secondary mb-1">Buddy</label>
+                        <input
+                          type="text"
+                          value={fitBuddy}
+                          onChange={(e) => setFitBuddy(e.target.value)}
+                          placeholder="Solo"
+                          className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-xs text-dive-text-secondary mb-1">Location</label>
+                        <input
+                          type="text"
+                          value={fitLocation}
+                          onChange={(e) => setFitLocation(e.target.value)}
+                          placeholder="Beijing"
+                          className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-dive-text-secondary mb-1">Site</label>
+                        <input
+                          type="text"
+                          value={fitSite}
+                          onChange={(e) => setFitSite(e.target.value)}
+                          placeholder="HiDive"
+                          className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-dive-text-secondary mb-1">Diver</label>
+                      <input
+                        type="text"
+                        value={fitDiver}
+                        onChange={(e) => setFitDiver(e.target.value)}
+                        placeholder="Jovery"
+                        className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
+                      />
+                    </div>
+                    <p className="text-xs text-dive-text-muted">
+                      Preview: <span className="font-mono text-cyan-400">{fitDate}_{fitBuddy}_{fitLocation}_{fitSite}_{fitDiver}.fit</span>
+                    </p>
+                  </div>
+                )}
+
+                {selectedFile && !isFitFile && (
                   <div>
                     <label className="block text-sm text-dive-text-secondary mb-1">
                       Filename
@@ -336,14 +470,11 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                         type="text"
                         value={fileName}
                         onChange={(e) => setFileName(e.target.value)}
-                        placeholder="Date_Buddy_Location_Site_Diver"
+                        placeholder="filename"
                         className="flex-1 px-3 py-2 bg-dive-card border border-dive-border rounded-lg text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
                       />
                       <span className="text-dive-text-muted font-mono text-sm">{fileExt}</span>
                     </div>
-                    <p className="text-xs text-dive-text-muted mt-1">
-                      Suggested format: {'{Date}_{Buddy}_{Location}_{Site}_{Diver}'}
-                    </p>
                   </div>
                 )}
 
@@ -361,7 +492,12 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                     (e.target as HTMLButtonElement).blur();
                     uploadToGitHub();
                   }}
-                  disabled={!selectedFile || !fileName.trim()}
+                  disabled={
+                    !selectedFile || 
+                    (isFitFile 
+                      ? !fitDate || !fitBuddy || !fitLocation || !fitSite || !fitDiver
+                      : !fileName.trim())
+                  }
                   className="w-full py-2 bg-cyan-600 hover:bg-cyan-500 disabled:bg-dive-card disabled:text-dive-text-muted text-white font-medium rounded-lg transition-colors"
                 >
                   Upload
