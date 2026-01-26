@@ -27,12 +27,18 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     const diverSet = new Set<string>();
     const locationSet = new Set<string>();
     const siteSet = new Set<string>();
+    const tagSet = new Set<string>();
     
     for (const dive of dives) {
       if (dive.buddy) buddySet.add(dive.buddy);
       if (dive.diver) diverSet.add(dive.diver);
       if (dive.location) locationSet.add(dive.location);
       if (dive.site) siteSet.add(dive.site);
+      if (dive.tags) {
+        for (const tag of dive.tags) {
+          tagSet.add(tag);
+        }
+      }
     }
     
     return {
@@ -40,6 +46,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
       diver: Array.from(diverSet).sort(),
       location: Array.from(locationSet).sort(),
       site: Array.from(siteSet).sort(),
+      tag: Array.from(tagSet).sort(),
     };
   }, [dives]);
 
@@ -57,12 +64,13 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
   const [errorMessage, setErrorMessage] = useState('');
   const [uploadedUrl, setUploadedUrl] = useState('');
   
-  // FIT 文件五部分
+  // FIT 文件五部分 + 可选 Tag
   const [fitDate, setFitDate] = useState('');
   const [fitBuddy, setFitBuddy] = useState('');
   const [fitLocation, setFitLocation] = useState('');
   const [fitSite, setFitSite] = useState('');
   const [fitDiver, setFitDiver] = useState('');
+  const [fitTag, setFitTag] = useState('');
   
   // 判断是否是 FIT 文件
   const isFitFile = fileExt.toLowerCase() === '.fit';
@@ -79,6 +87,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     setFitLocation('');
     setFitSite('');
     setFitDiver('');
+    setFitTag('');
     setErrorMessage('');
     setUploadedUrl('');
     if (fileInputRef.current) {
@@ -147,13 +156,14 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
         const baseName = file.name.replace(/\.[^.]+$/, '');
         const parts = baseName.split('_');
         
-        if (parts.length === 5) {
-          // 文件名符合五部分格式，自动填入
+        if (parts.length >= 5 && parts.length <= 6) {
+          // 文件名符合格式，自动填入
           setFitDate(parts[0]);
           setFitBuddy(parts[1]);
           setFitLocation(parts[2]);
           setFitSite(parts[3]);
           setFitDiver(parts[4]);
+          setFitTag(parts[5] || '');  // 第6部分为可选 Tag
         } else {
           // 不符合格式，只填入今天日期
           const today = new Date();
@@ -163,6 +173,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
           setFitLocation('');
           setFitSite('');
           setFitDiver('');
+          setFitTag('');
         }
       } else {
         // 非 FIT 文件：使用原始文件名（不含扩展名）
@@ -197,8 +208,12 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     if (siteErr) return siteErr;
     const diverErr = validateField(fitDiver, 'Diver');
     if (diverErr) return diverErr;
+    // Tag 是可选的，但如果填了要校验格式
+    if (fitTag.trim() && !/^[a-zA-Z0-9\-.]+$/.test(fitTag)) {
+      return 'Tag can only contain letters, numbers, hyphens, dots';
+    }
     return null;
-  }, [fitDate, fitBuddy, fitLocation, fitSite, fitDiver, validateField]);
+  }, [fitDate, fitBuddy, fitLocation, fitSite, fitDiver, fitTag, validateField]);
 
   // 上传文件到 GitHub
   const uploadToGitHub = useCallback(async () => {
@@ -207,7 +222,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
       return;
     }
 
-    // FIT 文件校验五部分
+    // FIT 文件校验
     let finalFileName: string;
     if (isFitFile) {
       const validationError = validateFitFields();
@@ -215,7 +230,9 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
         setErrorMessage(validationError);
         return;
       }
-      finalFileName = `${fitDate}_${fitBuddy}_${fitLocation}_${fitSite}_${fitDiver}${fileExt}`;
+      // 如果有 Tag 则添加到文件名
+      const tagPart = fitTag.trim() ? `_${fitTag.trim()}` : '';
+      finalFileName = `${fitDate}_${fitBuddy}_${fitLocation}_${fitSite}_${fitDiver}${tagPart}${fileExt}`;
     } else {
       if (!fileName.trim()) {
         setErrorMessage('Please enter filename');
@@ -439,6 +456,9 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                     <datalist id="site-options">
                       {fieldOptions.site.map(opt => <option key={opt} value={opt} />)}
                     </datalist>
+                    <datalist id="tag-options">
+                      {fieldOptions.tag.map(opt => <option key={opt} value={opt} />)}
+                    </datalist>
 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
@@ -487,19 +507,32 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                         />
                       </div>
                     </div>
-                    <div>
-                      <label className="block text-xs text-dive-text-secondary mb-1">Diver</label>
-                      <input
-                        type="text"
-                        list="diver-options"
-                        value={fitDiver}
-                        onChange={(e) => setFitDiver(e.target.value)}
-                        placeholder="Jovery"
-                        className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
-                      />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-xs text-dive-text-secondary mb-1">Diver</label>
+                        <input
+                          type="text"
+                          list="diver-options"
+                          value={fitDiver}
+                          onChange={(e) => setFitDiver(e.target.value)}
+                          placeholder="Jovery"
+                          className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-dive-text-secondary mb-1">Tag <span className="text-dive-text-muted">(optional)</span></label>
+                        <input
+                          type="text"
+                          list="tag-options"
+                          value={fitTag}
+                          onChange={(e) => setFitTag(e.target.value.toUpperCase())}
+                          placeholder="AIDA2"
+                          className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm uppercase"
+                        />
+                      </div>
                     </div>
                     <p className="text-xs text-dive-text-muted">
-                      Preview: <span className="font-mono text-cyan-400">{fitDate}_{fitBuddy}_{fitLocation}_{fitSite}_{fitDiver}.fit</span>
+                      Preview: <span className="font-mono text-cyan-400">{fitDate}_{fitBuddy}_{fitLocation}_{fitSite}_{fitDiver}{fitTag.trim() ? `_${fitTag.trim()}` : ''}.fit</span>
                     </p>
                   </div>
                 )}
