@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Upload } from 'lucide-react';
-import { UploadModal } from '@/components/features';
+import { Settings } from 'lucide-react';
+import { DataManagementModal } from '@/components/features';
 
 interface HeaderProps {
   slogan?: string;
@@ -9,7 +9,7 @@ interface HeaderProps {
 export function Header({ 
   slogan = 'Deep Dive, Dive Deep' 
 }: HeaderProps) {
-  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <>
@@ -32,18 +32,18 @@ export function Header({
           <span className="text-cyan-400 font-semibold text-lg">{slogan}</span>
         </div>
         
-        {/* 上传按钮 */}
+        {/* 数据管理按钮 */}
         <button
-          onClick={() => setIsUploadOpen(true)}
+          onClick={() => setIsModalOpen(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-cyan-400 hover:text-cyan-300 hover:bg-dive-card/50 rounded-lg transition-all"
-          title="Upload FIT File"
+          title="Data Management"
         >
-          <Upload className="w-4 h-4" />
-          <span className="hidden sm:inline">Upload</span>
+          <Settings className="w-4 h-4" />
+          <span className="hidden sm:inline">Manage</span>
         </button>
       </header>
       
-      <UploadModal isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} />
+      <DataManagementModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>
   );
 }

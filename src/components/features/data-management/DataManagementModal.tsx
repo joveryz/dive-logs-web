@@ -1,5 +1,5 @@
-import { useState, useCallback, useRef, useMemo } from 'react';
-import { Upload, X, Eye, EyeOff, Unlock, Lock, CheckCircle, CloudUpload, AlertCircle } from 'lucide-react';
+import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
+import { X, Eye, EyeOff, Unlock, Lock, CheckCircle, CloudUpload, AlertCircle, Trash2, Pencil, Loader2, Settings } from 'lucide-react';
 import { decryptPAT, ENCRYPTED_PAT } from '@/utils/crypto';
 import { useDiveStore } from '@/store';
 import { selectDives } from '@/store/selectors';
@@ -7,18 +7,26 @@ import { selectDives } from '@/store/selectors';
 // 固定仓库地址
 const REPO = 'joveryz/dive-logs';
 
-interface UploadModalProps {
+interface DataManagementModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
 type UploadStep = 'config' | 'upload' | 'uploading' | 'success' | 'error';
+type ActiveTab = 'upload' | 'manage';
+
+interface GitHubFile {
+  name: string;
+  sha: string;
+  size: number;
+  download_url: string;
+}
 
 /**
- * 潜水日志文件上传到 GitHub 的模态框
- * 支持 FIT、CSV 等格式
+ * 潜水日志管理模态框
+ * 支持上传和管理 GitHub 仓库中的 FIT、DB 等文件
  */
-export function UploadModal({ isOpen, onClose }: UploadModalProps) {
+export function DataManagementModal({ isOpen, onClose }: DataManagementModalProps) {
   // 从 store 获取已有潜水记录，生成候选项
   const dives = useDiveStore(selectDives);
   
@@ -50,6 +58,9 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     };
   }, [dives]);
 
+  // Tab 状态
+  const [activeTab, setActiveTab] = useState<ActiveTab>('upload');
+
   // 配置状态
   const [password, setPassword] = useState('');
   const [token, setToken] = useState('');
@@ -71,6 +82,15 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
   const [fitLocation, setFitLocation] = useState('');
   const [fitSite, setFitSite] = useState('');
   const [fitTag, setFitTag] = useState('');
+  
+  // Manage 状态
+  const [files, setFiles] = useState<GitHubFile[]>([]);
+  const [isLoadingFiles, setIsLoadingFiles] = useState(false);
+  const [manageError, setManageError] = useState('');
+  const [editingFile, setEditingFile] = useState<GitHubFile | null>(null);
+  const [newFileName, setNewFileName] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<GitHubFile | null>(null);
   
   // 判断是否是 FIT 文件
   const isFitFile = fileExt.toLowerCase() === '.fit';
@@ -318,6 +338,250 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     setStep('upload');
   }, []);
 
+  // ==================== Manage 功能 ====================
+  
+  // 获取文件列表
+  const fetchFiles = useCallback(async () => {
+    if (!token) return;
+    
+    setIsLoadingFiles(true);
+    setManageError('');
+    
+    try {
+      const response = await fetch(
+        `https://api.github.com/repos/${REPO}/contents/data`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+          },
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch files: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      // 过滤只显示文件，排除目录
+      const fileList: GitHubFile[] = data
+        .filter((item: { type: string }) => item.type === 'file')
+        .map((item: { name: string; sha: string; size: number; download_url: string }) => ({
+          name: item.name,
+          sha: item.sha,
+          size: item.size,
+          download_url: item.download_url,
+        }))
+        .sort((a: GitHubFile, b: GitHubFile) => b.name.localeCompare(a.name)); // 按名称倒序（最新的在前）
+      
+      setFiles(fileList);
+    } catch (err) {
+      setManageError(err instanceof Error ? err.message : 'Failed to fetch files');
+    } finally {
+      setIsLoadingFiles(false);
+    }
+  }, [token]);
+
+  // 切换到 Manage tab 时加载文件列表
+  useEffect(() => {
+    if (activeTab === 'manage' && token && files.length === 0) {
+      fetchFiles();
+    }
+  }, [activeTab, token, files.length, fetchFiles]);
+
+  // 删除文件
+  const deleteFile = useCallback(async (file: GitHubFile) => {
+    if (!token) return;
+    
+    setIsProcessing(true);
+    setManageError('');
+    
+    try {
+      const response = await fetch(
+        `https://api.github.com/repos/${REPO}/contents/data/${file.name}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github.v3+json',
+          },
+          body: JSON.stringify({
+            message: `Delete dive log: ${file.name}`,
+            sha: file.sha,
+          }),
+        }
+      );
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || `HTTP ${response.status}`);
+      }
+      
+      // 刷新文件列表
+      setDeleteConfirm(null);
+      await fetchFiles();
+    } catch (err) {
+      setManageError(err instanceof Error ? err.message : 'Delete failed');
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [token, fetchFiles]);
+
+  // 重命名文件
+  const renameFile = useCallback(async () => {
+    if (!token || !editingFile || !newFileName.trim()) return;
+    
+    const trimmedName = newFileName.trim();
+    if (trimmedName === editingFile.name) {
+      setEditingFile(null);
+      return;
+    }
+    
+    setIsProcessing(true);
+    setManageError('');
+    
+    try {
+      // 1. 获取原文件信息
+      const getResponse = await fetch(
+        `https://api.github.com/repos/${REPO}/contents/data/${editingFile.name}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+          },
+        }
+      );
+      
+      if (!getResponse.ok) {
+        throw new Error('Failed to get file info');
+      }
+      
+      const fileData = await getResponse.json();
+      
+      // 2. 获取文件实际内容（通过 download_url 下载，确保获取完整内容）
+      let base64Content: string;
+      
+      if (fileData.content) {
+        // 小文件：API 直接返回 content（去掉换行符）
+        base64Content = fileData.content.replace(/\n/g, '');
+      } else if (fileData.download_url) {
+        // 大文件/二进制文件：通过 download_url 下载
+        const downloadResponse = await fetch(fileData.download_url);
+        if (!downloadResponse.ok) {
+          throw new Error('Failed to download file content');
+        }
+        const blob = await downloadResponse.blob();
+        // 转换为 base64
+        base64Content = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const result = reader.result as string;
+            // 移除 data:xxx;base64, 前缀
+            resolve(result.split(',')[1]);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      } else {
+        throw new Error('Cannot get file content');
+      }
+      
+      // 3. 创建新文件
+      const createResponse = await fetch(
+        `https://api.github.com/repos/${REPO}/contents/data/${trimmedName}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github.v3+json',
+          },
+          body: JSON.stringify({
+            message: `Rename: ${editingFile.name} -> ${trimmedName}`,
+            content: base64Content,
+          }),
+        }
+      );
+      
+      if (!createResponse.ok) {
+        const error = await createResponse.json();
+        throw new Error(error.message || 'Failed to create new file');
+      }
+      
+      // 验证新文件确实创建成功
+      const createResult = await createResponse.json();
+      if (!createResult.content?.sha) {
+        throw new Error('New file creation not confirmed');
+      }
+      
+      // 4. 只有在新文件确认创建成功后才删除原文件
+      // 重新获取原文件的最新 sha（避免并发问题）
+      const recheckResponse = await fetch(
+        `https://api.github.com/repos/${REPO}/contents/data/${editingFile.name}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+          },
+        }
+      );
+      
+      if (!recheckResponse.ok) {
+        // 原文件可能已被删除，忽略
+        setEditingFile(null);
+        setNewFileName('');
+        await fetchFiles();
+        return;
+      }
+      
+      const recheckData = await recheckResponse.json();
+      
+      const deleteResponse = await fetch(
+        `https://api.github.com/repos/${REPO}/contents/data/${editingFile.name}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github.v3+json',
+          },
+          body: JSON.stringify({
+            message: `Rename: delete old file ${editingFile.name}`,
+            sha: recheckData.sha, // 使用最新的 sha
+          }),
+        }
+      );
+      
+      if (!deleteResponse.ok) {
+        const error = await deleteResponse.json();
+        throw new Error(error.message || 'Failed to delete old file');
+      }
+      
+      // 刷新文件列表
+      setEditingFile(null);
+      setNewFileName('');
+      await fetchFiles();
+    } catch (err) {
+      setManageError(err instanceof Error ? err.message : 'Rename failed');
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [token, editingFile, newFileName, fetchFiles]);
+
+  // 开始编辑文件名
+  const startRename = useCallback((file: GitHubFile) => {
+    setEditingFile(file);
+    setNewFileName(file.name);
+    setDeleteConfirm(null);
+  }, []);
+
+  // 取消编辑
+  const cancelRename = useCallback(() => {
+    setEditingFile(null);
+    setNewFileName('');
+  }, []);
+
   if (!isOpen) return null;
 
   return (
@@ -328,8 +592,8 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-dive-border">
           <h2 className="text-cyan-400 font-semibold text-lg flex items-center gap-2">
-            <Upload className="w-5 h-5" />
-            Upload Dive Log
+            <Settings className="w-5 h-5" />
+            Dive Log Management
           </h2>
           <button
             onClick={onClose}
@@ -340,13 +604,39 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
           </button>
         </div>
 
+        {/* Tabs - 只在解锁后显示 */}
+        {token && step !== 'config' && (
+          <div className="flex border-b border-dive-border">
+            <button
+              onClick={() => setActiveTab('upload')}
+              className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                activeTab === 'upload'
+                  ? 'text-cyan-400 border-b-2 border-cyan-400'
+                  : 'text-dive-text-muted hover:text-dive-text'
+              }`}
+            >
+              Upload
+            </button>
+            <button
+              onClick={() => setActiveTab('manage')}
+              className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                activeTab === 'manage'
+                  ? 'text-cyan-400 border-b-2 border-cyan-400'
+                  : 'text-dive-text-muted hover:text-dive-text'
+              }`}
+            >
+              Manage
+            </button>
+          </div>
+        )}
+
         {/* Content */}
         <div className="p-4 space-y-4">
           {/* Config Step - Password Input */}
           {step === 'config' && (
             <>
               <div className="text-sm text-dive-text-muted mb-4">
-                Enter password to unlock upload feature
+                Enter password to unlock
               </div>
               
               <div className="space-y-3">
@@ -407,7 +697,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
           )}
 
           {/* Upload Step */}
-          {step === 'upload' && (
+          {step === 'upload' && activeTab === 'upload' && (
             <>
               <div className="space-y-4">
                 {/* File Select */}
@@ -461,12 +751,12 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-xs text-dive-text-secondary mb-1">Date (YYYYMMDD)</label>
+                        <label className="block text-xs text-dive-text-secondary mb-1">Date</label>
                         <input
                           type="text"
                           value={fitDate}
                           onChange={(e) => setFitDate(e.target.value)}
-                          placeholder="20260126"
+                          placeholder="YYYYMMDD"
                           className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
                         />
                       </div>
@@ -519,19 +809,19 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-dive-text-secondary mb-1">Tag <span className="text-dive-text-muted">(optional)</span></label>
+                        <label className="block text-xs text-dive-text-secondary mb-1">Tag <span className="text-dive-text-muted/60">(opt)</span></label>
                         <input
                           type="text"
                           list="tag-options"
                           value={fitTag}
                           onChange={(e) => setFitTag(e.target.value.toUpperCase())}
-                          placeholder="AIDA2"
+                          placeholder="AIDA4"
                           className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm uppercase"
                         />
                       </div>
                     </div>
                     <p className="text-xs text-dive-text-muted">
-                      Preview: <span className="font-mono text-cyan-400">{fitDate}_{fitDiver}_{fitBuddy}_{fitLocation}_{fitSite}{fitTag.trim() ? `_${fitTag.trim()}` : ''}.fit</span>
+                      <span className="font-mono text-cyan-400">{fitDate}_{fitDiver}_{fitBuddy}_{fitLocation}_{fitSite}{fitTag.trim() ? `_${fitTag.trim()}` : ''}.fit</span>
                     </p>
                   </div>
                 )}
@@ -583,7 +873,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
           )}
 
           {/* Uploading Step */}
-          {step === 'uploading' && (
+          {step === 'uploading' && activeTab === 'upload' && (
             <div className="flex flex-col items-center py-8 cursor-default select-none">
               <div className="w-10 h-10 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mb-4" />
               <span className="text-dive-text">Uploading...</span>
@@ -591,7 +881,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
           )}
 
           {/* Success Step */}
-          {step === 'success' && (
+          {step === 'success' && activeTab === 'upload' && (
             <div className="text-center py-6">
               <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-dive-text mb-2">Upload Successful!</h3>
@@ -626,7 +916,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
           )}
 
           {/* Error Step */}
-          {step === 'error' && (
+          {step === 'error' && activeTab === 'upload' && (
             <div className="text-center py-6">
               <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-dive-text mb-2">Upload Failed</h3>
@@ -647,10 +937,131 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
               </div>
             </div>
           )}
+
+          {/* Manage Tab */}
+          {activeTab === 'manage' && token && (
+            <div className="space-y-3">
+              {/* Error Message */}
+              {manageError && (
+                <div className="flex items-center gap-2 px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span>{manageError}</span>
+                </div>
+              )}
+
+              {/* Loading */}
+              {isLoadingFiles && (
+                <div className="flex flex-col items-center py-8">
+                  <Loader2 className="w-8 h-8 text-cyan-400 animate-spin mb-2" />
+                  <span className="text-dive-text-muted text-sm">Loading files...</span>
+                </div>
+              )}
+
+              {/* File List */}
+              {!isLoadingFiles && files.length === 0 && (
+                <div className="text-center py-8 text-dive-text-muted">
+                  No files found
+                </div>
+              )}
+
+              {!isLoadingFiles && files.length > 0 && (
+                <div className="max-h-80 overflow-y-auto space-y-2">
+                  {files.map((file) => (
+                    <div
+                      key={file.sha}
+                      className="flex items-center gap-2 p-2 bg-dive-card rounded-lg border border-dive-border"
+                    >
+                      {editingFile?.sha === file.sha ? (
+                        // 编辑模式
+                        <div className="flex-1 flex flex-col gap-2">
+                          <input
+                            type="text"
+                            value={newFileName}
+                            onChange={(e) => setNewFileName(e.target.value)}
+                            className="w-full px-2 py-1 bg-dive-surface border border-dive-border rounded text-dive-text font-mono text-xs focus:outline-none focus:border-cyan-500/50"
+                            autoFocus
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              onClick={renameFile}
+                              disabled={isProcessing || !newFileName.trim() || newFileName === file.name}
+                              className="flex-1 py-1 text-xs bg-cyan-600 hover:bg-cyan-500 disabled:bg-dive-card disabled:text-dive-text-muted text-white rounded transition-colors"
+                            >
+                              {isProcessing ? 'Saving...' : 'Save'}
+                            </button>
+                            <button
+                              onClick={cancelRename}
+                              disabled={isProcessing}
+                              className="flex-1 py-1 text-xs border border-dive-border text-dive-text-muted hover:text-dive-text rounded transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : deleteConfirm?.sha === file.sha ? (
+                        // 删除确认模式
+                        <div className="flex-1 flex flex-col gap-2">
+                          <p className="text-xs text-red-400">Delete "{file.name}"?</p>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => deleteFile(file)}
+                              disabled={isProcessing}
+                              className="flex-1 py-1 text-xs bg-red-600 hover:bg-red-500 disabled:bg-dive-card disabled:text-dive-text-muted text-white rounded transition-colors"
+                            >
+                              {isProcessing ? 'Deleting...' : 'Confirm'}
+                            </button>
+                            <button
+                              onClick={() => setDeleteConfirm(null)}
+                              disabled={isProcessing}
+                              className="flex-1 py-1 text-xs border border-dive-border text-dive-text-muted hover:text-dive-text rounded transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        // 正常显示模式
+                        <>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs text-dive-text font-mono truncate">{file.name}</p>
+                            <p className="text-xs text-dive-text-muted">{(file.size / 1024).toFixed(1)} KB</p>
+                          </div>
+                          <button
+                            onClick={() => startRename(file)}
+                            className="p-1.5 text-dive-text-muted hover:text-cyan-400 transition-colors"
+                            title="Rename"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => setDeleteConfirm(file)}
+                            className="p-1.5 text-dive-text-muted hover:text-red-400 transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Refresh Button */}
+              {!isLoadingFiles && (
+                <button
+                  onClick={fetchFiles}
+                  className="w-full py-2 text-sm border border-dive-border text-dive-text-muted hover:text-dive-text rounded-lg transition-colors"
+                >
+                  Refresh
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer - Lock button */}
-        {step === 'upload' && (
+        {token && (step === 'upload' || activeTab === 'manage') && (
           <div className="px-4 py-3 border-t border-dive-border bg-dive-card/30 flex items-center justify-between">
             <span className="text-xs text-green-400 flex items-center gap-1">
               <Unlock className="w-3.5 h-3.5" />

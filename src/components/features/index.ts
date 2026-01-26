@@ -1,5 +1,5 @@
 // Dive feature components
 export * from './dive';
 
-// Upload feature
-export * from './upload';
+// Data management feature
+export * from './data-management';
