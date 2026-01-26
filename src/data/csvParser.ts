@@ -559,8 +559,9 @@ export function parseDivesFromCSV(): Dive[] {
       site: summary.Site || 'Unknown',
       diver: summary.Diver || 'Unknown',
       buddy: summary.Buddy || 'Solo',
-      notes: summary.Note || undefined,
-      tags: summary.Note ? summary.Note.split(';').map(t => t.trim()).filter(t => t.length > 0) : [],
+      // 去掉 Note 字段首尾的双引号
+      notes: summary.Note ? summary.Note.replace(/^"|"$/g, '') : undefined,
+      tags: summary.Note ? summary.Note.replace(/^"|"$/g, '').split(';').map(t => t.trim()).filter(t => t.length > 0) : [],
       rating: 3,
       profile,
       ascentRateStats,
