@@ -272,10 +272,13 @@ export function useContainerSize(threshold: number = 1) {
 }
 
 /**
- * 系列悬停状态 Hook
+ * 系列悬停和选中状态 Hook
+ * - hoveredSeries: 当前悬停的系列
+ * - selectedSeries: 上次选中的系列（点击后保留，用于右侧Y轴显示）
  */
 export function useSeriesHover() {
   const [hoveredSeries, setHoveredSeries] = useState<string | null>(null);
+  const [selectedSeries, setSelectedSeries] = useState<string | null>('ascentRate'); // 默认选中 ascentRate
 
   const handleSeriesMouseEnter = useCallback((seriesKey: string) => {
     setHoveredSeries(seriesKey);
@@ -285,10 +288,26 @@ export function useSeriesHover() {
     setHoveredSeries(null);
   }, []);
 
+  // 点击选中某条线，用于保持右侧Y轴显示
+  const handleSeriesClick = useCallback((seriesKey: string) => {
+    setSelectedSeries(seriesKey);
+  }, []);
+
   const getOpacity = useCallback(
     (seriesKey: string) => hoveredSeries === null ? 1 : (hoveredSeries === seriesKey ? 1 : 0.15),
     [hoveredSeries]
   );
 
-  return { hoveredSeries, handleSeriesMouseEnter, handleSeriesMouseLeave, getOpacity };
+  // 用于右侧Y轴显示的系列：优先显示悬停的，否则显示选中的
+  const activeSeriesForYAxis = hoveredSeries || selectedSeries;
+
+  return { 
+    hoveredSeries, 
+    selectedSeries,
+    activeSeriesForYAxis,
+    handleSeriesMouseEnter, 
+    handleSeriesMouseLeave, 
+    handleSeriesClick,
+    getOpacity 
+  };
 }

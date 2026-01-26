@@ -11,7 +11,7 @@ import {
 import { DiveProfilePoint, DiveType } from '@/types';
 import { formatTimeForChart } from '@/utils';
 import { calculateNiceYMax, formatYAxisTick } from '@/utils/chart';
-import { CHART_COLORS, CHART_CONFIG } from '@/constants';
+import { CHART_COLORS, CHART_CONFIG, BREAKPOINTS } from '@/constants';
 import {
   useChartData,
   useContainerSize,
@@ -38,16 +38,19 @@ export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveC
     useChartData(profile, diveType);
   const {
     hoveredSeries,
+    selectedSeries,
+    activeSeriesForYAxis,
     handleSeriesMouseEnter,
     handleSeriesMouseLeave,
+    handleSeriesClick,
   } = useSeriesHover();
   
   // 检测是否应该隐藏 tooltip 内容框
-  // 仅在竖屏窄屏（<768px 且高度>宽度）时隐藏，横屏时显示 tooltip
+  // 仅在竖屏窄屏（手机竖屏）时隐藏，横屏时显示 tooltip
   const [shouldHideTooltipContent, setShouldHideTooltipContent] = useState(false);
   useEffect(() => {
     const checkCondition = () => {
-      const isNarrowPortrait = window.innerWidth < 768 && window.innerHeight > window.innerWidth;
+      const isNarrowPortrait = window.innerWidth < BREAKPOINTS.mobilePortrait && window.innerHeight > window.innerWidth;
       setShouldHideTooltipContent(isNarrowPortrait);
     };
     checkCondition();
@@ -97,15 +100,13 @@ export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveC
   }, [profile]);
 
   // 获取当前悬停的系列配置（用于 Y 轴显示）
-  // 默认显示 ascentRate（如果可见的话）
+  // 优先显示悬停的系列，否则显示上次选中的系列
   const hoveredConfig = useMemo(() => {
-    if (hoveredSeries) {
-      return seriesConfigs.find((s) => s.key === hoveredSeries) || null;
+    if (activeSeriesForYAxis) {
+      return seriesConfigs.find((s) => s.key === activeSeriesForYAxis && s.visible) || null;
     }
-    // 默认显示 ascentRate（如果可见）
-    const ascentConfig = seriesConfigs.find((s) => s.key === 'ascentRate');
-    return ascentConfig?.visible ? ascentConfig : null;
-  }, [hoveredSeries, seriesConfigs]);
+    return null;
+  }, [activeSeriesForYAxis, seriesConfigs]);
 
   return (
     <div className="h-full flex flex-col">
@@ -184,7 +185,7 @@ export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveC
                 tickLine={{ stroke: CHART_COLORS.axis }}
                 axisLine={{ stroke: CHART_COLORS.axis }}
                 tickCount={CHART_CONFIG.tickCount}
-                ticks={hoveredSeries === 'ascentRate' ? [5, 27.5, 50, 72.5, 95] : [0, 20, 40, 60, 80, 100]}
+                ticks={activeSeriesForYAxis === 'ascentRate' ? [5, 27.5, 50, 72.5, 95] : [0, 20, 40, 60, 80, 100]}
                 width={CHART_CONFIG.yAxisWidth}
                 tickFormatter={(v) => {
                   if (!hoveredConfig || hoveredConfig.key === 'depth') return '';
@@ -251,12 +252,14 @@ export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveC
       <ChartLegend
         seriesConfigs={seriesConfigs}
         hoveredSeries={hoveredSeries}
+        selectedSeries={selectedSeries}
         onToggleVisibility={toggleSeriesVisibility}
         onResetToDefault={resetToDefault}
         onShowAll={showAllSeries}
         onHideAll={hideAllSeries}
         onMouseEnter={handleSeriesMouseEnter}
         onMouseLeave={handleSeriesMouseLeave}
+        onSelect={handleSeriesClick}
       />
     </div>
   );

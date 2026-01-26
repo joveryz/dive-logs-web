@@ -28,7 +28,7 @@ function ChartTooltipComponent({
   const data = payload[0].payload;
 
   return (
-    <div className="bg-dive-surface/95 border border-dive-border rounded-lg p-2 shadow-xl text-xs">
+    <div className="bg-dive-surface/70 backdrop-blur-sm border border-dive-border/50 rounded-lg p-2 shadow-xl text-xs">
       <div className="text-yellow-400 font-mono mb-1.5 border-b border-dive-border pb-1">
         Time: {formatTimeForChart(data.time)}
       </div>
