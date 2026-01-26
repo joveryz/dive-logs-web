@@ -64,12 +64,12 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
   const [errorMessage, setErrorMessage] = useState('');
   const [uploadedUrl, setUploadedUrl] = useState('');
   
-  // FIT 文件五部分 + 可选 Tag
+  // FIT 文件字段: Date, Diver, Buddy, Location, Site, Tag(可选)
   const [fitDate, setFitDate] = useState('');
+  const [fitDiver, setFitDiver] = useState('');
   const [fitBuddy, setFitBuddy] = useState('');
   const [fitLocation, setFitLocation] = useState('');
   const [fitSite, setFitSite] = useState('');
-  const [fitDiver, setFitDiver] = useState('');
   const [fitTag, setFitTag] = useState('');
   
   // 判断是否是 FIT 文件
@@ -83,10 +83,10 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     setFileName('');
     setFileExt('');
     setFitDate('');
+    setFitDiver('');
     setFitBuddy('');
     setFitLocation('');
     setFitSite('');
-    setFitDiver('');
     setFitTag('');
     setErrorMessage('');
     setUploadedUrl('');
@@ -159,20 +159,20 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
         if (parts.length >= 5 && parts.length <= 6) {
           // 文件名符合格式，自动填入
           setFitDate(parts[0]);
-          setFitBuddy(parts[1]);
-          setFitLocation(parts[2]);
-          setFitSite(parts[3]);
-          setFitDiver(parts[4]);
+          setFitDiver(parts[1]);
+          setFitBuddy(parts[2]);
+          setFitLocation(parts[3]);
+          setFitSite(parts[4]);
           setFitTag(parts[5] || '');  // 第6部分为可选 Tag
         } else {
           // 不符合格式，只填入今天日期
           const today = new Date();
           const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
           setFitDate(dateStr);
+          setFitDiver('');
           setFitBuddy('');
           setFitLocation('');
           setFitSite('');
-          setFitDiver('');
           setFitTag('');
         }
       } else {
@@ -200,20 +200,20 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     if (!/^\d{8}$/.test(fitDate)) {
       return 'Date must be 8 digits (YYYYMMDD)';
     }
+    const diverErr = validateField(fitDiver, 'Diver');
+    if (diverErr) return diverErr;
     const buddyErr = validateField(fitBuddy, 'Buddy');
     if (buddyErr) return buddyErr;
     const locationErr = validateField(fitLocation, 'Location');
     if (locationErr) return locationErr;
     const siteErr = validateField(fitSite, 'Site');
     if (siteErr) return siteErr;
-    const diverErr = validateField(fitDiver, 'Diver');
-    if (diverErr) return diverErr;
     // Tag 是可选的，但如果填了要校验格式
     if (fitTag.trim() && !/^[a-zA-Z0-9\-.]+$/.test(fitTag)) {
       return 'Tag can only contain letters, numbers, hyphens, dots';
     }
     return null;
-  }, [fitDate, fitBuddy, fitLocation, fitSite, fitDiver, fitTag, validateField]);
+  }, [fitDate, fitDiver, fitBuddy, fitLocation, fitSite, fitTag, validateField]);
 
   // 上传文件到 GitHub
   const uploadToGitHub = useCallback(async () => {
@@ -232,7 +232,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
       }
       // 如果有 Tag 则添加到文件名
       const tagPart = fitTag.trim() ? `_${fitTag.trim()}` : '';
-      finalFileName = `${fitDate}_${fitBuddy}_${fitLocation}_${fitSite}_${fitDiver}${tagPart}${fileExt}`;
+      finalFileName = `${fitDate}_${fitDiver}_${fitBuddy}_${fitLocation}_${fitSite}${tagPart}${fileExt}`;
     } else {
       if (!fileName.trim()) {
         setErrorMessage('Please enter filename');
@@ -472,6 +472,19 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                         />
                       </div>
                       <div>
+                        <label className="block text-xs text-dive-text-secondary mb-1">Diver</label>
+                        <input
+                          type="text"
+                          list="diver-options"
+                          value={fitDiver}
+                          onChange={(e) => setFitDiver(e.target.value)}
+                          placeholder="Jovery"
+                          className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
                         <label className="block text-xs text-dive-text-secondary mb-1">Buddy</label>
                         <input
                           type="text"
@@ -482,8 +495,6 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                           className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
                         />
                       </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
                       <div>
                         <label className="block text-xs text-dive-text-secondary mb-1">Location</label>
                         <input
@@ -495,6 +506,8 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                           className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
                         />
                       </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
                       <div>
                         <label className="block text-xs text-dive-text-secondary mb-1">Site</label>
                         <input
@@ -503,19 +516,6 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                           value={fitSite}
                           onChange={(e) => setFitSite(e.target.value)}
                           placeholder="HiDive"
-                          className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="block text-xs text-dive-text-secondary mb-1">Diver</label>
-                        <input
-                          type="text"
-                          list="diver-options"
-                          value={fitDiver}
-                          onChange={(e) => setFitDiver(e.target.value)}
-                          placeholder="Jovery"
                           className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
                         />
                       </div>
@@ -532,7 +532,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                       </div>
                     </div>
                     <p className="text-xs text-dive-text-muted">
-                      Preview: <span className="font-mono text-cyan-400">{fitDate}_{fitBuddy}_{fitLocation}_{fitSite}_{fitDiver}{fitTag.trim() ? `_${fitTag.trim()}` : ''}.fit</span>
+                      Preview: <span className="font-mono text-cyan-400">{fitDate}_{fitDiver}_{fitBuddy}_{fitLocation}_{fitSite}{fitTag.trim() ? `_${fitTag.trim()}` : ''}.fit</span>
                     </p>
                   </div>
                 )}
@@ -572,7 +572,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                   disabled={
                     !selectedFile || 
                     (isFitFile 
-                      ? !fitDate || !fitBuddy || !fitLocation || !fitSite || !fitDiver
+                      ? !fitDate || !fitDiver || !fitBuddy || !fitLocation || !fitSite
                       : !fileName.trim())
                   }
                   className="w-full py-2 bg-cyan-600 hover:bg-cyan-500 disabled:bg-dive-card disabled:text-dive-text-muted text-white font-medium rounded-lg transition-colors"
