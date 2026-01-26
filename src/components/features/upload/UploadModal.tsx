@@ -1,6 +1,8 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import { Upload, X, Eye, EyeOff, Unlock, Lock, CheckCircle, CloudUpload, AlertCircle } from 'lucide-react';
 import { decryptPAT, ENCRYPTED_PAT } from '@/utils/crypto';
+import { useDiveStore } from '@/store';
+import { selectDives } from '@/store/selectors';
 
 // 固定仓库地址
 const REPO = 'joveryz/dive-logs';
@@ -17,6 +19,30 @@ type UploadStep = 'config' | 'upload' | 'uploading' | 'success' | 'error';
  * 支持 FIT、CSV 等格式
  */
 export function UploadModal({ isOpen, onClose }: UploadModalProps) {
+  // 从 store 获取已有潜水记录，生成候选项
+  const dives = useDiveStore(selectDives);
+  
+  const fieldOptions = useMemo(() => {
+    const buddySet = new Set<string>(['Solo']);
+    const diverSet = new Set<string>();
+    const locationSet = new Set<string>();
+    const siteSet = new Set<string>();
+    
+    for (const dive of dives) {
+      if (dive.buddy) buddySet.add(dive.buddy);
+      if (dive.diver) diverSet.add(dive.diver);
+      if (dive.location) locationSet.add(dive.location);
+      if (dive.site) siteSet.add(dive.site);
+    }
+    
+    return {
+      buddy: Array.from(buddySet).sort(),
+      diver: Array.from(diverSet).sort(),
+      location: Array.from(locationSet).sort(),
+      site: Array.from(siteSet).sort(),
+    };
+  }, [dives]);
+
   // 配置状态
   const [password, setPassword] = useState('');
   const [token, setToken] = useState('');
@@ -400,6 +426,20 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                 {/* File Name - FIT 文件显示5个字段，其他文件显示单一输入框 */}
                 {selectedFile && isFitFile && (
                   <div className="space-y-3">
+                    {/* Datalists for autocomplete */}
+                    <datalist id="buddy-options">
+                      {fieldOptions.buddy.map(opt => <option key={opt} value={opt} />)}
+                    </datalist>
+                    <datalist id="diver-options">
+                      {fieldOptions.diver.map(opt => <option key={opt} value={opt} />)}
+                    </datalist>
+                    <datalist id="location-options">
+                      {fieldOptions.location.map(opt => <option key={opt} value={opt} />)}
+                    </datalist>
+                    <datalist id="site-options">
+                      {fieldOptions.site.map(opt => <option key={opt} value={opt} />)}
+                    </datalist>
+
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <label className="block text-xs text-dive-text-secondary mb-1">Date (YYYYMMDD)</label>
@@ -415,6 +455,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                         <label className="block text-xs text-dive-text-secondary mb-1">Buddy</label>
                         <input
                           type="text"
+                          list="buddy-options"
                           value={fitBuddy}
                           onChange={(e) => setFitBuddy(e.target.value)}
                           placeholder="Solo"
@@ -427,6 +468,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                         <label className="block text-xs text-dive-text-secondary mb-1">Location</label>
                         <input
                           type="text"
+                          list="location-options"
                           value={fitLocation}
                           onChange={(e) => setFitLocation(e.target.value)}
                           placeholder="Beijing"
@@ -437,6 +479,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                         <label className="block text-xs text-dive-text-secondary mb-1">Site</label>
                         <input
                           type="text"
+                          list="site-options"
                           value={fitSite}
                           onChange={(e) => setFitSite(e.target.value)}
                           placeholder="HiDive"
@@ -448,6 +491,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                       <label className="block text-xs text-dive-text-secondary mb-1">Diver</label>
                       <input
                         type="text"
+                        list="diver-options"
                         value={fitDiver}
                         onChange={(e) => setFitDiver(e.target.value)}
                         placeholder="Jovery"
