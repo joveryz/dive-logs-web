@@ -323,7 +323,6 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
   return (
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="bg-dive-surface border border-dive-border rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
         {/* Header */}
