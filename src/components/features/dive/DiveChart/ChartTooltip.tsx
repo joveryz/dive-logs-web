@@ -32,7 +32,7 @@ function ChartTooltipComponent({
       <div className="text-yellow-400 font-mono mb-1.5 border-b border-dive-border pb-1">
         Time: {formatTimeForChart(data.time)}
       </div>
-      <div className="grid grid-cols-4 gap-x-3 gap-y-0.5">
+      <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
         {seriesConfigs
           .filter((s) => s.visible)
           .map((series) => {
