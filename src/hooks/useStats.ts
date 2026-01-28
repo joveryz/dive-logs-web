@@ -5,7 +5,7 @@ import { formatDurationReadable } from '@/utils';
 /**
  * 统计分类类型
  */
-export type StatsCategory = 'diveType' | 'diver' | 'buddy' | 'year' | 'yearMonth' | 'location' | 'site' | 'computer';
+export type StatsCategory = 'diverDiveType' | 'diver' | 'diveType' | 'buddy' | 'year' | 'yearMonth' | 'location' | 'site' | 'computer';
 
 /**
  * 单个分类的统计数据
@@ -68,10 +68,12 @@ export interface FormattedStats {
  */
 function getCategoryValue(dive: Dive, category: StatsCategory): string {
   switch (category) {
-    case 'diveType':
-      return dive.diveType;
+    case 'diverDiveType':
+      return `${dive.diver || 'Unknown'} / ${dive.diveType}`;
     case 'diver':
       return dive.diver || 'Unknown';
+    case 'diveType':
+      return dive.diveType;
     case 'location':
       return dive.location;
     case 'site':
@@ -247,8 +249,9 @@ export function useStats(dives: Dive[], category: StatsCategory) {
  * 分类标签映射
  */
 export const STATS_CATEGORY_LABELS: Record<StatsCategory, string> = {
-  diveType: 'Dive Mode',
+  diverDiveType: 'Diver/Type',
   diver: 'Diver',
+  diveType: 'Type',
   location: 'Location',
   site: 'Site',
   buddy: 'Buddy',

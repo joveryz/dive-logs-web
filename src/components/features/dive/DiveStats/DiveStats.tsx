@@ -37,7 +37,7 @@ const StatsRow = memo(function StatsRow({
  * 潜水统计组件
  */
 export const DiveStats = memo(function DiveStats({ dives }: DiveStatsProps) {
-  const [category, setCategory] = useState<StatsCategory>('diveType');
+  const [category, setCategory] = useState<StatsCategory>('diverDiveType');
   const { totalDives, categories } = useStats(dives, category);
 
   // 提取统计行数据
