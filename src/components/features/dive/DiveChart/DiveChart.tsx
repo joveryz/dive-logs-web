@@ -65,10 +65,11 @@ export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveC
     };
   }, []);
 
-  // 处理鼠标/触摸移动事件
-  const handleChartEvent = useCallback((state: { activePayload?: Array<{ payload: DiveProfilePoint }> }) => {
-    if (state?.activePayload?.[0]?.payload && onCursorChange) {
-      onCursorChange(state.activePayload[0].payload);
+  // 处理鼠标/触摸移动事件 - Recharts 3.x 使用 CategoricalChartState 类型
+  const handleChartEvent = useCallback((state: unknown) => {
+    const chartState = state as { activePayload?: Array<{ payload: DiveProfilePoint }> };
+    if (chartState?.activePayload?.[0]?.payload && onCursorChange) {
+      onCursorChange(chartState.activePayload[0].payload);
     }
   }, [onCursorChange]);
 
@@ -99,6 +100,30 @@ export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveC
     return [0, maxTime];
   }, [profile]);
 
+  // 计算 X 轴刻度值（根据潜水类型设置间隔：FreeDive 1秒，OC Rec 30秒，其他 5秒）
+  const xTicks = useMemo(() => {
+    const [min, max] = xDomain;
+    // 根据潜水类型确定刻度间隔
+    let interval: number;
+    if (diveType === 'FreeDive') {
+      interval = 1; // FreeDive: 1秒
+    } else if (diveType?.startsWith('OC Rec')) {
+      interval = 30; // OC Rec 系列: 30秒
+    } else {
+      interval = 5; // 其他类型: 5秒
+    }
+    
+    const ticks: number[] = [];
+    for (let t = min; t <= max; t += interval) {
+      ticks.push(t);
+    }
+    // 确保最后一个刻度不超过 max
+    if (ticks[ticks.length - 1] < max && max - ticks[ticks.length - 1] > interval / 2) {
+      ticks.push(ticks[ticks.length - 1] + interval);
+    }
+    return ticks;
+  }, [xDomain, diveType]);
+
   // 获取当前悬停的系列配置（用于 Y 轴显示）
   // 优先显示悬停的系列，否则显示上次选中的系列
   const hoveredConfig = useMemo(() => {
@@ -126,18 +151,30 @@ export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveC
               onMouseDown={handleChartEvent}
               onClick={handleChartEvent}
             >
-              {/* 网格 */}
+              {/* 网格 - 只绘制水平线，垂直线用 ReferenceLine 绘制以确保与刻度对齐 */}
               <CartesianGrid
                 strokeDasharray="3 3"
                 stroke={CHART_COLORS.grid}
-                vertical={true}
+                vertical={false}
               />
+
+              {/* 垂直网格线 - 与 X 轴刻度对齐 */}
+              {xTicks.map((tick) => (
+                <ReferenceLine
+                  key={`grid-${tick}`}
+                  x={tick}
+                  yAxisId="depth"
+                  stroke={CHART_COLORS.grid}
+                  strokeDasharray="3 3"
+                />
+              ))}
 
               {/* X轴 - 时间 */}
               <XAxis
                 dataKey="time"
                 type="number"
                 domain={xDomain}
+                ticks={xTicks}
                 tickFormatter={formatTimeForChart}
                 stroke={CHART_COLORS.axis}
                 tick={{ fill: CHART_COLORS.axisLabel, fontSize: CHART_CONFIG.fontSize }}
@@ -145,7 +182,6 @@ export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveC
                 axisLine={{ stroke: CHART_COLORS.axis }}
                 scale="linear"
                 allowDataOverflow={false}
-                tickCount={8}
               />
 
               {/* Y轴左侧 - 深度（反转） */}
