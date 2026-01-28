@@ -48,6 +48,7 @@ export interface CategoryStats {
  */
 export interface FormattedStats {
   name: string;
+  diveCount: string;
   totalTime: string;
   totalDepth: string;
   maxDepth: string;
@@ -182,6 +183,7 @@ function calculateStats(dives: Dive[], name: string): CategoryStats {
 function formatStats(stats: CategoryStats): FormattedStats {
   return {
     name: stats.name,
+    diveCount: stats.diveCount.toString(),
     totalTime: formatDurationReadable(stats.totalTime),
     totalDepth: `${stats.totalDepth.toFixed(1)}m`,
     maxDepth: `${stats.maxDepth.toFixed(1)}m`,
@@ -264,6 +266,7 @@ export const STATS_CATEGORY_LABELS: Record<StatsCategory, string> = {
  * 统计行标签
  */
 export const STATS_ROW_LABELS = {
+  diveCount: 'Dive Count',
   totalTime: 'Total Time',
   totalDepth: 'Total Depth',
   maxDepth: 'Max Depth',

@@ -83,6 +83,7 @@ export const DiveStats = memo(function DiveStats({ dives }: DiveStatsProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-dive-card">
+            <StatsRow label={STATS_ROW_LABELS.diveCount} values={getRowValues('diveCount')} />
             <StatsRow label={STATS_ROW_LABELS.totalTime} values={getRowValues('totalTime')} isHighlight />
             <StatsRow label={STATS_ROW_LABELS.totalDepth} values={getRowValues('totalDepth')} />
             <StatsRow label={STATS_ROW_LABELS.maxDepth} values={getRowValues('maxDepth')} isHighlight />
@@ -91,11 +92,11 @@ export const DiveStats = memo(function DiveStats({ dives }: DiveStatsProps) {
             <StatsRow label={STATS_ROW_LABELS.avgDiveTime} values={getRowValues('avgDiveTime')} />
             <StatsRow label={STATS_ROW_LABELS.minHeartRate} values={getRowValues('minHeartRate')} isHighlight />
             <StatsRow label={STATS_ROW_LABELS.maxHeartRate} values={getRowValues('maxHeartRate')} />
-            <StatsRow label={STATS_ROW_LABELS.avgHeartRate} values={getRowValues('avgHeartRate')} />
-            <StatsRow label={STATS_ROW_LABELS.mostVisitedLocation} values={getRowValues('mostVisitedLocation')} isHighlight />
-            <StatsRow label={STATS_ROW_LABELS.uniqueLocations} values={getRowValues('uniqueLocations')} />
-            <StatsRow label={STATS_ROW_LABELS.mostVisitedSite} values={getRowValues('mostVisitedSite')} isHighlight />
-            <StatsRow label={STATS_ROW_LABELS.uniqueSites} values={getRowValues('uniqueSites')} />
+            <StatsRow label={STATS_ROW_LABELS.avgHeartRate} values={getRowValues('avgHeartRate')} isHighlight />
+            <StatsRow label={STATS_ROW_LABELS.mostVisitedLocation} values={getRowValues('mostVisitedLocation')} />
+            <StatsRow label={STATS_ROW_LABELS.uniqueLocations} values={getRowValues('uniqueLocations')} isHighlight />
+            <StatsRow label={STATS_ROW_LABELS.mostVisitedSite} values={getRowValues('mostVisitedSite')} />
+            <StatsRow label={STATS_ROW_LABELS.uniqueSites} values={getRowValues('uniqueSites')} isHighlight />
           </tbody>
         </table>
       </div>
