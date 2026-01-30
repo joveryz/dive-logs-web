@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Line, Area } from 'recharts';
 import type { EffectiveSeriesConfig } from '@/hooks';
 import { CHART_COLORS, CHART_CONFIG } from '@/constants';
+import { isSymmetricSeries, NORMALIZED_AXIS } from '@/utils/chart';
 
 interface UseChartSeriesProps {
   seriesConfigs: EffectiveSeriesConfig[];
@@ -42,14 +43,13 @@ export function useChartSeries({
 
     const renderOneSeries = (series: EffectiveSeriesConfig): JSX.Element[] => {
       const isDepth = series.key === 'depth';
-      const isAscentRate = series.key === 'ascentRate';
       const dataKey = isDepth ? 'depth' : `${series.key}_normalized`;
       const yAxisId = isDepth ? 'depth' : 'normalized';
       const opacity = getOpacity(series);
 
-      // Ascent Rate 特殊处理：双色填充
-      if (series.type === 'bar' && isAscentRate) {
-        return renderAscentRateSeries(series, yAxisId, getStrokeWidth, onMouseEnter, onMouseLeave, opacity);
+      // 对称系列特殊处理：双色填充（如 ascentRate）
+      if (series.type === 'bar' && isSymmetricSeries(series.key)) {
+        return renderSymmetricSeries(series, yAxisId, getStrokeWidth, onMouseEnter, onMouseLeave, opacity);
       }
 
       if (series.type === 'bar') {
@@ -73,9 +73,10 @@ export function useChartSeries({
 }
 
 /**
- * 渲染 Ascent Rate 系列（双色填充：绿色上升，红色下降）
+ * 渲染对称系列（双色填充：绿色正值区域，红色负值区域）
+ * 用于 ascentRate 等以 0 为中心的数据
  */
-function renderAscentRateSeries(
+function renderSymmetricSeries(
   series: EffectiveSeriesConfig,
   yAxisId: string,
   getStrokeWidth: (key: string, baseWidth: number) => number,
@@ -113,7 +114,7 @@ function renderAscentRateSeries(
       fill={CHART_COLORS.ascent.up}
       fillOpacity={0.5 * opacity}
       strokeOpacity={opacity}
-      baseValue={50}
+      baseValue={NORMALIZED_AXIS.CENTER}
       dot={false}
       activeDot={false}
       style={{ pointerEvents: 'none' }}
@@ -131,7 +132,7 @@ function renderAscentRateSeries(
       fill={CHART_COLORS.ascent.down}
       fillOpacity={0.5 * opacity}
       strokeOpacity={opacity}
-      baseValue={50}
+      baseValue={NORMALIZED_AXIS.CENTER}
       dot={false}
       activeDot={false}
       style={{ pointerEvents: 'none' }}

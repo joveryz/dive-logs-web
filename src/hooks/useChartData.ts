@@ -8,7 +8,7 @@ import { useMemo, useState, useCallback, useRef, useEffect } from 'react';
 import type { DiveProfilePoint, DiveType } from '@/types';
 import type { ChartSeriesConfig } from '@/constants';
 import { DEFAULT_CHART_SERIES } from '@/constants';
-import { calculateDynamicRange, normalizeValue } from '@/utils/chart';
+import { calculateDynamicRange, normalizeValue, isSymmetricSeries, NORMALIZED_AXIS } from '@/utils/chart';
 import {
   FREEDIVE_AVAILABLE_KEYS,
   FREEDIVE_DEFAULT_VISIBLE_KEYS,
@@ -109,14 +109,14 @@ function normalizeDataPoint(
       continue;
     }
 
-    if (config.key === CHART_SERIES_KEYS.ASCENT_RATE) {
-      const maxAbs = config.maxValue;
-      const scale = 45;
-      normalized['ascentRate_up'] = value > 0 ? 50 + (value / maxAbs) * scale : 50;
-      normalized['ascentRate_down'] = value < 0 ? 50 - (Math.abs(value) / maxAbs) * scale : 50;
-      normalized[`${config.key}_normalized`] = 50;
+    if (isSymmetricSeries(config.key)) {
+      // 对称系列：使用统一的归一化函数，同时生成上升/下降分量用于双向图表渲染
+      const normalizedVal = normalizeValue(value, config.minValue, config.maxValue, config.key);
+      normalized['ascentRate_up'] = value > 0 ? normalizedVal : NORMALIZED_AXIS.CENTER;
+      normalized['ascentRate_down'] = value < 0 ? normalizedVal : NORMALIZED_AXIS.CENTER;
+      normalized[`${config.key}_normalized`] = NORMALIZED_AXIS.CENTER;
     } else {
-      normalized[`${config.key}_normalized`] = normalizeValue(value, config.minValue, config.maxValue);
+      normalized[`${config.key}_normalized`] = normalizeValue(value, config.minValue, config.maxValue, config.key);
     }
 
     normalized[config.key] = value;

@@ -11,6 +11,39 @@ import {
 import type { NumberRange } from '@/types/common';
 
 // ============================================================================
+// 常量定义
+// ============================================================================
+
+/**
+ * 归一化坐标系配置
+ * 
+ * 普通系列: 使用完整的 0-100 范围
+ * 对称系列 (如 ascentRate): 使用以 50 为中心的对称范围 [CENTER - HALF_RANGE, CENTER + HALF_RANGE]
+ */
+export const NORMALIZED_AXIS = {
+  /** 归一化范围最小值 */
+  MIN: 0,
+  /** 归一化范围最大值 */
+  MAX: 100,
+  /** 对称系列的中心点 (代表原始值 0) */
+  CENTER: 50,
+  /** 对称系列从中心到边界的半幅 */
+  HALF_RANGE: 45,
+} as const;
+
+/** 对称系列的刻度位置 (均匀分布在 CENTER ± HALF_RANGE 范围内) */
+export const SYMMETRIC_AXIS_TICKS = [
+  NORMALIZED_AXIS.CENTER - NORMALIZED_AXIS.HALF_RANGE,      // 5
+  NORMALIZED_AXIS.CENTER - NORMALIZED_AXIS.HALF_RANGE / 2, // 27.5
+  NORMALIZED_AXIS.CENTER,                                   // 50
+  NORMALIZED_AXIS.CENTER + NORMALIZED_AXIS.HALF_RANGE / 2, // 72.5
+  NORMALIZED_AXIS.CENTER + NORMALIZED_AXIS.HALF_RANGE,      // 95
+] as const;
+
+/** 普通系列的刻度位置 */
+export const LINEAR_AXIS_TICKS = [0, 20, 40, 60, 80, 100] as const;
+
+// ============================================================================
 // 类型定义
 // ============================================================================
 
@@ -22,8 +55,13 @@ interface RangeCalculationOptions {
   padding?: boolean;
   /** padding 百分比（默认 0.1 = 10%） */
   paddingPercent?: number;
-  /** 强制最小值为 0 */
-  forceZeroMin?: boolean;
+}
+
+/**
+ * 判断是否为对称系列（以 0 为中心）
+ */
+export function isSymmetricSeries(key: string): boolean {
+  return key === CHART_SERIES_KEYS.ASCENT_RATE;
 }
 
 // ============================================================================
@@ -38,10 +76,17 @@ interface RangeCalculationOptions {
  * @param options - 计算选项
  * @returns 包含 min 和 max 的范围对象
  * 
+ * @description
+ * 对于对称系列 (如 ascentRate)，返回的 range 表示绝对值的最大范围 (min=-maxAbs, max=maxAbs)
+ * 对于普通系列，返回实际数据范围（带 padding）
+ * 
  * @example
  * ```ts
- * const range = calculateDynamicRange([10, 20, 30], 'depth');
- * // => { min: 9, max: 33 }
+ * // 普通系列
+ * calculateDynamicRange([10, 20, 30], 'depth') // => { min: 9, max: 33 }
+ * 
+ * // 对称系列
+ * calculateDynamicRange([-2, 1, 3], 'ascentRate') // => { min: -3.15, max: 3.15 }
  * ```
  */
 export function calculateDynamicRange(
@@ -59,9 +104,9 @@ export function calculateDynamicRange(
   const dataMin = Math.min(...values);
   const dataMax = Math.max(...values);
 
-  // ascentRate 特殊处理：以 0 为中心的对称范围
-  if (key === CHART_SERIES_KEYS.ASCENT_RATE) {
-    return calculateAscentRateRange(dataMin, dataMax);
+  // 对称系列：以 0 为中心的对称范围
+  if (isSymmetricSeries(key)) {
+    return calculateSymmetricRange(dataMin, dataMax);
   }
 
   const range = dataMax - dataMin;
@@ -76,11 +121,12 @@ export function calculateDynamicRange(
 }
 
 /**
- * 计算升降速率的对称范围
+ * 计算对称范围（以 0 为中心）
+ * 用于 ascentRate 等正负值都有意义的数据
  */
-function calculateAscentRateRange(dataMin: number, dataMax: number): NumberRange {
+function calculateSymmetricRange(dataMin: number, dataMax: number): NumberRange {
   const maxAbs = Math.max(Math.abs(dataMin), Math.abs(dataMax), 0.1);
-  const padded = maxAbs * 1.05;
+  const padded = maxAbs * 1.05; // 5% padding
   return { min: -padded, max: padded };
 }
 
@@ -144,36 +190,60 @@ function calculatePaddedRange(
 // ============================================================================
 
 /**
- * 将归一化值（0-100）转换回实际值
+ * 将归一化值转换回实际值
  * 
- * @param normalizedValue - 归一化值（0-100 范围）
+ * @param normalizedValue - 归一化值
  * @param min - 原始数据最小值
  * @param max - 原始数据最大值
+ * @param key - 数据系列键名（用于判断归一化策略）
  * @returns 实际数据值
+ * 
+ * @description
+ * - 普通系列: 归一化值 0-100 线性映射到 [min, max]
+ * - 对称系列: 归一化值以 CENTER(50) 为中心，映射到 [-maxAbs, maxAbs]
  */
 export function denormalizeValue(
   normalizedValue: number,
   min: number,
-  max: number
+  max: number,
+  key?: string
 ): number {
-  return (normalizedValue / 100) * (max - min) + min;
+  if (key && isSymmetricSeries(key)) {
+    // 对称系列：maxValue 存储的是 maxAbs，从 CENTER 点映射
+    const maxAbs = max;
+    return ((normalizedValue - NORMALIZED_AXIS.CENTER) / NORMALIZED_AXIS.HALF_RANGE) * maxAbs;
+  }
+  // 普通系列：线性映射
+  return (normalizedValue / NORMALIZED_AXIS.MAX) * (max - min) + min;
 }
 
 /**
- * 将实际值转换为归一化值（0-100）
+ * 将实际值转换为归一化值
  * 
  * @param value - 实际数据值
  * @param min - 数据最小值
  * @param max - 数据最大值
- * @returns 归一化值（0-100 范围）
+ * @param key - 数据系列键名（用于判断归一化策略）
+ * @returns 归一化值
+ * 
+ * @description
+ * - 普通系列: [min, max] 线性映射到 0-100
+ * - 对称系列: [-maxAbs, maxAbs] 映射到 [CENTER-HALF_RANGE, CENTER+HALF_RANGE]
  */
 export function normalizeValue(
   value: number,
   min: number,
-  max: number
+  max: number,
+  key?: string
 ): number {
-  if (max === min) return 50; // 避免除以零
-  return ((value - min) / (max - min)) * 100;
+  if (key && isSymmetricSeries(key)) {
+    // 对称系列：maxValue 存储的是 maxAbs
+    const maxAbs = max;
+    return NORMALIZED_AXIS.CENTER + (value / maxAbs) * NORMALIZED_AXIS.HALF_RANGE;
+  }
+  // 普通系列：线性映射
+  if (max === min) return NORMALIZED_AXIS.CENTER; // 避免除以零
+  return ((value - min) / (max - min)) * NORMALIZED_AXIS.MAX;
 }
 
 // ============================================================================
@@ -183,7 +253,7 @@ export function normalizeValue(
 /**
  * 格式化 Y 轴刻度值
  * 
- * @param value - 归一化后的刻度值（0-100）
+ * @param value - 归一化后的刻度值
  * @param key - 数据系列键名
  * @param minValue - 该系列的最小值
  * @param maxValue - 该系列的最大值
@@ -195,15 +265,7 @@ export function formatYAxisTick(
   minValue: number,
   maxValue: number
 ): string {
-  // ascentRate 特殊处理：0 在中点(50)
-  if (key === CHART_SERIES_KEYS.ASCENT_RATE) {
-    const maxAbs = Math.max(Math.abs(minValue), Math.abs(maxValue));
-    const scale = 45;
-    const actualValue = ((value - 50) / scale) * maxAbs;
-    return formatNumber(actualValue);
-  }
-
-  const actualValue = denormalizeValue(value, minValue, maxValue);
+  const actualValue = denormalizeValue(value, minValue, maxValue, key);
   return formatNumber(actualValue);
 }
 

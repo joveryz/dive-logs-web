@@ -10,7 +10,7 @@ import {
 } from 'recharts';
 import { DiveProfilePoint, DiveType } from '@/types';
 import { formatTimeForChart } from '@/utils';
-import { calculateNiceYMax, formatYAxisTick } from '@/utils/chart';
+import { calculateNiceYMax, formatYAxisTick, isSymmetricSeries, SYMMETRIC_AXIS_TICKS, LINEAR_AXIS_TICKS, NORMALIZED_AXIS } from '@/utils/chart';
 import { CHART_COLORS, CHART_CONFIG, BREAKPOINTS } from '@/constants';
 import {
   useChartData,
@@ -100,18 +100,29 @@ export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveC
     return [0, maxTime];
   }, [profile]);
 
-  // 计算 X 轴刻度值（根据潜水类型设置间隔：FreeDive 1秒，OC Rec 30秒，其他 5秒）
+  // 计算 X 轴刻度值（根据潜水类型和屏幕宽度动态调整间隔）
   const xTicks = useMemo(() => {
     const [min, max] = xDomain;
-    // 根据潜水类型确定刻度间隔
-    let interval: number;
+    const duration = max - min;
+    
+    // 根据容器宽度计算合适的刻度数量（每 50 像素左右一个刻度）
+    const chartWidth = containerSize.width - CHART_CONFIG.yAxisWidth * 2 - 20; // 减去左右 Y 轴和边距
+    const targetTickCount = Math.max(3, Math.floor(chartWidth / 30));
+    
+    // 根据潜水类型确定基础刻度间隔
+    let baseInterval: number;
     if (diveType === 'FreeDive') {
-      interval = 1; // FreeDive: 1秒
+      baseInterval = 1; // FreeDive: 最小 1秒
     } else if (diveType?.startsWith('OC Rec')) {
-      interval = 30; // OC Rec 系列: 30秒
+      baseInterval = 30; // OC Rec 系列: 最小 30秒
     } else {
-      interval = 5; // 其他类型: 5秒
+      baseInterval = 5; // 其他类型: 最小 5秒
     }
+    
+    // 计算理想间隔，但必须是基础间隔的整数倍
+    const idealInterval = duration / targetTickCount;
+    const multiplier = Math.max(1, Math.ceil(idealInterval / baseInterval));
+    const interval = baseInterval * multiplier;
     
     const ticks: number[] = [];
     for (let t = min; t <= max; t += interval) {
@@ -122,7 +133,7 @@ export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveC
       ticks.push(ticks[ticks.length - 1] + interval);
     }
     return ticks;
-  }, [xDomain, diveType]);
+  }, [xDomain, diveType, containerSize.width]);
 
   // 获取当前悬停的系列配置（用于 Y 轴显示）
   // 优先显示悬停的系列，否则显示上次选中的系列
@@ -212,7 +223,7 @@ export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveC
               <YAxis
                 yAxisId="normalized"
                 orientation="right"
-                domain={[0, 100]}
+                domain={[NORMALIZED_AXIS.MIN, NORMALIZED_AXIS.MAX]}
                 stroke={CHART_COLORS.axis}
                 tick={{
                   fill: hoveredConfig?.color || '#9ca3af',
@@ -221,7 +232,7 @@ export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveC
                 tickLine={{ stroke: CHART_COLORS.axis }}
                 axisLine={{ stroke: CHART_COLORS.axis }}
                 tickCount={CHART_CONFIG.tickCount}
-                ticks={activeSeriesForYAxis === 'ascentRate' ? [5, 27.5, 50, 72.5, 95] : [0, 20, 40, 60, 80, 100]}
+                ticks={activeSeriesForYAxis && isSymmetricSeries(activeSeriesForYAxis) ? [...SYMMETRIC_AXIS_TICKS] : [...LINEAR_AXIS_TICKS]}
                 width={CHART_CONFIG.yAxisWidth}
                 tickFormatter={(v) => {
                   if (!hoveredConfig || hoveredConfig.key === 'depth') return '';
@@ -255,10 +266,10 @@ export function DiveChart({ profile, maxDepth, diveType, onCursorChange }: DiveC
                 strokeWidth={2}
               />
 
-              {/* 零线参考 - Ascent Rate (y=50 是 0 点) */}
+              {/* 零线参考 - 对称系列 (CENTER 点是 0 值) */}
               <ReferenceLine
                 yAxisId="normalized"
-                y={50}
+                y={NORMALIZED_AXIS.CENTER}
                 stroke="#666"
                 strokeWidth={1}
                 strokeDasharray="3 3"
