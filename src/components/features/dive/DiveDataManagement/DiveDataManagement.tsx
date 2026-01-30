@@ -7,7 +7,7 @@ import { selectDives } from '@/store/selectors';
 // 固定仓库地址
 const REPO = 'joveryz/dive-logs';
 
-interface DataManagementModalProps {
+interface DiveDataManagementProps {
   isOpen: boolean;
   onClose: () => void;
 }
@@ -26,7 +26,7 @@ interface GitHubFile {
  * 潜水日志管理模态框
  * 支持上传和管理 GitHub 仓库中的 FIT、DB 等文件
  */
-export function DataManagementModal({ isOpen, onClose }: DataManagementModalProps) {
+export function DiveDataManagement({ isOpen, onClose }: DiveDataManagementProps) {
   // 从 store 获取已有潜水记录，生成候选项
   const dives = useDiveStore(selectDives);
   
@@ -189,10 +189,10 @@ export function DataManagementModal({ isOpen, onClose }: DataManagementModalProp
           const today = new Date();
           const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
           setFitDate(dateStr);
-          setFitDiver('');
-          setFitBuddy('');
-          setFitLocation('');
-          setFitSite('');
+          setFitDiver('Jovery');
+          setFitBuddy('Solo');
+          setFitLocation('Beijing');
+          setFitSite('HiDive');
           setFitTag('');
         }
       } else {
@@ -815,7 +815,6 @@ export function DataManagementModal({ isOpen, onClose }: DataManagementModalProp
                           list="tag-options"
                           value={fitTag}
                           onChange={(e) => setFitTag(e.target.value.toUpperCase())}
-                          placeholder="AIDA4"
                           className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm uppercase"
                         />
                       </div>

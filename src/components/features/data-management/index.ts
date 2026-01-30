@@ -1,1 +1,0 @@
-export { DataManagementModal } from './DataManagementModal';

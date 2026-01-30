@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Settings } from 'lucide-react';
-import { DataManagementModal } from '@/components/features';
+import { DiveDataManagement } from '@/components/features';
 
 interface HeaderProps {
   slogan?: string;
@@ -43,7 +43,7 @@ export function Header({
         </button>
       </header>
       
-      <DataManagementModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <DiveDataManagement isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>
   );
 }
