@@ -1,11 +1,114 @@
 import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
-import { X, Eye, EyeOff, Unlock, Lock, CheckCircle, CloudUpload, AlertCircle, Trash2, Pencil, Loader2, Settings } from 'lucide-react';
+import { X, Eye, EyeOff, Unlock, Lock, CheckCircle, CloudUpload, AlertCircle, Trash2, Pencil, Loader2, Settings, ChevronDown } from 'lucide-react';
 import { decryptPAT, ENCRYPTED_PAT } from '@/utils/crypto';
 import { useDiveStore } from '@/store';
 import { selectDives } from '@/store/selectors';
 
 // 固定仓库地址
 const REPO = 'joveryz/dive-logs';
+
+/** 自定义自动完成输入组件（移动端兼容） */
+interface AutocompleteInputProps {
+  value: string;
+  onChange: (value: string) => void;
+  options: string[];
+  placeholder?: string;
+  className?: string;
+  uppercase?: boolean;
+}
+
+function AutocompleteInput({ 
+  value, 
+  onChange, 
+  options, 
+  placeholder,
+  className = '',
+  uppercase = false,
+}: AutocompleteInputProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [filteredOptions, setFilteredOptions] = useState<string[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // 过滤选项
+  useEffect(() => {
+    if (value.trim()) {
+      const filtered = options.filter(opt => 
+        opt.toLowerCase().includes(value.toLowerCase()) && 
+        opt.toLowerCase() !== value.toLowerCase()
+      );
+      setFilteredOptions(filtered);
+    } else {
+      setFilteredOptions(options);
+    }
+  }, [value, options]);
+
+  // 点击外部关闭
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSelect = (opt: string) => {
+    onChange(uppercase ? opt.toUpperCase() : opt);
+    setIsOpen(false);
+    inputRef.current?.blur();
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = uppercase ? e.target.value.toUpperCase() : e.target.value;
+    onChange(newValue);
+  };
+
+  const showDropdown = isOpen && filteredOptions.length > 0;
+
+  return (
+    <div ref={containerRef} className="relative">
+      <div className="relative">
+        <input
+          ref={inputRef}
+          type="text"
+          value={value}
+          onChange={handleInputChange}
+          onFocus={() => setIsOpen(true)}
+          placeholder={placeholder}
+          className={`${className} pr-7 ${uppercase ? 'uppercase' : ''}`}
+        />
+        {options.length > 0 && (
+          <button
+            type="button"
+            onClick={() => {
+              setIsOpen(!isOpen);
+              if (!isOpen) inputRef.current?.focus();
+            }}
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 text-dive-text-muted hover:text-dive-text"
+          >
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+          </button>
+        )}
+      </div>
+      {showDropdown && (
+        <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-dive-card border border-dive-border rounded-lg shadow-lg max-h-32 overflow-y-auto">
+          {filteredOptions.map(opt => (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => handleSelect(opt)}
+              className="w-full px-2 py-1.5 text-left text-sm text-dive-text hover:bg-cyan-500/20 font-mono truncate"
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface DiveDataManagementProps {
   isOpen: boolean;
@@ -732,23 +835,6 @@ export function DiveDataManagement({ isOpen, onClose }: DiveDataManagementProps)
                 {/* File Name - FIT 文件显示5个字段，其他文件显示单一输入框 */}
                 {selectedFile && isFitFile && (
                   <div className="space-y-3">
-                    {/* Datalists for autocomplete */}
-                    <datalist id="buddy-options">
-                      {fieldOptions.buddy.map(opt => <option key={opt} value={opt} />)}
-                    </datalist>
-                    <datalist id="diver-options">
-                      {fieldOptions.diver.map(opt => <option key={opt} value={opt} />)}
-                    </datalist>
-                    <datalist id="location-options">
-                      {fieldOptions.location.map(opt => <option key={opt} value={opt} />)}
-                    </datalist>
-                    <datalist id="site-options">
-                      {fieldOptions.site.map(opt => <option key={opt} value={opt} />)}
-                    </datalist>
-                    <datalist id="tag-options">
-                      {fieldOptions.tag.map(opt => <option key={opt} value={opt} />)}
-                    </datalist>
-
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <label className="block text-xs text-dive-text-secondary mb-1">Date</label>
@@ -762,11 +848,10 @@ export function DiveDataManagement({ isOpen, onClose }: DiveDataManagementProps)
                       </div>
                       <div>
                         <label className="block text-xs text-dive-text-secondary mb-1">Diver</label>
-                        <input
-                          type="text"
-                          list="diver-options"
+                        <AutocompleteInput
                           value={fitDiver}
-                          onChange={(e) => setFitDiver(e.target.value)}
+                          onChange={setFitDiver}
+                          options={fieldOptions.diver}
                           placeholder="Jovery"
                           className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
                         />
@@ -775,22 +860,20 @@ export function DiveDataManagement({ isOpen, onClose }: DiveDataManagementProps)
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <label className="block text-xs text-dive-text-secondary mb-1">Buddy</label>
-                        <input
-                          type="text"
-                          list="buddy-options"
+                        <AutocompleteInput
                           value={fitBuddy}
-                          onChange={(e) => setFitBuddy(e.target.value)}
+                          onChange={setFitBuddy}
+                          options={fieldOptions.buddy}
                           placeholder="Solo"
                           className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
                         />
                       </div>
                       <div>
                         <label className="block text-xs text-dive-text-secondary mb-1">Location</label>
-                        <input
-                          type="text"
-                          list="location-options"
+                        <AutocompleteInput
                           value={fitLocation}
-                          onChange={(e) => setFitLocation(e.target.value)}
+                          onChange={setFitLocation}
+                          options={fieldOptions.location}
                           placeholder="Beijing"
                           className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
                         />
@@ -799,23 +882,22 @@ export function DiveDataManagement({ isOpen, onClose }: DiveDataManagementProps)
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <label className="block text-xs text-dive-text-secondary mb-1">Site</label>
-                        <input
-                          type="text"
-                          list="site-options"
+                        <AutocompleteInput
                           value={fitSite}
-                          onChange={(e) => setFitSite(e.target.value)}
+                          onChange={setFitSite}
+                          options={fieldOptions.site}
                           placeholder="HiDive"
                           className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
                         />
                       </div>
                       <div>
                         <label className="block text-xs text-dive-text-secondary mb-1">Tag <span className="text-dive-text-muted/60">(opt)</span></label>
-                        <input
-                          type="text"
-                          list="tag-options"
+                        <AutocompleteInput
                           value={fitTag}
-                          onChange={(e) => setFitTag(e.target.value.toUpperCase())}
-                          className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm uppercase"
+                          onChange={setFitTag}
+                          options={fieldOptions.tag}
+                          className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
+                          uppercase
                         />
                       </div>
                     </div>
