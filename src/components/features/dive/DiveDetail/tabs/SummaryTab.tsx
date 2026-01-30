@@ -52,10 +52,10 @@ export const SummaryTab = memo(function SummaryTab({ dive, isPersonalBest }: Sum
         </div>
       </div>
 
-      {/* 主要内容区域 */}
-      <div className="grid grid-cols-12 gap-4">
+      {/* 主要内容区域 - 响应式：窄屏单栏，宽屏双栏 */}
+      <div className="grid grid-cols-1 tablet:grid-cols-12 gap-4">
         {/* 左列 */}
-        <div className="col-span-6 space-y-4">
+        <div className="tablet:col-span-6 space-y-4">
           {/* 潜水基本信息 */}
           <Section title={uiLabels.sectionDiveInfo}>
             <div className="grid grid-cols-3 gap-3">
@@ -112,7 +112,7 @@ export const SummaryTab = memo(function SummaryTab({ dive, isPersonalBest }: Sum
         </div>
 
         {/* 右列 */}
-        <div className="col-span-6 space-y-4">
+        <div className="tablet:col-span-6 space-y-4">
           {/* 环境条件 */}
           <Section title={uiLabels.sectionEnvironment}>
             <div className="grid grid-cols-3 gap-3">
@@ -187,10 +187,10 @@ export const SummaryTab = memo(function SummaryTab({ dive, isPersonalBest }: Sum
       </div>
 
       {/* 底部：装备和标签 */}
-      <div className="grid grid-cols-12 gap-4">
+      <div className="grid grid-cols-1 tablet:grid-cols-12 gap-4">
         {/* 装备 */}
         {gearInfo && (gearInfo.dress || gearInfo.weight || gearInfo.tankSize) && (
-          <div className="col-span-6">
+          <div className="tablet:col-span-6">
             <Section title={uiLabels.sectionGear}>
               <div className="grid grid-cols-3 gap-3 text-sm">
                 {gearInfo.dress && <InfoCard label={uiLabels.dress} value={gearInfo.dress} />}
@@ -203,7 +203,7 @@ export const SummaryTab = memo(function SummaryTab({ dive, isPersonalBest }: Sum
 
         {/* 标签 */}
         {dive.tags && dive.tags.length > 0 && (
-          <div className={gearInfo && (gearInfo.dress || gearInfo.weight || gearInfo.tankSize) ? 'col-span-6' : 'col-span-12'}>
+          <div className={gearInfo && (gearInfo.dress || gearInfo.weight || gearInfo.tankSize) ? 'tablet:col-span-6' : 'tablet:col-span-12'}>
             <Section title={uiLabels.sectionTags}>
               <div className="flex flex-wrap gap-1.5">
                 {dive.tags.map((tag) => (

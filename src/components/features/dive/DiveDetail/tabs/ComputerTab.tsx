@@ -39,10 +39,10 @@ export const ComputerTab = memo(function ComputerTab({ dive }: ComputerTabProps)
         </div>
       </div>
 
-      {/* 主要内容区域 */}
-      <div className="grid grid-cols-12 gap-4">
+      {/* 主要内容区域 - 响应式：窄屏单栏，宽屏双栏 */}
+      <div className="grid grid-cols-1 tablet:grid-cols-12 gap-4">
         {/* 第一行左侧：潜水设置 */}
-        <div className="col-span-6">
+        <div className="tablet:col-span-6">
           <Section title={uiLabels.sectionDiveSettings}>
             <div className="grid grid-cols-3 gap-3">
               <InfoCard label={uiLabels.mode} value={diveSettings?.mode || '-'} />
@@ -58,7 +58,7 @@ export const ComputerTab = memo(function ComputerTab({ dive }: ComputerTabProps)
         </div>
 
         {/* 第一行右侧：电池信息 */}
-        <div className="col-span-6">
+        <div className="tablet:col-span-6">
           <Section title={uiLabels.sectionBattery}>
             <div className="grid grid-cols-3 gap-3">
               <InfoCard label={uiLabels.type} value={battery?.type || '-'} />
@@ -70,7 +70,7 @@ export const ComputerTab = memo(function ComputerTab({ dive }: ComputerTabProps)
 
         {/* 第二行：减压设置 */}
         {hasDecoData && (
-          <div className="col-span-6">
+          <div className="tablet:col-span-6">
             <Section title={uiLabels.sectionDecoSettings}>
               <div className="grid grid-cols-3 gap-3">
                 <InfoCard label={uiLabels.decoModel} value={deco?.decoModel || '-'} />

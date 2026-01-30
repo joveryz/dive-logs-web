@@ -6,6 +6,10 @@ export default {
   ],
   theme: {
     extend: {
+      // 自定义断点，与 src/constants/breakpoints.ts 保持一致
+      screens: {
+        'tablet': '1200px',  // 对应 BREAKPOINTS.mobile
+      },
       colors: {
         'dive': {
           'dark': '#151518',        // 最深背景

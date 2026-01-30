@@ -127,10 +127,10 @@ export const CursorTab = memo(function CursorTab({ cursorData }: CursorTabProps)
         ))}
       </div>
 
-      {/* 主要内容区域 */}
-      <div className="grid grid-cols-12 gap-4">
+      {/* 主要内容区域 - 响应式：窄屏单栏，宽屏双栏 */}
+      <div className="grid grid-cols-1 tablet:grid-cols-12 gap-4">
         {/* 左侧数据 */}
-        <div className="col-span-6 space-y-4">
+        <div className="tablet:col-span-6 space-y-4">
           <Section title="Environment">
             <div className="grid grid-cols-3 gap-3">
               {filterItemsByKeys(['ascentRate', 'heartRate']).map(item => (
@@ -149,7 +149,7 @@ export const CursorTab = memo(function CursorTab({ cursorData }: CursorTabProps)
         </div>
 
         {/* 右侧数据 */}
-        <div className="col-span-6 space-y-4">
+        <div className="tablet:col-span-6 space-y-4">
           <Section title="Gas & Pressure">
             <div className="grid grid-cols-3 gap-3">
               {filterItemsByKeys(['ppO2', 'ppN2', 'ppHe', 'gasDensity']).map(item => (

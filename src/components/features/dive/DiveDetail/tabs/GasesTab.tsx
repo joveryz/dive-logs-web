@@ -72,10 +72,10 @@ export const GasesTab = memo(function GasesTab({ dive }: GasesTabProps) {
 
   return (
     <div className="space-y-4">
-      {/* 主要内容区域 */}
-      <div className="grid grid-cols-12 gap-4">
+      {/* 主要内容区域 - 响应式：窄屏单栏，宽屏双栏 */}
+      <div className="grid grid-cols-1 tablet:grid-cols-12 gap-4">
         {/* 左侧：气体配置 */}
-        <div className="col-span-6 space-y-4">
+        <div className="tablet:col-span-6 space-y-4">
           {/* OC Gases */}
           <Section title={uiLabels.ocGases}>
             <div className="grid grid-cols-2 gap-3">
@@ -129,7 +129,7 @@ export const GasesTab = memo(function GasesTab({ dive }: GasesTabProps) {
         </div>
 
         {/* 右侧：气瓶详情 */}
-        <div className="col-span-6 space-y-4">
+        <div className="tablet:col-span-6 space-y-4">
           {tanks && tanks.length > 0 ? (
             tanks.map((tank, index) => (
               <TankCard key={tank.name || index} tank={tank} />
