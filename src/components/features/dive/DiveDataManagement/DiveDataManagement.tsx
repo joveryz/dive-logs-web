@@ -181,6 +181,9 @@ export function DiveDataManagement({ isOpen, onClose }: DiveDataManagementProps)
   const [isProcessing, setIsProcessing] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<GitHubFile | null>(null);
   
+  // 上传确认状态
+  const [showUploadConfirm, setShowUploadConfirm] = useState(false);
+  
   // 判断是否是 FIT 文件
   const isFitFile = fileExt.toLowerCase() === '.fit';
   
@@ -199,6 +202,7 @@ export function DiveDataManagement({ isOpen, onClose }: DiveDataManagementProps)
     setFitTag('');
     setErrorMessage('');
     setUploadedUrl('');
+    setShowUploadConfirm(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -274,7 +278,7 @@ export function DiveDataManagement({ isOpen, onClose }: DiveDataManagementProps)
           setFitSite(parts[4]);
           setFitTag(parts[5] || '');  // 第6部分为可选 Tag
         } else {
-          // 不符合格式，只填入今天日期
+          // 不符合格式，使用默认值
           const today = new Date();
           const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
           setFitDate(dateStr);
@@ -290,7 +294,7 @@ export function DiveDataManagement({ isOpen, onClose }: DiveDataManagementProps)
         setFileName(baseName);
       }
     }
-  }, []);
+  }, [fieldOptions]);
 
   // 校验单个字段：只允许英文字母、数字、连字符、点（不允许下划线，因为下划线用作分隔符）
   const validateField = useCallback((value: string, fieldName: string): string | null => {
@@ -437,8 +441,9 @@ export function DiveDataManagement({ isOpen, onClose }: DiveDataManagementProps)
     setManageError('');
     
     try {
+      // 添加时间戳参数避免缓存
       const response = await fetch(
-        `https://api.github.com/repos/${REPO}/contents/data`,
+        `https://api.github.com/repos/${REPO}/contents/data?_t=${Date.now()}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -477,6 +482,16 @@ export function DiveDataManagement({ isOpen, onClose }: DiveDataManagementProps)
       fetchFiles();
     }
   }, [activeTab, token, files.length, fetchFiles]);
+
+  // 当表单字段变化时，取消确认状态并重置错误消息
+  useEffect(() => {
+    if (showUploadConfirm) {
+      setShowUploadConfirm(false);
+    }
+    if (errorMessage) {
+      setErrorMessage('');
+    }
+  }, [fitDate, fitDiver, fitBuddy, fitLocation, fitSite, fitTag, fileName]);
 
   // 删除文件
   const deleteFile = useCallback(async (file: GitHubFile) => {
@@ -838,7 +853,6 @@ export function DiveDataManagement({ isOpen, onClose }: DiveDataManagementProps)
                           value={fitDiver}
                           onChange={setFitDiver}
                           options={fieldOptions.diver}
-                          placeholder="Jovery"
                           className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
                         />
                       </div>
@@ -850,7 +864,6 @@ export function DiveDataManagement({ isOpen, onClose }: DiveDataManagementProps)
                           value={fitBuddy}
                           onChange={setFitBuddy}
                           options={fieldOptions.buddy}
-                          placeholder="Solo"
                           className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
                         />
                       </div>
@@ -860,7 +873,6 @@ export function DiveDataManagement({ isOpen, onClose }: DiveDataManagementProps)
                           value={fitLocation}
                           onChange={setFitLocation}
                           options={fieldOptions.location}
-                          placeholder="Beijing"
                           className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
                         />
                       </div>
@@ -872,7 +884,6 @@ export function DiveDataManagement({ isOpen, onClose }: DiveDataManagementProps)
                           value={fitSite}
                           onChange={setFitSite}
                           options={fieldOptions.site}
-                          placeholder="HiDive"
                           className="w-full px-2 py-1.5 bg-dive-card border border-dive-border rounded text-dive-text placeholder-dive-text-muted focus:outline-none focus:border-cyan-500/50 font-mono text-sm"
                         />
                       </div>
@@ -887,8 +898,13 @@ export function DiveDataManagement({ isOpen, onClose }: DiveDataManagementProps)
                         />
                       </div>
                     </div>
-                    <p className="text-xs text-dive-text-muted">
-                      <span className="font-mono text-cyan-400">{fitDate}_{fitDiver}_{fitBuddy}_{fitLocation}_{fitSite}{fitTag.trim() ? `_${fitTag.trim()}` : ''}.fit</span>
+                    <p className="text-sm text-dive-text-muted text-center">
+                      <span className={`font-mono ${validateFitFields() ? 'text-red-400' : 'text-cyan-400'}`}>
+                        {fitDate || '<Date>'}_{fitDiver || '<Diver>'}_{fitBuddy || '<Buddy>'}_{fitLocation || '<Location>'}_{fitSite || '<Site>'}{fitTag.trim() ? `_${fitTag.trim()}` : ''}.fit
+                      </span>
+                      {validateFitFields() && (
+                        <span className="ml-2 text-red-400">⚠</span>
+                      )}
                     </p>
                   </div>
                 )}
@@ -919,23 +935,56 @@ export function DiveDataManagement({ isOpen, onClose }: DiveDataManagementProps)
                 )}
               </div>
 
-              <div className="pt-2">
-                <button
-                  onClick={(e) => {
-                    (e.target as HTMLButtonElement).blur();
-                    uploadToGitHub();
-                  }}
-                  disabled={
-                    !selectedFile || 
-                    (isFitFile 
-                      ? !fitDate || !fitDiver || !fitBuddy || !fitLocation || !fitSite
-                      : !fileName.trim())
-                  }
-                  className="w-full py-2 bg-cyan-600 hover:bg-cyan-500 disabled:bg-dive-card disabled:text-dive-text-muted text-white font-medium rounded-lg transition-colors"
-                >
-                  Upload
-                </button>
-              </div>
+              {/* Upload / Confirm Buttons */}
+              {showUploadConfirm ? (
+                <div className="pt-2 flex gap-2">
+                  <button
+                    onClick={() => setShowUploadConfirm(false)}
+                    className="flex-1 py-2 text-sm border border-dive-border text-dive-text-muted hover:text-dive-text font-medium rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowUploadConfirm(false);
+                      uploadToGitHub();
+                    }}
+                    className="flex-1 py-2 text-sm bg-cyan-600 hover:bg-cyan-500 text-white font-medium rounded-lg transition-colors"
+                  >
+                    Confirm
+                  </button>
+                </div>
+              ) : (
+                <div className="pt-2">
+                  <button
+                    onClick={(e) => {
+                      (e.target as HTMLButtonElement).blur();
+                      // 先校验，通过后显示确认
+                      if (isFitFile) {
+                        const validationError = validateFitFields();
+                        if (validationError) {
+                          setErrorMessage(validationError);
+                          return;
+                        }
+                      } else if (!fileName.trim()) {
+                        setErrorMessage('Please enter filename');
+                        return;
+                      }
+                      setErrorMessage('');
+                      setShowUploadConfirm(true);
+                    }}
+                    disabled={
+                      !selectedFile || 
+                      (isFitFile 
+                        ? !fitDate || !fitDiver || !fitBuddy || !fitLocation || !fitSite
+                        : !fileName.trim())
+                    }
+                    className="w-full py-2 text-sm bg-cyan-600 hover:bg-cyan-500 disabled:bg-dive-card disabled:text-dive-text-muted text-white font-medium rounded-lg transition-colors"
+                  >
+                    Upload
+                  </button>
+                </div>
+              )}
             </>
           )}
 
@@ -1118,7 +1167,7 @@ export function DiveDataManagement({ isOpen, onClose }: DiveDataManagementProps)
               {!isLoadingFiles && (
                 <button
                   onClick={fetchFiles}
-                  className="w-full py-2 text-sm border border-dive-border text-dive-text-muted hover:text-dive-text rounded-lg transition-colors"
+                  className="w-full py-2 text-sm bg-cyan-600 hover:bg-cyan-500 text-white font-medium rounded-lg transition-colors"
                 >
                   Refresh
                 </button>
