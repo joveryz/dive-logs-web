@@ -1,3 +1,5 @@
+import { BREAKPOINTS } from './src/constants/breakpoints.js';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -6,9 +8,9 @@ export default {
   ],
   theme: {
     extend: {
-      // 自定义断点，与 src/constants/breakpoints.ts 保持一致
+      // 自定义断点
       screens: {
-        'tablet': '1200px',  // 对应 BREAKPOINTS.mobile
+        'tablet': `${BREAKPOINTS.mobilePortrait}px`,
       },
       colors: {
         'dive': {
