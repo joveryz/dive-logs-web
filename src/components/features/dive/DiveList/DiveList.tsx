@@ -1,11 +1,11 @@
 import { useMemo, useState, useRef } from 'react';
 import { useDiveStore, selectDives } from '@/store';
 import { useFilteredDives, getFreeDivePBIds } from '@/hooks';
-import { SearchInput, DiveTypeBadge } from '@/components/common';
+import { SearchInput, Badge } from '@/components/common';
 import { formatDuration, formatDepth } from '@/utils';
 import type { SortField, SortDirection, Dive } from '@/types';
 
-// 潜水卡片组件
+// 潜水卡片组件 - 两行紧凑布局
 const DiveCard = ({ 
   dive, 
   isSelected, 
@@ -31,40 +31,34 @@ const DiveCard = ({
         : 'bg-dive-card/40 border-dive-border/50 hover:bg-dive-card/70 hover:border-dive-border'
     }`}
   >
-    {/* 顶部：编号、日期、类型 */}
+    {/* 第一行：编号、类型、PB、地点、日期时间 */}
     <div className="flex items-center justify-between mb-2">
-      <div className="flex items-center gap-2">
-        <span className={`text-xl font-bold tabular-nums ${isSelected ? 'text-cyan-400' : 'text-dive-text group-hover:text-cyan-400'}`}>
+      <div className="flex items-center gap-2 min-w-0 flex-1">
+        <span className={`text-xl font-bold tabular-nums shrink-0 leading-none ${isSelected ? 'text-cyan-400' : 'text-dive-text group-hover:text-cyan-400'}`}>
           #{dive.diveNumber}
         </span>
-        <DiveTypeBadge diveType={dive.diveType} />
+        <Badge variant={dive.diveType} className="text-xs">{dive.diveType}</Badge>
         {isPB && (
-          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
-            PB
-          </span>
+          <Badge variant="PB" className="text-xs shrink-0">PB</Badge>
         )}
+        <div className="flex items-center gap-1 ml-1 shrink-0 text-cyan-400">
+          <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+          </svg>
+          <span className="font-medium text-sm leading-none whitespace-nowrap">{dive.site}</span>
+          {dive.site !== dive.location && (
+            <span className="text-sm leading-none whitespace-nowrap">({dive.location})</span>
+          )}
+        </div>
       </div>
-      <div className="text-right">
-        <div className="text-sm font-medium text-dive-text">{dive.date}</div>
-        <div className="text-xs text-dive-text-muted">{dive.startTime}</div>
+      <div className="flex items-center gap-1.5 text-sm leading-none shrink-0 ml-2 text-dive-text">
+        <span>{dive.date}</span>
+        <span>{dive.startTime}</span>
       </div>
     </div>
 
-    {/* 中间：地点 */}
-    <div className="mb-2">
-      <div className="flex items-center gap-1.5">
-        <svg className="w-3.5 h-3.5 text-cyan-500/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-        </svg>
-        <span className="text-cyan-400 font-medium text-sm truncate">{dive.site}</span>
-        {dive.site !== dive.location && (
-          <span className="text-dive-text-muted text-xs">• {dive.location}</span>
-        )}
-      </div>
-    </div>
-
-    {/* 底部：核心数据 */}
+    {/* 第二行：深度、时长、潜水员、伙伴、标签 */}
     <div className="flex items-center justify-between pt-2 border-t border-dive-border/30">
       <div className="flex items-center gap-3">
         {/* 深度 */}
@@ -86,24 +80,15 @@ const DiveCard = ({
       {/* 右侧信息 */}
       <div className="flex items-center gap-2">
         {dive.diver && (
-          <span className="text-xs text-cyan-400/80 bg-cyan-900/20 px-2 py-0.5 rounded border border-cyan-500/20">
-            {dive.diver}
-          </span>
+          <Badge variant="diver" className="text-xs">{dive.diver}</Badge>
         )}
         {dive.buddy && (
-          <span className="text-xs text-dive-text-muted bg-dive-hover/50 px-2 py-0.5 rounded">
-            {dive.buddy}
-          </span>
+          <Badge variant="buddy" className="text-xs">{dive.buddy}</Badge>
         )}
         {dive.tags && dive.tags.length > 0 && (
           <div className="flex gap-1">
             {dive.tags.slice(0, 2).map((tag, idx) => (
-              <span
-                key={idx}
-                className="px-1.5 py-0.5 rounded text-[10px] bg-purple-900/40 text-purple-300"
-              >
-                #{tag}
-              </span>
+              <Badge key={idx} variant="tag" className="text-[10px]">#{tag}</Badge>
             ))}
             {dive.tags.length > 2 && (
               <span className="text-[10px] text-dive-text-muted">+{dive.tags.length - 2}</span>

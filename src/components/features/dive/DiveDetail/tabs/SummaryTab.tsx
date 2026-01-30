@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { InfoCard, Section, DiveTypeBadge } from '@/components/common';
+import { InfoCard, Section, Badge } from '@/components/common';
 import { uiLabels } from '@/constants';
 import { formatDepth, formatDurationReadable, formatNumber } from '@/utils';
 import type { Dive } from '@/types';
@@ -48,7 +48,7 @@ export const SummaryTab = memo(function SummaryTab({ dive, isPersonalBest }: Sum
         </div>
         <div className="bg-dive-card/60 rounded-lg p-3 text-center">
           <div className="text-xs text-dive-text-muted uppercase">{uiLabels.type}</div>
-          <DiveTypeBadge diveType={dive.diveType} className="text-base font-semibold justify-center" />
+          <Badge variant={dive.diveType} className="text-base font-semibold justify-center">{dive.diveType}</Badge>
         </div>
       </div>
 
