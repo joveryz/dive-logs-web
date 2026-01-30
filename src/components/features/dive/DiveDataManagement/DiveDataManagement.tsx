@@ -26,22 +26,8 @@ function AutocompleteInput({
   uppercase = false,
 }: AutocompleteInputProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [filteredOptions, setFilteredOptions] = useState<string[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // 过滤选项
-  useEffect(() => {
-    if (value.trim()) {
-      const filtered = options.filter(opt => 
-        opt.toLowerCase().includes(value.toLowerCase()) && 
-        opt.toLowerCase() !== value.toLowerCase()
-      );
-      setFilteredOptions(filtered);
-    } else {
-      setFilteredOptions(options);
-    }
-  }, [value, options]);
 
   // 点击外部关闭
   useEffect(() => {
@@ -65,7 +51,7 @@ function AutocompleteInput({
     onChange(newValue);
   };
 
-  const showDropdown = isOpen && filteredOptions.length > 0;
+  const showDropdown = isOpen && options.length > 0;
 
   return (
     <div ref={containerRef} className="relative">
@@ -94,7 +80,7 @@ function AutocompleteInput({
       </div>
       {showDropdown && (
         <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-dive-card border border-dive-border rounded-lg shadow-lg max-h-32 overflow-y-auto">
-          {filteredOptions.map(opt => (
+          {options.map(opt => (
             <button
               key={opt}
               type="button"
