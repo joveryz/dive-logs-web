@@ -84,7 +84,7 @@ export const uiLabels = {
   minTemp: 'Min Temp',
   maxTemp: 'Max Temp',
   avgTemp: 'Avg Temp',
-  surfacePressure: 'Surface Pressure',
+  surfacePressure: 'Surf Pressure',
   maxHeartRate: 'Max HR',
   minHeartRate: 'Min HR',
   avgHeartRate: 'Avg HR',
@@ -96,7 +96,7 @@ export const uiLabels = {
   conditions: 'Conditions',
   waterDensity: 'Water Density',
   waterType: 'Water Type',
-  surfaceInterval: 'Surface Interval',
+  surfaceInterval: 'Surf Interval',
   
   // 电脑标签
   model: 'Model',
@@ -154,6 +154,7 @@ export const uiLabels = {
   emptyState: 'Select a dive to view details',
   statsComingSoon: 'Statistics view coming soon...',
   noNotes: 'No notes for this dive.',
+  cursorHint: 'Hover over the chart to see data.',
 } as const;
 
 // ============================================================================

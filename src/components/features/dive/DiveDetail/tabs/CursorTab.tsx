@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { Section } from '@/components/common';
+import { uiLabels } from '@/constants';
 import { formatTimeForChart, formatNumber } from '@/utils';
 import type { DiveProfilePoint } from '@/types';
 
@@ -88,7 +89,7 @@ export const CursorTab = memo(function CursorTab({ cursorData }: CursorTabProps)
   if (!cursorData) {
     return (
       <div className="flex items-center justify-center h-full text-dive-text-muted">
-        <span>Hover over the chart to see data</span>
+        <span>{uiLabels.cursorHint}</span>
       </div>
     );
   }
@@ -101,7 +102,7 @@ export const CursorTab = memo(function CursorTab({ cursorData }: CursorTabProps)
 
   return (
     <div className="space-y-4">
-      {/* 顶部：核心指标卡片 */}
+      {/* 时间显示 - 横跨整行 */}
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-dive-card/60 rounded-lg p-3 text-center">
           <div className="text-xs text-dive-text-muted uppercase">Time</div>
@@ -112,7 +113,7 @@ export const CursorTab = memo(function CursorTab({ cursorData }: CursorTabProps)
         {filterItemsByKeys(['depth']).map(item => (
           <div key={item.key} className="bg-dive-card/60 rounded-lg p-3 text-center">
             <div className="text-xs text-dive-text-muted uppercase">{item.label}</div>
-            <div className="text-xl font-bold text-green-400">
+            <div className="text-xl font-bold" style={{ color: item.color }}>
               {item.value} {item.unit}
             </div>
           </div>
@@ -120,7 +121,7 @@ export const CursorTab = memo(function CursorTab({ cursorData }: CursorTabProps)
         {filterItemsByKeys(['temperature']).map(item => (
           <div key={item.key} className="bg-dive-card/60 rounded-lg p-3 text-center">
             <div className="text-xs text-dive-text-muted uppercase">{item.label}</div>
-            <div className="text-xl font-bold text-purple-400">
+            <div className="text-xl font-bold" style={{ color: item.color }}>
               {item.value} {item.unit}
             </div>
           </div>

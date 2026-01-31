@@ -120,7 +120,7 @@ const initialState: DiveState = {
   listScrollTop: 0,
   chartSeriesVisibility: {},
   chartSelectedSeries: 'ascentRate',
-  showLandscapeChart: true,
+  showLandscapeChart: false,
 };
 
 /**
