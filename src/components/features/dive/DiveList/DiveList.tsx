@@ -42,12 +42,15 @@ const DiveCard = ({
         {isPB && (
           <Badge variant="PB" className="text-xs shrink-0">PB</Badge>
         )}
-        <div className="flex items-center gap-1 ml-1 shrink-0 text-cyan-400 font-semibold">
+        <div 
+          className="flex items-center gap-1 ml-1 min-w-0 text-cyan-400 font-semibold"
+          title={dive.site !== dive.location ? `${dive.site} (${dive.location})` : dive.site}
+        >
           <MapPin className="w-3.5 h-3.5 shrink-0" />
-          <span className="text-sm leading-none whitespace-nowrap">{dive.site}</span>
-          {dive.site !== dive.location && (
-            <span className="text-sm leading-none whitespace-nowrap">({dive.location})</span>
-          )}
+          <span className="text-sm truncate">
+            {dive.site}
+            {dive.site !== dive.location && ` (${dive.location})`}
+          </span>
         </div>
       </div>
       <div className="flex items-center gap-1.5 text-sm leading-none shrink-0 ml-2 text-dive-text">
