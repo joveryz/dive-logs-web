@@ -19,32 +19,35 @@ function isValidDive(dive: Dive): boolean {
 /**
  * 比较搜索表达式
  * 支持格式: field>value, field<value, field>=value, field<=value
- * 支持字段: depth, duration/time
+ * 支持字段: depth, duration/time, date
  */
 interface ComparisonQuery {
   field: string;
   operator: '>' | '<' | '>=' | '<=';
-  value: number;
+  value: number | string;
 }
 
 function parseComparisonQuery(query: string): ComparisonQuery | null {
-  const match = query.match(/^(depth|duration|time)\s*(>=|<=|>|<)\s*(\d+(?:\.\d+)?)$/i);
+  const match = query.match(/^(depth|duration|time|date)\s*(>=|<=|>|<)\s*(.+)$/i);
   if (!match) return null;
   
+  const field = match[1].toLowerCase();
   return {
-    field: match[1].toLowerCase(),
+    field,
     operator: match[2] as ComparisonQuery['operator'],
-    value: parseFloat(match[3]),
+    value: field === 'date' ? match[3] : parseFloat(match[3]),
   };
 }
 
-function getDiveFieldValue(dive: Dive, field: string): number | null {
+function getDiveFieldValue(dive: Dive, field: string): number | string | null {
   switch (field) {
     case 'depth':
       return dive.maxDepth;
     case 'duration':
     case 'time':
       return dive.duration;
+    case 'date':
+      return dive.date;
     default:
       return null;
   }
@@ -133,7 +136,7 @@ export function useFilteredDives() {
           result = [];
         }
       } else {
-        // 尝试解析比较表达式 (如 depth>30, time<60)
+        // 尝试解析比较表达式 (如 depth>30, time<60, date>2026-01-01)
         const comparison = parseComparisonQuery(searchLower);
         if (comparison) {
           result = result.filter(dive => matchesComparison(dive, comparison));
@@ -145,7 +148,8 @@ export function useFilteredDives() {
             dive.diveType.toLowerCase().includes(searchLower) ||
             dive.buddy?.toLowerCase().includes(searchLower) ||
             dive.diveNumber.toString().includes(searchLower) ||
-            dive.tags?.some(tag => tag.toLowerCase().includes(searchLower))
+            dive.tags?.some(tag => tag.toLowerCase().includes(searchLower)) ||
+            dive.date.includes(searchLower)
           );
         }
       }
