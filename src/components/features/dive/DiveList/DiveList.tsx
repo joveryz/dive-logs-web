@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef, useEffect, useCallback } from 'react';
-import { MapPin, ArrowDown, Clock, Filter, X, Search } from 'lucide-react';
+import { MapPin, ArrowDown, Clock, Filter, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import { useDiveStore, selectDives } from '@/store';
 import { useFilteredDives, getFreeDivePBIds } from '@/hooks';
 import { SearchInput, Badge } from '@/components/common';
@@ -38,7 +38,7 @@ const DiveCard = ({
         <span className={`text-xl font-bold tabular-nums shrink-0 leading-none ${isSelected ? 'text-cyan-400' : 'text-dive-text group-hover:text-cyan-400'}`}>
           #{dive.diveNumber}
         </span>
-        <Badge variant={dive.diveType} className="text-xs">{dive.diveType}</Badge>
+        <Badge variant={dive.diveType} className="text-xs whitespace-nowrap shrink-0">{dive.diveType}</Badge>
         {isPB && (
           <Badge variant="PB" className="text-xs shrink-0">PB</Badge>
         )}
@@ -106,6 +106,14 @@ export function DiveList() {
     setFilterDiveType,
     filterDiver,
     setFilterDiver,
+    filterDateMonth,
+    setFilterDateMonth,
+    filterTag,
+    setFilterTag,
+    filterLocation,
+    setFilterLocation,
+    filterSite,
+    setFilterSite,
     listScrollTop,
     setListScrollTop
   } = useDiveStore();
@@ -123,8 +131,34 @@ export function DiveList() {
     const divers = new Set(allDivesForTypes.map(d => d.diver).filter((d): d is string => !!d));
     return Array.from(divers).sort();
   }, [allDivesForTypes]);
+
+  // 获取所有可用的月份（去重，降序）
+  const availableDates = useMemo(() => {
+    const dates = new Set(allDivesForTypes.map(d => d.date));
+    return Array.from(dates).sort().reverse();
+  }, [allDivesForTypes]);
+
+  // 获取所有可用的标签（去重，按字母排序）
+  const availableTags = useMemo(() => {
+    const tags = new Set(allDivesForTypes.flatMap(d => d.tags || []));
+    return Array.from(tags).sort();
+  }, [allDivesForTypes]);
+
+  // 获取所有可用的地点（去重，按字母排序）
+  const availableLocations = useMemo(() => {
+    const locations = new Set(allDivesForTypes.map(d => d.location));
+    return Array.from(locations).sort();
+  }, [allDivesForTypes]);
+
+  // 获取所有可用的潜点（去重，按字母排序）
+  const availableSites = useMemo(() => {
+    const sites = new Set(allDivesForTypes.map(d => d.site));
+    return Array.from(sites).sort();
+  }, [allDivesForTypes]);
+
   const [sortField, setSortField] = useState<SortField>('diveNumber');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [showFilters, setShowFilters] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // 恢复滚动位置
@@ -186,37 +220,42 @@ export function DiveList() {
   
   return (
     <div className="flex flex-col h-full bg-dive-surface" role="region" aria-label="Dive List">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-dive-border/50">
-        <h2 className="text-cyan-400 font-semibold text-lg">Dives</h2>
-        <span className="text-xs tabular-nums">
-          <span className="text-cyan-400 font-semibold">{filteredDives.length}</span>
-          <span className="text-dive-text-muted"> of {useDiveStore.getState().dives.length} total</span>
-        </span>
-      </div>
-      
       {/* Search & Filter */}
-      <div className="p-3 border-b border-dive-border/50 space-y-3">
-        <SearchInput
-          value={searchQuery}
-          onChange={setSearchQuery}
-          placeholder="Search... (e.g. depth>20)"
-        />
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
+      <div className="p-3 border-b border-dive-border/50 space-y-2">
+        <div className="flex items-center gap-2">
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search... (e.g. depth>20)"
+            suffix={<><span className="text-cyan-400">{filteredDives.length}</span>/{useDiveStore.getState().dives.length}</>}
+            className="flex-1"
+          />
+          <button
+            type="button"
+            onClick={() => setShowFilters(!showFilters)}
+            className={`p-2 rounded transition-all ${showFilters ? 'bg-cyan-500/20 text-cyan-400' : 'text-dive-text-muted hover:text-dive-text-secondary'}`}
+            aria-label={showFilters ? 'Hide filters' : 'Show filters'}
+            aria-expanded={showFilters}
+          >
+            {showFilters ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+        </div>
+        {showFilters && (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {/* Valid 筛选 */}
             <button
               type="button"
               role="switch"
               aria-checked={filterValidDivesOnly}
               aria-label="Filter valid dives only"
               onClick={() => setFilterValidDivesOnly(!filterValidDivesOnly)}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+              className={`h-6 px-2 flex items-center justify-center gap-1 rounded text-xs font-medium transition-all ${
                 filterValidDivesOnly 
                   ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' 
-                  : 'bg-dive-card/50 text-dive-text-muted border border-transparent hover:bg-dive-card hover:text-dive-text-secondary'
+                  : 'bg-dive-card/50 text-dive-text-muted border border-transparent hover:text-dive-text-secondary'
               }`}
             >
-              <Filter className="w-3.5 h-3.5" />
+              <Filter className="w-3 h-3" />
               {filterValidDivesOnly ? 'Valid' : 'All'}
             </button>
             
@@ -225,40 +264,112 @@ export function DiveList() {
               <select
                 value={filterDiver || ''}
                 onChange={(e) => setFilterDiver(e.target.value || null)}
-                className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer focus:outline-none [&>option]:bg-dive-card [&>option]:text-dive-text ${
+                className={`h-6 px-1 rounded text-xs font-medium transition-all cursor-pointer focus:outline-none [&>option]:bg-dive-card [&>option]:text-dive-text ${
                   filterDiver 
                     ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' 
-                    : 'bg-dive-card/50 text-dive-text-muted border border-transparent hover:bg-dive-card hover:text-dive-text-secondary'
+                    : 'bg-dive-card/50 text-dive-text-muted border border-transparent hover:text-dive-text-secondary'
                 }`}
                 aria-label="Filter by diver"
               >
-                <option value="">All Divers</option>
+                <option value="">Diver</option>
                 {availableDivers.map((diver) => (
                   <option key={diver} value={diver}>{diver}</option>
                 ))}
               </select>
             )}
-            
+          
             {/* 潜水类型筛选器 */}
             <select
               value={filterDiveType || ''}
               onChange={(e) => setFilterDiveType(e.target.value || null)}
-              className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer focus:outline-none [&>option]:bg-dive-card [&>option]:text-dive-text ${
+              className={`h-6 px-1 rounded text-xs font-medium transition-all cursor-pointer focus:outline-none [&>option]:bg-dive-card [&>option]:text-dive-text ${
                 filterDiveType 
                   ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' 
-                  : 'bg-dive-card/50 text-dive-text-muted border border-transparent hover:bg-dive-card hover:text-dive-text-secondary'
+                  : 'bg-dive-card/50 text-dive-text-muted border border-transparent hover:text-dive-text-secondary'
               }`}
               aria-label="Filter by dive type"
             >
-              <option value="">All Types</option>
+              <option value="">Type</option>
               {availableDiveTypes.map((type) => (
                 <option key={type} value={type}>{type}</option>
               ))}
             </select>
-          </div>
-          
-          {/* 排序选择器 */}
-          <div className="flex items-center gap-1.5">
+            
+            {/* 日期筛选器 */}
+            <select
+              value={filterDateMonth || ''}
+              onChange={(e) => setFilterDateMonth(e.target.value || null)}
+              className={`h-6 px-1 rounded text-xs font-medium transition-all cursor-pointer focus:outline-none [&>option]:bg-dive-card [&>option]:text-dive-text ${
+                filterDateMonth 
+                  ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' 
+                  : 'bg-dive-card/50 text-dive-text-muted border border-transparent hover:text-dive-text-secondary'
+              }`}
+              aria-label="Filter by date"
+            >
+              <option value="">Date</option>
+              {availableDates.map((date) => (
+                <option key={date} value={date}>{date}</option>
+              ))}
+            </select>
+            
+            {/* 标签筛选器 */}
+            {availableTags.length > 0 && (
+              <select
+                value={filterTag || ''}
+                onChange={(e) => setFilterTag(e.target.value || null)}
+                className={`h-6 px-1 rounded text-xs font-medium transition-all cursor-pointer focus:outline-none [&>option]:bg-dive-card [&>option]:text-dive-text ${
+                  filterTag 
+                    ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' 
+                    : 'bg-dive-card/50 text-dive-text-muted border border-transparent hover:text-dive-text-secondary'
+                }`}
+                aria-label="Filter by tag"
+              >
+                <option value="">Tag</option>
+                {availableTags.map((tag) => (
+                  <option key={tag} value={tag}>#{tag}</option>
+                ))}
+              </select>
+            )}
+
+            {/* 地点筛选器 */}
+            {availableLocations.length > 1 && (
+              <select
+                value={filterLocation || ''}
+                onChange={(e) => setFilterLocation(e.target.value || null)}
+                className={`h-6 px-1 rounded text-xs font-medium transition-all cursor-pointer focus:outline-none [&>option]:bg-dive-card [&>option]:text-dive-text ${
+                  filterLocation 
+                    ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' 
+                    : 'bg-dive-card/50 text-dive-text-muted border border-transparent hover:text-dive-text-secondary'
+                }`}
+                aria-label="Filter by location"
+              >
+                <option value="">Location</option>
+                {availableLocations.map((location) => (
+                  <option key={location} value={location}>{location}</option>
+                ))}
+              </select>
+            )}
+
+            {/* 潜点筛选器 */}
+            {availableSites.length > 1 && (
+              <select
+                value={filterSite || ''}
+                onChange={(e) => setFilterSite(e.target.value || null)}
+                className={`h-6 px-1 rounded text-xs font-medium transition-all cursor-pointer focus:outline-none [&>option]:bg-dive-card [&>option]:text-dive-text ${
+                  filterSite 
+                    ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' 
+                    : 'bg-dive-card/50 text-dive-text-muted border border-transparent hover:text-dive-text-secondary'
+                }`}
+                aria-label="Filter by site"
+              >
+                <option value="">Site</option>
+                {availableSites.map((site) => (
+                  <option key={site} value={site}>{site}</option>
+                ))}
+              </select>
+            )}
+
+            {/* 排序 */}
             <select
               value={`${sortField}-${sortDirection}`}
               onChange={(e) => {
@@ -266,32 +377,19 @@ export function DiveList() {
                 setSortField(field);
                 setSortDirection(direction);
               }}
-              className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-dive-card/50 text-dive-text-muted border border-transparent hover:bg-dive-card hover:text-dive-text-secondary focus:outline-none focus:bg-dive-card focus:text-dive-text-secondary transition-all duration-200 cursor-pointer [&>option]:bg-dive-card [&>option]:text-dive-text"
+              className="h-6 px-1 rounded text-xs font-medium bg-dive-card/50 text-dive-text-muted border border-transparent hover:text-dive-text-secondary focus:outline-none transition-all cursor-pointer [&>option]:bg-dive-card [&>option]:text-dive-text"
             >
-              <option value="diveNumber-desc"># Descending</option>
-              <option value="diveNumber-asc"># Ascending</option>
-              <option value="date-desc">Latest First</option>
-              <option value="date-asc">Oldest First</option>
-              <option value="maxDepth-desc">Deepest First</option>
-              <option value="maxDepth-asc">Shallowest First</option>
-              <option value="duration-desc">Longest First</option>
-              <option value="duration-asc">Shortest First</option>
+              <option value="diveNumber-desc"># ↓</option>
+              <option value="diveNumber-asc"># ↑</option>
+              <option value="date-desc">Date ↓</option>
+              <option value="date-asc">Date ↑</option>
+              <option value="maxDepth-desc">Depth ↓</option>
+              <option value="maxDepth-asc">Depth ↑</option>
+              <option value="duration-desc">Time ↓</option>
+              <option value="duration-asc">Time ↑</option>
             </select>
-            {(sortField !== 'diveNumber' || sortDirection !== 'desc') && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSortField('diveNumber');
-                  setSortDirection('desc');
-                }}
-                className="p-1.5 rounded-lg text-dive-text-muted hover:text-dive-text-secondary hover:bg-dive-card/50 transition-all duration-200"
-                aria-label="Reset sort"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
           </div>
-        </div>
+        )}
       </div>
       
       {/* 卡片列表 */}

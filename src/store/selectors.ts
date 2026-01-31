@@ -46,6 +46,30 @@ export const selectFilterDiver = (state: DiveStore): string | null =>
   state.filterDiver;
 
 /**
+ * 选择筛选的日期月份
+ */
+export const selectFilterDateMonth = (state: DiveStore): string | null =>
+  state.filterDateMonth;
+
+/**
+ * 选择筛选的标签
+ */
+export const selectFilterTag = (state: DiveStore): string | null =>
+  state.filterTag;
+
+/**
+ * 选择筛选的地点
+ */
+export const selectFilterLocation = (state: DiveStore): string | null =>
+  state.filterLocation;
+
+/**
+ * 选择筛选的潜点
+ */
+export const selectFilterSite = (state: DiveStore): string | null =>
+  state.filterSite;
+
+/**
  * 选择 Chart 系列可见性
  */
 export const selectChartSeriesVisibility = (state: DiveStore): Record<string, boolean> =>

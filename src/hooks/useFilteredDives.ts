@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useDiveStore, selectDives, selectSearchQuery, selectFilterValidDivesOnly, selectFilterDiveType, selectFilterDiver } from '@/store';
+import { useDiveStore, selectDives, selectSearchQuery, selectFilterValidDivesOnly, selectFilterDiveType, selectFilterDiver, selectFilterDateMonth, selectFilterTag, selectFilterLocation, selectFilterSite } from '@/store';
 import { Dive } from '@/types';
 
 /**
@@ -104,6 +104,10 @@ export function useFilteredDives() {
   const filterValidDivesOnly = useDiveStore(selectFilterValidDivesOnly);
   const filterDiveType = useDiveStore(selectFilterDiveType);
   const filterDiver = useDiveStore(selectFilterDiver);
+  const filterDateMonth = useDiveStore(selectFilterDateMonth);
+  const filterTag = useDiveStore(selectFilterTag);
+  const filterLocation = useDiveStore(selectFilterLocation);
+  const filterSite = useDiveStore(selectFilterSite);
   
   return useMemo(() => {
     let result = dives;
@@ -121,6 +125,26 @@ export function useFilteredDives() {
     // 按潜水员过滤
     if (filterDiver) {
       result = result.filter(dive => dive.diver === filterDiver);
+    }
+    
+    // 按日期月份过滤
+    if (filterDateMonth) {
+      result = result.filter(dive => dive.date.startsWith(filterDateMonth));
+    }
+    
+    // 按标签过滤
+    if (filterTag) {
+      result = result.filter(dive => dive.tags?.includes(filterTag));
+    }
+    
+    // 按地点过滤
+    if (filterLocation) {
+      result = result.filter(dive => dive.location === filterLocation);
+    }
+    
+    // 按潜点过滤
+    if (filterSite) {
+      result = result.filter(dive => dive.site === filterSite);
     }
     
     // 文本搜索过滤
@@ -156,5 +180,5 @@ export function useFilteredDives() {
     }
     
     return result;
-  }, [dives, searchQuery, filterValidDivesOnly, filterDiveType, filterDiver]);
+  }, [dives, searchQuery, filterValidDivesOnly, filterDiveType, filterDiver, filterDateMonth, filterTag, filterLocation, filterSite]);
 }

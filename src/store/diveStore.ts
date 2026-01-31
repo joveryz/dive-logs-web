@@ -23,6 +23,14 @@ interface DiveState {
   filterDiveType: string | null;
   /** 筛选的潜水员 */
   filterDiver: string | null;
+  /** 筛选的日期月份 (YYYY-MM) */
+  filterDateMonth: string | null;
+  /** 筛选的标签 */
+  filterTag: string | null;
+  /** 筛选的地点 (location) */
+  filterLocation: string | null;
+  /** 筛选的潜点 (site) */
+  filterSite: string | null;
   /** DiveList 滚动位置 */
   listScrollTop: number;
   /** Chart 系列可见性覆盖 */
@@ -47,6 +55,14 @@ interface DiveActions {
   setFilterDiveType: (type: string | null) => void;
   /** 设置筛选的潜水员 */
   setFilterDiver: (diver: string | null) => void;
+  /** 设置筛选的日期月份 */
+  setFilterDateMonth: (month: string | null) => void;
+  /** 设置筛选的标签 */
+  setFilterTag: (tag: string | null) => void;
+  /** 设置筛选的地点 */
+  setFilterLocation: (location: string | null) => void;
+  /** 设置筛选的潜点 */
+  setFilterSite: (site: string | null) => void;
   /** 设置潜水记录列表 */
   setDives: (dives: Dive[]) => void;
   /** 添加潜水记录 */
@@ -97,6 +113,10 @@ const initialState: DiveState = {
   filterValidDivesOnly: true,
   filterDiveType: null,
   filterDiver: null,
+  filterDateMonth: null,
+  filterTag: null,
+  filterLocation: null,
+  filterSite: null,
   listScrollTop: 0,
   chartSeriesVisibility: {},
   chartSelectedSeries: 'ascentRate',
@@ -132,6 +152,22 @@ export const useDiveStore = create<DiveStore>()(
 
       setFilterDiver: (diver) => {
         set({ filterDiver: diver }, false, 'setFilterDiver');
+      },
+
+      setFilterDateMonth: (month) => {
+        set({ filterDateMonth: month }, false, 'setFilterDateMonth');
+      },
+
+      setFilterTag: (tag) => {
+        set({ filterTag: tag }, false, 'setFilterTag');
+      },
+
+      setFilterLocation: (location) => {
+        set({ filterLocation: location }, false, 'setFilterLocation');
+      },
+
+      setFilterSite: (site) => {
+        set({ filterSite: site }, false, 'setFilterSite');
       },
 
       setDives: (dives) => {
