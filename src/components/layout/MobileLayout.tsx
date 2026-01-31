@@ -3,39 +3,40 @@ import { ChevronLeft } from 'lucide-react';
 import { ErrorBoundary, TabButton } from '@/components/common';
 import { DiveList, DiveDetail, DiveChart } from '@/components/features';
 import { uiLabels } from '@/constants';
-import { useDiveStore, selectSelectedDiveId } from '@/store';
-import { useOrientation, useSelectedDive } from '@/hooks';
+import { useDiveStore, selectShowLandscapeChart, selectSelectedDive } from '@/store';
+import { useOrientation } from '@/hooks';
 
 /**
  * 移动端布局
  * - 竖屏: Tab 切换模式 (列表/详情)
- * - 横屏 + 已选 dive: 全屏显示 Chart
- * - 横屏 + 未选 dive: 显示列表
+ * - 横屏 + 已选 dive + showChart: 全屏显示 Chart
+ * - 横屏 + 未选 dive 或 !showChart: 显示列表
  */
 export function MobileLayout() {
   const [activeTab, setActiveTab] = useState<'list' | 'detail'>('list');
-  const selectedDiveId = useDiveStore(selectSelectedDiveId);
-  const prevSelectedDiveId = useRef(selectedDiveId);
+  const showLandscapeChart = useDiveStore(selectShowLandscapeChart);
+  const setShowLandscapeChart = useDiveStore(state => state.setShowLandscapeChart);
+  const selectedDive = useDiveStore(selectSelectedDive);
   const orientation = useOrientation();
-  const selectedDive = useSelectedDive();
+  const prevSelectedDiveId = useRef(selectedDive?.id);
   
   const isLandscape = orientation === 'landscape';
   
-  // 用户选中新的潜水时切换到详情 Tab
+  // 选中新 dive 时自动切换到详情 Tab
   useEffect(() => {
-    if (selectedDiveId && selectedDiveId !== prevSelectedDiveId.current && activeTab === 'list') {
+    if (selectedDive && selectedDive.id !== prevSelectedDiveId.current && activeTab === 'list') {
       setActiveTab('detail');
     }
-    prevSelectedDiveId.current = selectedDiveId;
-  }, [selectedDiveId, activeTab]);
+    prevSelectedDiveId.current = selectedDive?.id;
+  }, [selectedDive, activeTab]);
 
-  // 横屏 + 已选 dive: 全屏 Chart
-  if (isLandscape && selectedDive) {
+  // 横屏 + 已选 dive + 显示图表: 全屏 Chart
+  if (isLandscape && selectedDive && showLandscapeChart) {
     return (
       <div className="relative h-full w-full bg-dive-surface">
         {/* 返回列表按钮 */}
         <button
-          onClick={() => useDiveStore.getState().setSelectedDiveId(null)}
+          onClick={() => setShowLandscapeChart(false)}
           className="absolute top-2 left-2 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-dive-card/80 backdrop-blur-sm border border-dive-border/50 text-dive-text-secondary hover:text-dive-text hover:bg-dive-card transition-all duration-200"
           aria-label="Back to list"
         >
@@ -55,8 +56,8 @@ export function MobileLayout() {
     );
   }
 
-  // 横屏 + 未选 dive: 显示列表
-  if (isLandscape && !selectedDive) {
+  // 横屏 + (未选 dive 或 不显示图表): 显示列表
+  if (isLandscape) {
     return (
       <div className="h-full">
         <ErrorBoundary>

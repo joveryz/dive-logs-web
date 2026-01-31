@@ -25,6 +25,12 @@ interface DiveState {
   filterDiver: string | null;
   /** DiveList 滚动位置 */
   listScrollTop: number;
+  /** Chart 系列可见性覆盖 */
+  chartSeriesVisibility: Record<string, boolean>;
+  /** Chart 选中的系列（用于右侧Y轴） */
+  chartSelectedSeries: string | null;
+  /** 移动端横屏是否显示全屏图表 */
+  showLandscapeChart: boolean;
 }
 
 /**
@@ -53,6 +59,12 @@ interface DiveActions {
   clearSearch: () => void;
   /** 设置列表滚动位置 */
   setListScrollTop: (scrollTop: number) => void;
+  /** 设置 Chart 系列可见性 */
+  setChartSeriesVisibility: (visibility: Record<string, boolean>) => void;
+  /** 设置 Chart 选中系列 */
+  setChartSelectedSeries: (key: string | null) => void;
+  /** 设置横屏是否显示全屏图表 */
+  setShowLandscapeChart: (show: boolean) => void;
 }
 
 /**
@@ -86,6 +98,9 @@ const initialState: DiveState = {
   filterDiveType: null,
   filterDiver: null,
   listScrollTop: 0,
+  chartSeriesVisibility: {},
+  chartSelectedSeries: 'ascentRate',
+  showLandscapeChart: true,
 };
 
 /**
@@ -100,7 +115,7 @@ export const useDiveStore = create<DiveStore>()(
 
       // 操作方法
       setSelectedDiveId: (id) => {
-        set({ selectedDiveId: id }, false, 'setSelectedDiveId');
+        set({ selectedDiveId: id, showLandscapeChart: true }, false, 'setSelectedDiveId');
       },
 
       setSearchQuery: (query) => {
@@ -168,6 +183,18 @@ export const useDiveStore = create<DiveStore>()(
 
       setListScrollTop: (scrollTop) => {
         set({ listScrollTop: scrollTop }, false, 'setListScrollTop');
+      },
+
+      setChartSeriesVisibility: (visibility) => {
+        set({ chartSeriesVisibility: visibility }, false, 'setChartSeriesVisibility');
+      },
+
+      setChartSelectedSeries: (key) => {
+        set({ chartSelectedSeries: key }, false, 'setChartSelectedSeries');
+      },
+
+      setShowLandscapeChart: (show) => {
+        set({ showLandscapeChart: show }, false, 'setShowLandscapeChart');
       },
     }),
     {

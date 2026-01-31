@@ -1,6 +1,5 @@
 // Dive-related hooks
 export { useFilteredDives, getFreeDivePBIds } from './useFilteredDives';
-export { useSelectedDive } from './useSelectedDive';
 
 // Chart hooks (unified API)
 export {

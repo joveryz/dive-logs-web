@@ -45,6 +45,24 @@ export const selectFilterDiveType = (state: DiveStore): string | null =>
 export const selectFilterDiver = (state: DiveStore): string | null =>
   state.filterDiver;
 
+/**
+ * 选择 Chart 系列可见性
+ */
+export const selectChartSeriesVisibility = (state: DiveStore): Record<string, boolean> =>
+  state.chartSeriesVisibility;
+
+/**
+ * 选择 Chart 选中的系列
+ */
+export const selectChartSelectedSeries = (state: DiveStore): string | null =>
+  state.chartSelectedSeries;
+
+/**
+ * 选择横屏是否显示全屏图表
+ */
+export const selectShowLandscapeChart = (state: DiveStore): boolean =>
+  state.showLandscapeChart;
+
 // ============================================================================
 // 派生 Selectors
 // ============================================================================

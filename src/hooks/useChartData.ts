@@ -4,10 +4,11 @@
  * @module hooks/useChartData
  */
 
-import { useMemo, useState, useCallback, useRef, useEffect } from 'react';
+import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import type { DiveProfilePoint, DiveType } from '@/types';
 import type { ChartSeriesConfig } from '@/constants';
 import { DEFAULT_CHART_SERIES } from '@/constants';
+import { useDiveStore, selectChartSeriesVisibility, selectChartSelectedSeries } from '@/store';
 import { calculateDynamicRange, normalizeValue, isSymmetricSeries, NORMALIZED_AXIS } from '@/utils/chart';
 import {
   FREEDIVE_AVAILABLE_KEYS,
@@ -136,15 +137,9 @@ export function useChartData(profile: DiveProfilePoint[], diveType?: DiveType) {
   const availableSeries = useMemo(() => getAvailableSeries(diveType), [diveType]);
   const defaultVisibleKeys = useMemo(() => getDefaultVisibleKeys(diveType), [diveType]);
 
-  // 初始化时使用默认可见系列
-  const [visibilityOverrides, setVisibilityOverrides] = useState<Record<string, boolean>>(() => {
-    const keys = getDefaultVisibleKeys(diveType);
-    const overrides: Record<string, boolean> = {};
-    DEFAULT_CHART_SERIES.forEach(s => {
-      overrides[s.key] = (keys as readonly string[]).includes(s.key);
-    });
-    return overrides;
-  });
+  // 从 store 获取可见性状态
+  const visibilityOverrides = useDiveStore(selectChartSeriesVisibility);
+  const setChartSeriesVisibility = useDiveStore(state => state.setChartSeriesVisibility);
 
   // 计算系列配置
   const seriesConfigs = useMemo<EffectiveSeriesConfig[]>(
@@ -152,13 +147,13 @@ export function useChartData(profile: DiveProfilePoint[], diveType?: DiveType) {
     [profile, availableSeries]
   );
 
-  // 合并可见性
+  // 合并可见性：store 有值则用 store，否则用默认
   const effectiveSeriesConfigs = useMemo<EffectiveSeriesConfig[]>(
     () => seriesConfigs.map((config) => ({
       ...config,
-      visible: visibilityOverrides[config.key] ?? config.visible,
+      visible: visibilityOverrides[config.key] ?? (defaultVisibleKeys as readonly string[]).includes(config.key),
     })),
-    [seriesConfigs, visibilityOverrides]
+    [seriesConfigs, visibilityOverrides, defaultVisibleKeys]
   );
 
   // 归一化数据
@@ -169,37 +164,29 @@ export function useChartData(profile: DiveProfilePoint[], diveType?: DiveType) {
 
   // 可见性操作
   const toggleSeriesVisibility = useCallback((key: string) => {
-    setVisibilityOverrides((prev) => {
-      const current = prev[key] ?? availableSeries.find((s) => s.key === key)?.visible ?? true;
-      return { ...prev, [key]: !current };
-    });
-  }, [availableSeries]);
+    const current = visibilityOverrides[key] ?? (defaultVisibleKeys as readonly string[]).includes(key);
+    setChartSeriesVisibility({ ...visibilityOverrides, [key]: !current });
+  }, [visibilityOverrides, defaultVisibleKeys, setChartSeriesVisibility]);
 
   const resetToDefault = useCallback(() => {
-    setVisibilityOverrides(() => {
-      const overrides: Record<string, boolean> = {};
-      availableSeries.forEach((s) => {
-        overrides[s.key] = (defaultVisibleKeys as readonly string[]).includes(s.key);
-      });
-      return overrides;
+    const overrides: Record<string, boolean> = {};
+    availableSeries.forEach((s) => {
+      overrides[s.key] = (defaultVisibleKeys as readonly string[]).includes(s.key);
     });
-  }, [availableSeries, defaultVisibleKeys]);
+    setChartSeriesVisibility(overrides);
+  }, [availableSeries, defaultVisibleKeys, setChartSeriesVisibility]);
 
   const showAllSeries = useCallback(() => {
-    setVisibilityOverrides(() => {
-      const overrides: Record<string, boolean> = {};
-      availableSeries.forEach((s) => { overrides[s.key] = true; });
-      return overrides;
-    });
-  }, [availableSeries]);
+    const overrides: Record<string, boolean> = {};
+    availableSeries.forEach((s) => { overrides[s.key] = true; });
+    setChartSeriesVisibility(overrides);
+  }, [availableSeries, setChartSeriesVisibility]);
 
   const hideAllSeries = useCallback(() => {
-    setVisibilityOverrides(() => {
-      const overrides: Record<string, boolean> = {};
-      availableSeries.forEach((s) => { overrides[s.key] = false; });
-      return overrides;
-    });
-  }, [availableSeries]);
+    const overrides: Record<string, boolean> = {};
+    availableSeries.forEach((s) => { overrides[s.key] = false; });
+    setChartSeriesVisibility(overrides);
+  }, [availableSeries, setChartSeriesVisibility]);
 
   return {
     chartData,
@@ -273,12 +260,13 @@ export function useContainerSize(threshold: number = 1) {
 
 /**
  * 系列悬停和选中状态 Hook
- * - hoveredSeries: 当前悬停的系列
- * - selectedSeries: 上次选中的系列（点击后保留，用于右侧Y轴显示）
+ * - hoveredSeries: 当前悬停的系列（本地状态）
+ * - selectedSeries: 选中的系列（store 状态，切换 dive 保持）
  */
 export function useSeriesHover() {
   const [hoveredSeries, setHoveredSeries] = useState<string | null>(null);
-  const [selectedSeries, setSelectedSeries] = useState<string | null>('ascentRate'); // 默认选中 ascentRate
+  const selectedSeries = useDiveStore(selectChartSelectedSeries);
+  const setChartSelectedSeries = useDiveStore(state => state.setChartSelectedSeries);
 
   const handleSeriesMouseEnter = useCallback((seriesKey: string) => {
     setHoveredSeries(seriesKey);
@@ -290,8 +278,8 @@ export function useSeriesHover() {
 
   // 点击选中某条线，用于保持右侧Y轴显示
   const handleSeriesClick = useCallback((seriesKey: string) => {
-    setSelectedSeries(seriesKey);
-  }, []);
+    setChartSelectedSeries(seriesKey);
+  }, [setChartSelectedSeries]);
 
   const getOpacity = useCallback(
     (seriesKey: string) => hoveredSeries === null ? 1 : (hoveredSeries === seriesKey ? 1 : 0.15),

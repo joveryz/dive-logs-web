@@ -1,6 +1,6 @@
 import { useState, memo, useCallback } from 'react';
-import { useSelectedDive, getFreeDivePBIds, useFilteredDives } from '@/hooks';
-import { useDiveStore } from '@/store';
+import { getFreeDivePBIds, useFilteredDives } from '@/hooks';
+import { useDiveStore, selectSelectedDive } from '@/store';
 import { DiveChart } from '../DiveChart';
 import { DiveStats } from '../DiveStats';
 import { ResizablePanels } from '@/components/layout';
@@ -72,7 +72,7 @@ const DetailContent = memo(function DetailContent({
  * 潜水详情主组件 - 展示选中潜水的图表和详细信息
  */
 export function DiveDetail() {
-  const dive = useSelectedDive();
+  const dive = useDiveStore(selectSelectedDive);
   const filteredDives = useFilteredDives();
   const [viewMode, setViewMode] = useState<ViewMode>('graph');
   const [cursorData, setCursorData] = useState<DiveProfilePoint | null>(null);
