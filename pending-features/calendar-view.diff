@@ -1,0 +1,357 @@
+﻿diff --git a/src/components/features/dive/DiveList/DiveList.tsx b/src/components/features/dive/DiveList/DiveList.tsx
+index 8c7c51c..8b78c57 100644
+--- a/src/components/features/dive/DiveList/DiveList.tsx
++++ b/src/components/features/dive/DiveList/DiveList.tsx
+@@ -1,98 +1,10 @@
+ import { useMemo, useState, useRef, useEffect, useCallback } from 'react';
+-import { MapPin, ArrowDown, Clock, Filter, X, Search } from 'lucide-react';
++import { Filter, X, Search } from 'lucide-react';
+ import { useDiveStore, selectDives } from '@/store';
+ import { useFilteredDives, getFreeDivePBIds } from '@/hooks';
+-import { SearchInput, Badge } from '@/components/common';
+-import { formatDuration, formatDepth } from '@/utils';
+-import type { SortField, SortDirection, Dive } from '@/types';
+-
+-// 潜水卡片组件 - 两行紧凑布局
+-const DiveCard = ({ 
+-  dive, 
+-  isSelected, 
+-  isPB, 
+-  onClick,
+-  onKeyDown 
+-}: { 
+-  dive: Dive; 
+-  isSelected: boolean; 
+-  isPB: boolean;
+-  onClick: () => void;
+-  onKeyDown: (e: React.KeyboardEvent) => void;
+-}) => (
+-  <div
+-    onClick={onClick}
+-    onKeyDown={onKeyDown}
+-    tabIndex={0}
+-    role="button"
+-    aria-selected={isSelected}
+-    className={`group relative p-3 rounded-lg border transition-all duration-200 cursor-pointer ${
+-      isSelected
+-        ? 'bg-gradient-to-br from-cyan-900/40 to-cyan-800/20 border-cyan-500/60 shadow-lg shadow-cyan-900/20'
+-        : 'bg-dive-card/40 border-dive-border/50 hover:bg-dive-card/70 hover:border-dive-border'
+-    }`}
+-  >
+-    {/* 第一行：编号、类型、PB、地点、日期时间 */}
+-    <div className="flex items-center justify-between mb-2">
+-      <div className="flex items-center gap-2 min-w-0 flex-1">
+-        <span className={`text-xl font-bold tabular-nums shrink-0 leading-none ${isSelected ? 'text-cyan-400' : 'text-dive-text group-hover:text-cyan-400'}`}>
+-          #{dive.diveNumber}
+-        </span>
+-        <Badge variant={dive.diveType} className="text-xs">{dive.diveType}</Badge>
+-        {isPB && (
+-          <Badge variant="PB" className="text-xs shrink-0">PB</Badge>
+-        )}
+-        <div className="flex items-center gap-1 ml-1 shrink-0 text-cyan-400 font-semibold">
+-          <MapPin className="w-3.5 h-3.5 shrink-0" />
+-          <span className="text-sm leading-none whitespace-nowrap">{dive.site}</span>
+-          {dive.site !== dive.location && (
+-            <span className="text-sm leading-none whitespace-nowrap">({dive.location})</span>
+-          )}
+-        </div>
+-      </div>
+-      <div className="flex items-center gap-1.5 text-sm leading-none shrink-0 ml-2 text-dive-text">
+-        <span>{dive.date}</span>
+-        <span>{dive.startTime}</span>
+-      </div>
+-    </div>
+-
+-    {/* 第二行：深度、时长、潜水员、伙伴、标签 */}
+-    <div className="flex items-center justify-between pt-2 border-t border-dive-border/30">
+-      <div className="flex items-center gap-3">
+-        {/* 深度 */}
+-        <div className="flex items-center gap-1">
+-          <ArrowDown className="w-3.5 h-3.5 text-blue-400" />
+-          <span className="font-mono font-semibold text-sm text-blue-400">{formatDepth(dive.maxDepth)}</span>
+-        </div>
+-        {/* 时长 */}
+-        <div className="flex items-center gap-1">
+-          <Clock className="w-3.5 h-3.5 text-green-400" />
+-          <span className="font-mono font-semibold text-sm text-green-400">{formatDuration(dive.duration)}</span>
+-        </div>
+-      </div>
+-      
+-      {/* 右侧信息 */}
+-      <div className="flex items-center gap-2">
+-        {dive.diver && (
+-          <Badge variant="diver" className="text-xs">{dive.diver}</Badge>
+-        )}
+-        {dive.buddy && (
+-          <Badge variant="buddy" className="text-xs">{dive.buddy}</Badge>
+-        )}
+-        {dive.tags && dive.tags.length > 0 && (
+-          <div className="flex gap-1">
+-            {dive.tags.slice(0, 2).map((tag, idx) => (
+-              <Badge key={idx} variant="tag" className="text-[10px]">#{tag}</Badge>
+-            ))}
+-            {dive.tags.length > 2 && (
+-              <span className="text-[10px] text-dive-text-muted">+{dive.tags.length - 2}</span>
+-            )}
+-          </div>
+-        )}
+-      </div>
+-    </div>
+-  </div>
+-);
++import { SearchInput } from '@/components/common';
++import { DiveCard } from '../DiveCard';
++import type { SortField, SortDirection } from '@/types';
+ 
+ export function DiveList() {
+   const { 
+diff --git a/src/components/features/dive/index.ts b/src/components/features/dive/index.ts
+index f5d67c5..3565b94 100644
+--- a/src/components/features/dive/index.ts
++++ b/src/components/features/dive/index.ts
+@@ -2,3 +2,6 @@ export { DiveList } from './DiveList';
+ export { DiveDetail } from './DiveDetail';
+ export { DiveChart } from './DiveChart';
+ export { DiveDataManagement } from './DiveDataManagement';
++export { CalendarView } from './CalendarView';
++export { DiveFilters } from './DiveFilters';
++export { DiveCard } from './DiveCard';
+diff --git a/src/components/layout/DesktopLayout.tsx b/src/components/layout/DesktopLayout.tsx
+index 2a3689f..89ab467 100644
+--- a/src/components/layout/DesktopLayout.tsx
++++ b/src/components/layout/DesktopLayout.tsx
+@@ -1,12 +1,15 @@
+ import { ResizablePanels } from './ResizablePanels';
+ import { ErrorBoundary } from '@/components/common';
+-import { DiveList, DiveDetail } from '@/components/features';
++import { DiveList, DiveDetail, CalendarView } from '@/components/features';
++import { useDiveStore, selectViewMode } from '@/store';
+ import { BREAKPOINTS } from '@/constants';
+ 
+ /**
+  * 桌面端布局 - 可调整大小的双面板模式
+  */
+ export function DesktopLayout() {
++  const viewMode = useDiveStore(selectViewMode);
++
+   return (
+     <ResizablePanels
+       direction="horizontal"
+@@ -14,7 +17,7 @@ export function DesktopLayout() {
+         {
+           content: (
+             <ErrorBoundary>
+-              <DiveList />
++              {viewMode === 'list' ? <DiveList /> : <CalendarView />}
+             </ErrorBoundary>
+           ),
+           minSize: BREAKPOINTS.panelMinWidth,
+diff --git a/src/components/layout/Header.tsx b/src/components/layout/Header.tsx
+index b28e83f..4a45c2a 100644
+--- a/src/components/layout/Header.tsx
++++ b/src/components/layout/Header.tsx
+@@ -1,6 +1,7 @@
+ import { useState } from 'react';
+-import { Settings } from 'lucide-react';
++import { Settings, List, Calendar } from 'lucide-react';
+ import { DiveDataManagement } from '@/components/features';
++import { useDiveStore, selectViewMode } from '@/store';
+ 
+ interface HeaderProps {
+   slogan?: string;
+@@ -10,6 +11,8 @@ export function Header({
+   slogan = 'Deep Dive, Dive Deep' 
+ }: HeaderProps) {
+   const [isModalOpen, setIsModalOpen] = useState(false);
++  const viewMode = useDiveStore(selectViewMode);
++  const setViewMode = useDiveStore(state => state.setViewMode);
+ 
+   return (
+     <>
+@@ -32,15 +35,45 @@ export function Header({
+           <span className="text-cyan-400 font-semibold text-lg">{slogan}</span>
+         </div>
+         
+-        {/* 数据管理按钮 */}
+-        <button
+-          onClick={() => setIsModalOpen(true)}
+-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-cyan-400 hover:text-cyan-300 hover:bg-dive-card/50 rounded-lg transition-all"
+-          title="Data Management"
+-        >
+-          <Settings className="w-4 h-4" />
+-          <span className="hidden sm:inline">Manage</span>
+-        </button>
++        <div className="flex items-center gap-2">
++          {/* 视图切换按钮 */}
++          <div className="flex items-center bg-dive-card/50 rounded-lg p-0.5">
++            <button
++              onClick={() => setViewMode('list')}
++              className={`flex items-center gap-1 px-2 py-1 text-sm rounded-md transition-all ${
++                viewMode === 'list' 
++                  ? 'bg-cyan-500/20 text-cyan-400' 
++                  : 'text-dive-text-secondary hover:text-dive-text'
++              }`}
++              title="List view"
++            >
++              <List className="w-4 h-4" />
++              <span className="hidden sm:inline">List</span>
++            </button>
++            <button
++              onClick={() => setViewMode('calendar')}
++              className={`flex items-center gap-1 px-2 py-1 text-sm rounded-md transition-all ${
++                viewMode === 'calendar' 
++                  ? 'bg-cyan-500/20 text-cyan-400' 
++                  : 'text-dive-text-secondary hover:text-dive-text'
++              }`}
++              title="Calendar view"
++            >
++              <Calendar className="w-4 h-4" />
++              <span className="hidden sm:inline">Calendar</span>
++            </button>
++          </div>
++          
++          {/* 数据管理按钮 */}
++          <button
++            onClick={() => setIsModalOpen(true)}
++            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-cyan-400 hover:text-cyan-300 hover:bg-dive-card/50 rounded-lg transition-all"
++            title="Data Management"
++          >
++            <Settings className="w-4 h-4" />
++            <span className="hidden sm:inline">Manage</span>
++          </button>
++        </div>
+       </header>
+       
+       <DiveDataManagement isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+diff --git a/src/components/layout/MobileLayout.tsx b/src/components/layout/MobileLayout.tsx
+index 4e8584e..61d5997 100644
+--- a/src/components/layout/MobileLayout.tsx
++++ b/src/components/layout/MobileLayout.tsx
+@@ -1,9 +1,9 @@
+ import { useState, useEffect, useRef } from 'react';
+ import { ChevronLeft } from 'lucide-react';
+ import { ErrorBoundary, TabButton } from '@/components/common';
+-import { DiveList, DiveDetail, DiveChart } from '@/components/features';
++import { DiveList, DiveDetail, DiveChart, CalendarView } from '@/components/features';
+ import { uiLabels } from '@/constants';
+-import { useDiveStore, selectSelectedDiveId } from '@/store';
++import { useDiveStore, selectSelectedDiveId, selectViewMode } from '@/store';
+ import { useOrientation, useSelectedDive } from '@/hooks';
+ 
+ /**
+@@ -15,6 +15,7 @@ import { useOrientation, useSelectedDive } from '@/hooks';
+ export function MobileLayout() {
+   const [activeTab, setActiveTab] = useState<'list' | 'detail'>('list');
+   const selectedDiveId = useDiveStore(selectSelectedDiveId);
++  const viewMode = useDiveStore(selectViewMode);
+   const prevSelectedDiveId = useRef(selectedDiveId);
+   const orientation = useOrientation();
+   const selectedDive = useSelectedDive();
+@@ -55,12 +56,12 @@ export function MobileLayout() {
+     );
+   }
+ 
+-  // 横屏 + 未选 dive: 显示列表
++  // 横屏 + 未选 dive: 显示列表或日历
+   if (isLandscape && !selectedDive) {
+     return (
+       <div className="h-full">
+         <ErrorBoundary>
+-          <DiveList />
++          {viewMode === 'list' ? <DiveList /> : <CalendarView />}
+         </ErrorBoundary>
+       </div>
+     );
+@@ -95,7 +96,7 @@ export function MobileLayout() {
+       <div className="flex-1 overflow-hidden">
+         {activeTab === 'list' ? (
+           <ErrorBoundary>
+-            <DiveList />
++            {viewMode === 'list' ? <DiveList /> : <CalendarView />}
+           </ErrorBoundary>
+         ) : (
+           <ErrorBoundary>
+diff --git a/src/store/diveStore.ts b/src/store/diveStore.ts
+index b27159a..d018795 100644
+--- a/src/store/diveStore.ts
++++ b/src/store/diveStore.ts
+@@ -7,6 +7,11 @@ import { dives as initialDives } from '@/data';
+ // 类型定义
+ // ============================================================================
+ 
++/**
++ * 视图模式类型
++ */
++export type ViewMode = 'list' | 'calendar';
++
+ /**
+  * Store 状态
+  */
+@@ -25,6 +30,8 @@ interface DiveState {
+   filterDiver: string | null;
+   /** DiveList 滚动位置 */
+   listScrollTop: number;
++  /** 当前视图模式 */
++  viewMode: ViewMode;
+ }
+ 
+ /**
+@@ -53,6 +60,8 @@ interface DiveActions {
+   clearSearch: () => void;
+   /** 设置列表滚动位置 */
+   setListScrollTop: (scrollTop: number) => void;
++  /** 设置视图模式 */
++  setViewMode: (mode: ViewMode) => void;
+ }
+ 
+ /**
+@@ -86,6 +95,7 @@ const initialState: DiveState = {
+   filterDiveType: null,
+   filterDiver: null,
+   listScrollTop: 0,
++  viewMode: 'list',
+ };
+ 
+ /**
+@@ -169,6 +179,10 @@ export const useDiveStore = create<DiveStore>()(
+       setListScrollTop: (scrollTop) => {
+         set({ listScrollTop: scrollTop }, false, 'setListScrollTop');
+       },
++
++      setViewMode: (mode) => {
++        set({ viewMode: mode }, false, 'setViewMode');
++      },
+     }),
+     {
+       name: 'DiveStore',
+diff --git a/src/store/index.ts b/src/store/index.ts
+index 16ef289..23b9c02 100644
+--- a/src/store/index.ts
++++ b/src/store/index.ts
+@@ -1,2 +1,2 @@
+-export { useDiveStore, type DiveStore } from './diveStore';
++export { useDiveStore, type DiveStore, type ViewMode } from './diveStore';
+ export * from './selectors';
+diff --git a/src/store/selectors.ts b/src/store/selectors.ts
+index 24bff0a..8966417 100644
+--- a/src/store/selectors.ts
++++ b/src/store/selectors.ts
+@@ -45,6 +45,11 @@ export const selectFilterDiveType = (state: DiveStore): string | null =>
+ export const selectFilterDiver = (state: DiveStore): string | null =>
+   state.filterDiver;
+ 
++/**
++ * 选择当前视图模式
++ */
++export const selectViewMode = (state: DiveStore) => state.viewMode;
++
+ // ============================================================================
+ // 派生 Selectors
+ // ============================================================================
+diff --git a/src/utils/index.ts b/src/utils/index.ts
+index 16c5b2b..946e585 100644
+--- a/src/utils/index.ts
++++ b/src/utils/index.ts
+@@ -1 +1,2 @@
+ export * from './format';
++export * from './calendar';
