@@ -23,6 +23,8 @@ interface DiveState {
   filterDiveType: string | null;
   /** 筛选的潜水员 */
   filterDiver: string | null;
+  /** DiveList 滚动位置 */
+  listScrollTop: number;
 }
 
 /**
@@ -49,6 +51,8 @@ interface DiveActions {
   deleteDive: (id: string) => void;
   /** 清空搜索查询 */
   clearSearch: () => void;
+  /** 设置列表滚动位置 */
+  setListScrollTop: (scrollTop: number) => void;
 }
 
 /**
@@ -81,6 +85,7 @@ const initialState: DiveState = {
   filterValidDivesOnly: true,
   filterDiveType: null,
   filterDiver: null,
+  listScrollTop: 0,
 };
 
 /**
@@ -159,6 +164,10 @@ export const useDiveStore = create<DiveStore>()(
 
       clearSearch: () => {
         set({ searchQuery: '' }, false, 'clearSearch');
+      },
+
+      setListScrollTop: (scrollTop) => {
+        set({ listScrollTop: scrollTop }, false, 'setListScrollTop');
       },
     }),
     {

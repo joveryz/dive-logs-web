@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef } from 'react';
+import { useMemo, useState, useRef, useEffect, useCallback } from 'react';
 import { MapPin, ArrowDown, Clock, Filter, X, Search } from 'lucide-react';
 import { useDiveStore, selectDives } from '@/store';
 import { useFilteredDives, getFreeDivePBIds } from '@/hooks';
@@ -105,7 +105,9 @@ export function DiveList() {
     filterDiveType,
     setFilterDiveType,
     filterDiver,
-    setFilterDiver
+    setFilterDiver,
+    listScrollTop,
+    setListScrollTop
   } = useDiveStore();
   const filteredDives = useFilteredDives();
   const allDivesForTypes = useDiveStore(selectDives);
@@ -124,6 +126,20 @@ export function DiveList() {
   const [sortField, setSortField] = useState<SortField>('diveNumber');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // 恢复滚动位置
+  useEffect(() => {
+    if (containerRef.current && listScrollTop > 0) {
+      containerRef.current.scrollTop = listScrollTop;
+    }
+  }, []);
+
+  // 保存滚动位置
+  const handleScroll = useCallback(() => {
+    if (containerRef.current) {
+      setListScrollTop(containerRef.current.scrollTop);
+    }
+  }, [setListScrollTop]);
 
   // 排序后的潜水列表
   const sortedDives = useMemo(() => {
@@ -279,7 +295,7 @@ export function DiveList() {
       </div>
       
       {/* 卡片列表 */}
-      <div ref={containerRef} className="flex-1 overflow-auto p-3 space-y-2">
+      <div ref={containerRef} className="flex-1 overflow-auto p-3 space-y-2" onScroll={handleScroll}>
         {sortedDives.map((dive) => (
           <DiveCard
             key={dive.id}
