@@ -9,7 +9,15 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "encode-csv": "node scripts/encode-csv.js",
-    "prebuild": "node scripts/encode-csv.js"
+    "prebuild": "node scripts/encode-csv.js",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report",
+    "test:desktop": "playwright test --project='Desktop Standard'",
+    "test:mobile": "playwright test --project='iPhone 17 Pro Max'",
+    "test:tablet": "playwright test --project='iPad Mini 7'",
+    "test:responsive": "playwright test e2e/responsive.spec.ts"
   },
   "dependencies": {
     "crypto-js": "^4.2.0",
@@ -22,6 +30,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
+    "@playwright/test": "^1.58.1",
     "@types/crypto-js": "^4.2.2",
     "@types/react": "^18.3.17",
     "@types/react-dom": "^18.3.5",
