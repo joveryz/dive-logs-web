@@ -17,7 +17,10 @@ export const ComputerTab = memo(function ComputerTab({ dive }: ComputerTabProps)
   const diveSettings = computerInfo?.dive;
   const deco = computerInfo?.deco;
   
-  // 检查是否有减压数据
+  // 检查是否有各类数据
+  const hasDiveSettings = diveSettings?.mode || diveSettings?.sampleRate || computerInfo?.dataFormat ||
+                          diveSettings?.waterType || diveSettings?.waterDensity;
+  const hasBatteryData = battery?.type || battery?.vStart || battery?.vEnd;
   const hasDecoData = deco?.decoModel || deco?.conservatism || deco?.gf99Max || 
                       deco?.cnsStart || deco?.cnsEnd || deco?.endSurfaceGF;
 
@@ -41,34 +44,37 @@ export const ComputerTab = memo(function ComputerTab({ dive }: ComputerTabProps)
 
       {/* 主要内容区域 - 响应式：窄屏单栏，宽屏双栏 */}
       <div className="grid grid-cols-1 tablet:grid-cols-12 gap-4">
-        {/* 第一行左侧：潜水设置 */}
-        <div className="tablet:col-span-6">
-          <Section title={uiLabels.sectionDiveSettings}>
-            <div className="grid grid-cols-3 gap-3">
-              <InfoCard label={uiLabels.mode} value={diveSettings?.mode || '-'} />
-              <InfoCard label={uiLabels.sampleRate} value={diveSettings?.sampleRate ? `${diveSettings.sampleRate}s` : '-'} />
-              <InfoCard label={uiLabels.dataFormat} value={computerInfo?.dataFormat || '-'} />
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              <InfoCard label={uiLabels.waterType} value={diveSettings?.waterType || '-'} />
-              <InfoCard label={uiLabels.waterDensity} value={diveSettings?.waterDensity ? `${diveSettings.waterDensity} kg/m³` : '-'} />
-              <InfoCard label={uiLabels.surfacePressure} value={formatNumber(diveSettings?.surfacePressure, ' mBar')} />
-            </div>
-          </Section>
-        </div>
+        {/* 潜水设置 */}
+        {hasDiveSettings && (
+          <div className="tablet:col-span-6">
+            <Section title={uiLabels.sectionDiveSettings}>
+              <div className="grid grid-cols-3 gap-3">
+                <InfoCard label={uiLabels.mode} value={diveSettings?.mode || '-'} />
+                <InfoCard label={uiLabels.sampleRate} value={diveSettings?.sampleRate ? `${diveSettings.sampleRate}s` : '-'} />
+                <InfoCard label={uiLabels.dataFormat} value={computerInfo?.dataFormat || '-'} />
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <InfoCard label={uiLabels.waterType} value={diveSettings?.waterType || '-'} />
+                <InfoCard label={uiLabels.waterDensity} value={diveSettings?.waterDensity ? `${diveSettings.waterDensity} kg/m³` : '-'} />
+              </div>
+            </Section>
+          </div>
+        )}
 
-        {/* 第一行右侧：电池信息 */}
-        <div className="tablet:col-span-6">
-          <Section title={uiLabels.sectionBattery}>
-            <div className="grid grid-cols-3 gap-3">
-              <InfoCard label={uiLabels.type} value={battery?.type || '-'} />
-              <InfoCard label={uiLabels.voltageStart} value={formatNumber(battery?.vStart, ' V')} />
-              <InfoCard label={uiLabels.voltageEnd} value={formatNumber(battery?.vEnd, ' V')} />
-            </div>
-          </Section>
-        </div>
+        {/* 电池信息 */}
+        {hasBatteryData && (
+          <div className="tablet:col-span-6">
+            <Section title={uiLabels.sectionBattery}>
+              <div className="grid grid-cols-3 gap-3">
+                <InfoCard label={uiLabels.type} value={battery?.type || '-'} />
+                <InfoCard label={uiLabels.voltageStart} value={formatNumber(battery?.vStart, ' V')} />
+                <InfoCard label={uiLabels.voltageEnd} value={formatNumber(battery?.vEnd, ' V')} />
+              </div>
+            </Section>
+          </div>
+        )}
 
-        {/* 第二行：减压设置 */}
+        {/* 减压设置 */}
         {hasDecoData && (
           <div className="tablet:col-span-6">
             <Section title={uiLabels.sectionDecoSettings}>

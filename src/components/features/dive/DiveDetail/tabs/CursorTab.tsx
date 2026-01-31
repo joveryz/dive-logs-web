@@ -101,7 +101,7 @@ export const CursorTab = memo(function CursorTab({ cursorData }: CursorTabProps)
 
   return (
     <div className="space-y-4">
-      {/* 时间显示 - 横跨整行 */}
+      {/* 顶部：核心指标卡片 */}
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-dive-card/60 rounded-lg p-3 text-center">
           <div className="text-xs text-dive-text-muted uppercase">Time</div>
@@ -112,7 +112,7 @@ export const CursorTab = memo(function CursorTab({ cursorData }: CursorTabProps)
         {filterItemsByKeys(['depth']).map(item => (
           <div key={item.key} className="bg-dive-card/60 rounded-lg p-3 text-center">
             <div className="text-xs text-dive-text-muted uppercase">{item.label}</div>
-            <div className="text-xl font-bold" style={{ color: item.color }}>
+            <div className="text-xl font-bold text-green-400">
               {item.value} {item.unit}
             </div>
           </div>
@@ -120,7 +120,7 @@ export const CursorTab = memo(function CursorTab({ cursorData }: CursorTabProps)
         {filterItemsByKeys(['temperature']).map(item => (
           <div key={item.key} className="bg-dive-card/60 rounded-lg p-3 text-center">
             <div className="text-xs text-dive-text-muted uppercase">{item.label}</div>
-            <div className="text-xl font-bold" style={{ color: item.color }}>
+            <div className="text-xl font-bold text-purple-400">
               {item.value} {item.unit}
             </div>
           </div>
@@ -131,40 +131,48 @@ export const CursorTab = memo(function CursorTab({ cursorData }: CursorTabProps)
       <div className="grid grid-cols-1 tablet:grid-cols-12 gap-4">
         {/* 左侧数据 */}
         <div className="tablet:col-span-6 space-y-4">
-          <Section title="Environment">
-            <div className="grid grid-cols-3 gap-3">
-              {filterItemsByKeys(['ascentRate', 'heartRate']).map(item => (
-                <DataValue key={item.key} item={item} />
-              ))}
-            </div>
-          </Section>
+          {filterItemsByKeys(['ascentRate', 'heartRate']).length > 0 && (
+            <Section title="Environment">
+              <div className="grid grid-cols-3 gap-3">
+                {filterItemsByKeys(['ascentRate', 'heartRate']).map(item => (
+                  <DataValue key={item.key} item={item} />
+                ))}
+              </div>
+            </Section>
+          )}
 
-          <Section title="Decompression">
-            <div className="grid grid-cols-3 gap-3">
-              {filterItemsByKeys(['ndl', 'gf99', 'cns', 'deco', 'tts', 'ceiling']).map(item => (
-                <DataValue key={item.key} item={item} />
-              ))}
-            </div>
-          </Section>
+          {filterItemsByKeys(['ndl', 'gf99', 'cns', 'deco', 'tts', 'ceiling']).length > 0 && (
+            <Section title="Decompression">
+              <div className="grid grid-cols-3 gap-3">
+                {filterItemsByKeys(['ndl', 'gf99', 'cns', 'deco', 'tts', 'ceiling']).map(item => (
+                  <DataValue key={item.key} item={item} />
+                ))}
+              </div>
+            </Section>
+          )}
         </div>
 
         {/* 右侧数据 */}
         <div className="tablet:col-span-6 space-y-4">
-          <Section title="Gas & Pressure">
-            <div className="grid grid-cols-3 gap-3">
-              {filterItemsByKeys(['ppO2', 'ppN2', 'ppHe', 'gasDensity']).map(item => (
-                <DataValue key={item.key} item={item} />
-              ))}
-            </div>
-          </Section>
+          {filterItemsByKeys(['ppO2', 'ppN2', 'ppHe', 'gasDensity']).length > 0 && (
+            <Section title="Gas & Pressure">
+              <div className="grid grid-cols-3 gap-3">
+                {filterItemsByKeys(['ppO2', 'ppN2', 'ppHe', 'gasDensity']).map(item => (
+                  <DataValue key={item.key} item={item} />
+                ))}
+              </div>
+            </Section>
+          )}
 
-          <Section title="Tank & Consumption">
-            <div className="grid grid-cols-3 gap-3">
-              {filterItemsByKeys(['tank1Pressure', 'tank2Pressure', 'tank3Pressure', 'tank4Pressure', 'sac']).map(item => (
-                <DataValue key={item.key} item={item} />
-              ))}
-            </div>
-          </Section>
+          {filterItemsByKeys(['tank1Pressure', 'tank2Pressure', 'tank3Pressure', 'tank4Pressure', 'sac']).length > 0 && (
+            <Section title="Tank & Consumption">
+              <div className="grid grid-cols-3 gap-3">
+                {filterItemsByKeys(['tank1Pressure', 'tank2Pressure', 'tank3Pressure', 'tank4Pressure', 'sac']).map(item => (
+                  <DataValue key={item.key} item={item} />
+                ))}
+              </div>
+            </Section>
+          )}
         </div>
       </div>
     </div>
