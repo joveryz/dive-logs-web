@@ -59,6 +59,10 @@ export default defineConfig({
             return 'dive-data';
           }
         },
+        // 确保所有资源文件名都包含哈希
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
       },
     },
     // 压缩配置
