@@ -19,7 +19,7 @@ export type { SortDirection };
 export type SortField = Extract<
   keyof Dive,
   'diveNumber' | 'date' | 'diveType' | 'location' | 'maxDepth' | 'duration'
-> | 'diveComputer' | 'buddy' | 'tags';
+> | 'diveComputer' | 'buddy' | 'tags' | 'avgHeartRate' | 'minHeartRate';
 
 // ============================================================================
 // 视图相关

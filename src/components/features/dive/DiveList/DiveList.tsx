@@ -208,6 +208,24 @@ export function DiveList() {
         case 'duration':
           comparison = a.duration - b.duration;
           break;
+        case 'avgHeartRate': {
+          const aHR = a.environment?.avgHeartRate;
+          const bHR = b.environment?.avgHeartRate;
+          if (aHR == null && bHR == null) comparison = 0;
+          else if (aHR == null) comparison = sortDirection === 'asc' ? 1 : -1;
+          else if (bHR == null) comparison = sortDirection === 'asc' ? -1 : 1;
+          else comparison = aHR - bHR;
+          break;
+        }
+        case 'minHeartRate': {
+          const aHR = a.environment?.minHeartRate;
+          const bHR = b.environment?.minHeartRate;
+          if (aHR == null && bHR == null) comparison = 0;
+          else if (aHR == null) comparison = sortDirection === 'asc' ? 1 : -1;
+          else if (bHR == null) comparison = sortDirection === 'asc' ? -1 : 1;
+          else comparison = aHR - bHR;
+          break;
+        }
         default:
           comparison = a.diveNumber - b.diveNumber;
       }
@@ -399,6 +417,10 @@ export function DiveList() {
               <option value="maxDepth-asc">Depth ↑</option>
               <option value="duration-desc">Time ↓</option>
               <option value="duration-asc">Time ↑</option>
+              <option value="avgHeartRate-desc">Avg HR ↓</option>
+              <option value="avgHeartRate-asc">Avg HR ↑</option>
+              <option value="minHeartRate-desc">Min HR ↓</option>
+              <option value="minHeartRate-asc">Min HR ↑</option>
             </select>
           </div>
         )}
