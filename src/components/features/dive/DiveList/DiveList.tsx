@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef, useEffect, useCallback } from 'react';
-import { MapPin, ArrowDown, Clock, Filter, Search, ChevronDown, ChevronUp } from 'lucide-react';
+import { MapPin, ArrowDown, Clock, Filter, Search, ChevronDown, ChevronUp, Heart } from 'lucide-react';
 import { useDiveStore, selectDives } from '@/store';
 import { useFilteredDives, getFreeDivePBIds } from '@/hooks';
 import { SearchInput, Badge } from '@/components/common';
@@ -59,9 +59,9 @@ const DiveCard = ({
       </div>
     </div>
 
-    {/* 第二行：深度、时长、潜水员、伙伴、标签 */}
+    {/* 第二行：深度、时长、心率、潜水员、伙伴、标签 */}
     <div className="flex items-center justify-between pt-2 border-t border-dive-border/30">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 shrink-0">
         {/* 深度 */}
         <div className="flex items-center gap-1">
           <ArrowDown className="w-3.5 h-3.5 text-blue-400" />
@@ -72,6 +72,15 @@ const DiveCard = ({
           <Clock className="w-3.5 h-3.5 text-green-400" />
           <span className="font-mono font-semibold text-sm text-green-400">{formatDuration(dive.duration)}</span>
         </div>
+        {/* 心率：平均/最低 */}
+        {(dive.environment?.avgHeartRate || dive.environment?.minHeartRate) && (
+          <div className="flex items-center gap-1" title="心率 (平均/最低)">
+            <Heart className="w-3.5 h-3.5 text-pink-400" />
+            <span className="font-mono font-semibold text-sm text-pink-400">
+              {dive.environment?.avgHeartRate ?? '-'}/{dive.environment?.minHeartRate ?? '-'}
+            </span>
+          </div>
+        )}
       </div>
       
       {/* 右侧信息 */}
