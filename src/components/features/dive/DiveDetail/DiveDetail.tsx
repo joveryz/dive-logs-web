@@ -3,6 +3,7 @@ import { getFreeDivePBIds, useFilteredDives } from '@/hooks';
 import { useDiveStore, selectSelectedDive } from '@/store';
 import { DiveChart } from '../DiveChart';
 import { DiveStats } from '../DiveStats';
+import { ShareCard, ShareButton } from '../ShareCard';
 import { ResizablePanels } from '@/components/layout';
 import { TabButton, EmptyState } from '@/components/common';
 import { uiLabels } from '@/constants';
@@ -30,6 +31,7 @@ const DetailContent = memo(function DetailContent({
   cursorData: DiveProfilePoint | null;
 }) {
   const [activeTab, setActiveTab] = useState<TabId>('summary');
+  const [showShareCard, setShowShareCard] = useState(false);
   
   // 检查是否是 FreeDive 个人最佳记录
   const freeDivePBIds = getFreeDivePBIds(useDiveStore.getState().dives);
@@ -51,6 +53,11 @@ const DetailContent = memo(function DetailContent({
         <TabButton active={activeTab === 'cursor'} onClick={() => setActiveTab('cursor')}>
           Cursor
         </TabButton>
+        
+        {/* 分享按钮 */}
+        <div className="ml-auto mr-2 flex items-center">
+          <ShareButton onClick={() => setShowShareCard(true)} />
+        </div>
       </div>
 
       {/* Tab 内容 */}
@@ -60,6 +67,9 @@ const DetailContent = memo(function DetailContent({
         {activeTab === 'gases' && <GasesTab dive={dive} />}
         {activeTab === 'cursor' && <CursorTab cursorData={cursorData} />}
       </div>
+      
+      {/* 分享卡片弹窗 */}
+      <ShareCard dive={dive} isOpen={showShareCard} onClose={() => setShowShareCard(false)} />
     </div>
   );
 });

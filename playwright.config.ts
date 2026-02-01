@@ -125,7 +125,7 @@ export default defineConfig({
       name: 'Desktop Breakpoint',
       use: {
         browserName: 'chromium',
-        viewport: { width: 1200, height: 800 },
+        viewport: { width: 1200, height: 1200 },
       },
     },
     
@@ -134,7 +134,7 @@ export default defineConfig({
       name: 'Mobile Breakpoint',
       use: {
         browserName: 'chromium',
-        viewport: { width: 1199, height: 800 },
+        viewport: { width: 1199, height: 1200 },
       },
     },
   ],

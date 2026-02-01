@@ -3,7 +3,7 @@ import { MapPin, ArrowDown, Clock, Filter, Search, ChevronDown, ChevronUp, Heart
 import { useDiveStore, selectDives } from '@/store';
 import { useFilteredDives, getFreeDivePBIds } from '@/hooks';
 import { SearchInput, Badge } from '@/components/common';
-import { formatDuration, formatDepth } from '@/utils';
+import { formatDuration, formatDepth, compareOptional, compareNumbers } from '@/utils';
 import type { SortField, SortDirection, Dive } from '@/types';
 
 // 潜水卡片组件 - 两行紧凑布局
@@ -208,24 +208,22 @@ export function DiveList() {
         case 'duration':
           comparison = a.duration - b.duration;
           break;
-        case 'avgHeartRate': {
-          const aHR = a.environment?.avgHeartRate;
-          const bHR = b.environment?.avgHeartRate;
-          if (aHR == null && bHR == null) comparison = 0;
-          else if (aHR == null) comparison = sortDirection === 'asc' ? 1 : -1;
-          else if (bHR == null) comparison = sortDirection === 'asc' ? -1 : 1;
-          else comparison = aHR - bHR;
+        case 'avgHeartRate':
+          comparison = compareOptional(
+            a.environment?.avgHeartRate,
+            b.environment?.avgHeartRate,
+            compareNumbers,
+            sortDirection
+          );
           break;
-        }
-        case 'minHeartRate': {
-          const aHR = a.environment?.minHeartRate;
-          const bHR = b.environment?.minHeartRate;
-          if (aHR == null && bHR == null) comparison = 0;
-          else if (aHR == null) comparison = sortDirection === 'asc' ? 1 : -1;
-          else if (bHR == null) comparison = sortDirection === 'asc' ? -1 : 1;
-          else comparison = aHR - bHR;
+        case 'minHeartRate':
+          comparison = compareOptional(
+            a.environment?.minHeartRate,
+            b.environment?.minHeartRate,
+            compareNumbers,
+            sortDirection
+          );
           break;
-        }
         default:
           comparison = a.diveNumber - b.diveNumber;
       }
