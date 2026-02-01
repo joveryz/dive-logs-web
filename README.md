@@ -22,7 +22,7 @@ This is a web-based dive log viewer and analyzer.
 
 The raw dive log data is stored in the `./data` directory. The data is exported to CSV files in the `./src/data` directory during the build process.
 
-For Garmin fit files, please name them with `{date}_{diverName}_{buddyName}_{location}_{site}_{tag(optional)}.fit`, e.g., `20251231_Yiqu_Jovery_Beijing_HiDive.fit`.
+For Garmin fit files, please name them with `{date}_{diverName}_{buddyName}_{location}_{site}_{tags(optional)}.fit`, e.g., `20251231_Yiqu_Jovery_Beijing_HiDive.fit`.
 
 If there is no buddy, please use `Solo`, e.g., `20260108_Jovery_Solo_Beijing_HiDive.fit`.
 
@@ -34,6 +34,19 @@ If there is no buddy, please use `Solo`, e.g., `20260108_Jovery_Solo_Beijing_HiD
 - Tailwind CSS
 - Recharts
 - Zustand
+
+## URL Parameters
+
+| Parameter | Values | Description |
+|-----------|--------|-------------|
+| `layout` | `mobile` / `desktop` | Force mobile or desktop layout |
+| `diveNumber` | Number (e.g., `25`) | Auto-select a specific dive |
+| `diver` | Diver name | Filter by diver (case-insensitive) |
+
+Examples:
+- `/?layout=desktop` - Force desktop layout on mobile
+- `/?diveNumber=25` - Open dive #25
+- `/?diver=Yiqu` - Show only Yiqu's dives
 
 ## Quick Start
 
