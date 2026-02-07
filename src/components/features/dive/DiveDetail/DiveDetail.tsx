@@ -3,7 +3,7 @@ import { getFreeDivePBIds, useFilteredDives } from '@/hooks';
 import { useDiveStore, selectSelectedDive } from '@/store';
 import { DiveChart } from '../DiveChart';
 import { DiveStats } from '../DiveStats';
-import { ShareCard, ShareButton } from '../ShareCard';
+import { DiveShareCard, ShareButton } from '../DiveShareCard';
 import { ResizablePanels } from '@/components/layout';
 import { TabButton, EmptyState } from '@/components/common';
 import { uiLabels } from '@/constants';
@@ -69,7 +69,7 @@ const DetailContent = memo(function DetailContent({
       </div>
       
       {/* 分享卡片弹窗 */}
-      <ShareCard dive={dive} isOpen={showShareCard} onClose={() => setShowShareCard(false)} />
+      <DiveShareCard dive={dive} isOpen={showShareCard} onClose={() => setShowShareCard(false)} />
     </div>
   );
 });

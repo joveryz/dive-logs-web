@@ -5,7 +5,7 @@ import { X, Download, Copy, Check, Share2, MapPin, Calendar, Heart, User, ArrowU
 import { formatDuration, formatDepth, isIOS } from '@/utils';
 import type { Dive } from '@/types';
 
-interface ShareCardProps {
+interface DiveShareCardProps {
   dive: Dive;
   isOpen: boolean;
   onClose: () => void;
@@ -14,7 +14,7 @@ interface ShareCardProps {
 /**
  * 分享卡片组件 - 生成可分享的潜水记录图片
  */
-export function ShareCard({ dive, isOpen, onClose }: ShareCardProps) {
+export function DiveShareCard({ dive, isOpen, onClose }: DiveShareCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
