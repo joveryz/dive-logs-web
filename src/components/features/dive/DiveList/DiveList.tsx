@@ -1,5 +1,5 @@
-import { useMemo, useState, useRef, useEffect, useCallback } from 'react';
-import { MapPin, ArrowDown, Clock, Filter, Search, ChevronDown, ChevronUp, Heart } from 'lucide-react';
+import { useMemo, useState, useRef, useEffect, useCallback, memo } from 'react';
+import { MapPin, ArrowDown, Clock, Filter, Search, ChevronDown, ChevronUp, ChevronRight, Heart, Calendar } from 'lucide-react';
 import { useDiveStore, selectDives } from '@/store';
 import { useFilteredDives, getFreeDivePBIds } from '@/hooks';
 import { SearchInput, Badge } from '@/components/common';
@@ -106,6 +106,52 @@ const DiveCard = ({
   </div>
 );
 
+// 日期分组标题组件
+const DateHeader = memo(({ 
+  date, 
+  count, 
+  isExpanded, 
+  onToggle 
+}: { 
+  date: string; 
+  count: number; 
+  isExpanded: boolean;
+  onToggle: () => void;
+}) => (
+  <div
+    onClick={onToggle}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onToggle();
+      }
+    }}
+    tabIndex={0}
+    role="button"
+    aria-expanded={isExpanded}
+    className="sticky top-0 z-10 flex items-center justify-between px-3 py-2 bg-dive-surface/95 backdrop-blur border-b border-dive-border/30 cursor-pointer hover:bg-dive-card/50 transition-colors group"
+  >
+    <div className="flex items-center gap-2">
+      {isExpanded ? (
+        <ChevronDown className="w-4 h-4 text-dive-text-muted group-hover:text-cyan-400 transition-colors" />
+      ) : (
+        <ChevronRight className="w-4 h-4 text-dive-text-muted group-hover:text-cyan-400 transition-colors" />
+      )}
+      <Calendar className="w-4 h-4 text-cyan-400" />
+      <span className="text-sm font-medium text-dive-text">{date}</span>
+    </div>
+    <Badge variant="default" className="text-xs">
+      {count} dive{count > 1 ? 's' : ''}
+    </Badge>
+  </div>
+));
+DateHeader.displayName = 'DateHeader';
+
+// 分组项类型
+type GroupedItem = 
+  | { type: 'header'; date: string; count: number }
+  | { type: 'dive'; date: string; dive: Dive };
+
 export function DiveList() {
   const { 
     selectedDiveId, 
@@ -171,6 +217,20 @@ export function DiveList() {
   const [sortField, setSortField] = useState<SortField>('diveNumber');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [showFilters, setShowFilters] = useState(false);
+  const [collapsedDates, setCollapsedDates] = useState<Set<string>>(new Set());
+
+  // 切换日期折叠状态
+  const toggleDateCollapse = useCallback((date: string) => {
+    setCollapsedDates(prev => {
+      const next = new Set(prev);
+      if (next.has(date)) {
+        next.delete(date);
+      } else {
+        next.add(date);
+      }
+      return next;
+    });
+  }, []);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // 恢复滚动位置
@@ -237,6 +297,45 @@ export function DiveList() {
   const freeDivePBIds = useMemo(() => {
     return getFreeDivePBIds(allDives);
   }, [allDives]);
+
+  // 是否启用日期分组（仅在 diveNumber 或 date 排序时）
+  const enableDateGrouping = sortField === 'diveNumber' || sortField === 'date';
+
+  // 按日期分组的列表项
+  const groupedItems = useMemo<GroupedItem[]>(() => {
+    if (!enableDateGrouping) return [];
+
+    // 按日期分组
+    const groups = new Map<string, Dive[]>();
+    for (const dive of sortedDives) {
+      const existing = groups.get(dive.date);
+      if (existing) {
+        existing.push(dive);
+      } else {
+        groups.set(dive.date, [dive]);
+      }
+    }
+
+    // 转换为扁平列表
+    const items: GroupedItem[] = [];
+    // 日期组顺序与当前排序方向一致
+    const sortedDates = Array.from(groups.keys()).sort((a, b) => {
+      const cmp = a.localeCompare(b);
+      return sortDirection === 'asc' ? cmp : -cmp;
+    });
+
+    for (const date of sortedDates) {
+      const dives = groups.get(date)!;
+      items.push({ type: 'header', date, count: dives.length });
+      if (!collapsedDates.has(date)) {
+        for (const dive of dives) {
+          items.push({ type: 'dive', date, dive });
+        }
+      }
+    }
+
+    return items;
+  }, [enableDateGrouping, sortedDives, sortDirection, collapsedDates]);
   
   // 键盘导航处理
   const handleKeyDown = (e: React.KeyboardEvent, diveId: string) => {
@@ -426,16 +525,41 @@ export function DiveList() {
       
       {/* 卡片列表 */}
       <div ref={containerRef} className="flex-1 overflow-auto p-3 space-y-2" onScroll={handleScroll}>
-        {sortedDives.map((dive) => (
-          <DiveCard
-            key={dive.id}
-            dive={dive}
-            isSelected={selectedDiveId === dive.id}
-            isPB={dive.diveType === 'FreeDive' && freeDivePBIds.has(dive.id)}
-            onClick={() => setSelectedDiveId(dive.id)}
-            onKeyDown={(e) => handleKeyDown(e, dive.id)}
-          />
-        ))}
+        {enableDateGrouping ? (
+          // 日期分组模式
+          groupedItems.map((item) => 
+            item.type === 'header' ? (
+              <DateHeader
+                key={`header-${item.date}`}
+                date={item.date}
+                count={item.count}
+                isExpanded={!collapsedDates.has(item.date)}
+                onToggle={() => toggleDateCollapse(item.date)}
+              />
+            ) : (
+              <DiveCard
+                key={item.dive.id}
+                dive={item.dive}
+                isSelected={selectedDiveId === item.dive.id}
+                isPB={item.dive.diveType === 'FreeDive' && freeDivePBIds.has(item.dive.id)}
+                onClick={() => setSelectedDiveId(item.dive.id)}
+                onKeyDown={(e) => handleKeyDown(e, item.dive.id)}
+              />
+            )
+          )
+        ) : (
+          // 普通排序模式
+          sortedDives.map((dive) => (
+            <DiveCard
+              key={dive.id}
+              dive={dive}
+              isSelected={selectedDiveId === dive.id}
+              isPB={dive.diveType === 'FreeDive' && freeDivePBIds.has(dive.id)}
+              onClick={() => setSelectedDiveId(dive.id)}
+              onKeyDown={(e) => handleKeyDown(e, dive.id)}
+            />
+          ))
+        )}
         {sortedDives.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <Search className="w-12 h-12 text-dive-text-muted/50 mb-3" />
