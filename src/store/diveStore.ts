@@ -39,6 +39,8 @@ interface DiveState {
   chartSelectedSeries: string | null;
   /** 移动端横屏是否显示全屏图表 */
   showLandscapeChart: boolean;
+  /** 是否显示筛选后的临时序号 */
+  showFilteredIndex: boolean;
 }
 
 /**
@@ -81,6 +83,8 @@ interface DiveActions {
   setChartSelectedSeries: (key: string | null) => void;
   /** 设置横屏是否显示全屏图表 */
   setShowLandscapeChart: (show: boolean) => void;
+  /** 设置是否显示筛选后的临时序号 */
+  setShowFilteredIndex: (show: boolean) => void;
 }
 
 /**
@@ -121,6 +125,7 @@ const initialState: DiveState = {
   chartSeriesVisibility: {},
   chartSelectedSeries: 'ascentRate',
   showLandscapeChart: false,
+  showFilteredIndex: false,
 };
 
 /**
@@ -231,6 +236,10 @@ export const useDiveStore = create<DiveStore>()(
 
       setShowLandscapeChart: (show) => {
         set({ showLandscapeChart: show }, false, 'setShowLandscapeChart');
+      },
+
+      setShowFilteredIndex: (show) => {
+        set({ showFilteredIndex: show }, false, 'setShowFilteredIndex');
       },
     }),
     {

@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef, useEffect, useCallback, memo } from 'react';
-import { MapPin, ArrowDown, Clock, Filter, Search, ChevronDown, ChevronUp, ChevronRight, Heart, Calendar } from 'lucide-react';
+import { MapPin, ArrowDown, Clock, Filter, Search, ChevronDown, ChevronUp, ChevronRight, Heart, Calendar, ListOrdered } from 'lucide-react';
 import { useDiveStore, selectDives } from '@/store';
 import { useFilteredDives, getFreeDivePBIds } from '@/hooks';
 import { SearchInput, Badge } from '@/components/common';
@@ -11,12 +11,14 @@ const DiveCard = ({
   dive, 
   isSelected, 
   isPB, 
+  displayNumber,
   onClick,
   onKeyDown 
 }: { 
   dive: Dive; 
   isSelected: boolean; 
   isPB: boolean;
+  displayNumber?: number;
   onClick: () => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
 }) => (
@@ -36,7 +38,7 @@ const DiveCard = ({
     <div className="flex items-center justify-between mb-2">
       <div className="flex items-center gap-2 min-w-0 flex-1">
         <span className={`text-xl font-bold tabular-nums shrink-0 leading-none ${isSelected ? 'text-cyan-400' : 'text-dive-text group-hover:text-cyan-400'}`}>
-          #{dive.diveNumber}
+          #{displayNumber !== undefined ? displayNumber : dive.diveNumber}
         </span>
         <Badge variant={dive.diveType} className="text-xs whitespace-nowrap shrink-0">{dive.diveType}</Badge>
         {isPB && (
@@ -173,7 +175,9 @@ export function DiveList() {
     filterSite,
     setFilterSite,
     listScrollTop,
-    setListScrollTop
+    setListScrollTop,
+    showFilteredIndex,
+    setShowFilteredIndex
   } = useDiveStore();
   const filteredDives = useFilteredDives();
   const allDivesForTypes = useDiveStore(selectDives);
@@ -336,6 +340,16 @@ export function DiveList() {
 
     return items;
   }, [enableDateGrouping, sortedDives, sortDirection, collapsedDates]);
+
+  // 计算每个 dive 的显示序号映射（基于 sortedDives 索引，倒序）
+  const diveIndexMap = useMemo(() => {
+    const map = new Map<string, number>();
+    const total = sortedDives.length;
+    sortedDives.forEach((dive, index) => {
+      map.set(dive.id, total - index);
+    });
+    return map;
+  }, [sortedDives]);
   
   // 键盘导航处理
   const handleKeyDown = (e: React.KeyboardEvent, diveId: string) => {
@@ -384,6 +398,23 @@ export function DiveList() {
             >
               <Filter className="w-3 h-3" />
               {filterValidDivesOnly ? 'Valid' : 'All'}
+            </button>
+            
+            {/* 临时序号 Toggle */}
+            <button
+              type="button"
+              role="switch"
+              aria-checked={showFilteredIndex}
+              aria-label="Show filtered index numbers"
+              onClick={() => setShowFilteredIndex(!showFilteredIndex)}
+              className={`h-6 px-2 flex items-center justify-center gap-1 rounded text-xs font-medium transition-all ${
+                showFilteredIndex 
+                  ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' 
+                  : 'bg-dive-card/50 text-dive-text-muted border border-transparent hover:text-dive-text-secondary'
+              }`}
+            >
+              <ListOrdered className="w-3 h-3" />
+              Renumber
             </button>
             
             {/* 潜水员筛选器 */}
@@ -542,6 +573,7 @@ export function DiveList() {
                 dive={item.dive}
                 isSelected={selectedDiveId === item.dive.id}
                 isPB={item.dive.diveType === 'FreeDive' && freeDivePBIds.has(item.dive.id)}
+                displayNumber={showFilteredIndex ? diveIndexMap.get(item.dive.id) : undefined}
                 onClick={() => setSelectedDiveId(item.dive.id)}
                 onKeyDown={(e) => handleKeyDown(e, item.dive.id)}
               />
@@ -549,12 +581,13 @@ export function DiveList() {
           )
         ) : (
           // 普通排序模式
-          sortedDives.map((dive) => (
+          sortedDives.map((dive, index) => (
             <DiveCard
               key={dive.id}
               dive={dive}
               isSelected={selectedDiveId === dive.id}
               isPB={dive.diveType === 'FreeDive' && freeDivePBIds.has(dive.id)}
+              displayNumber={showFilteredIndex ? sortedDives.length - index : undefined}
               onClick={() => setSelectedDiveId(dive.id)}
               onKeyDown={(e) => handleKeyDown(e, dive.id)}
             />
